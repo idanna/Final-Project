@@ -8,12 +8,21 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
-public class DayEvents extends Activity implements OnClickListener 
+public class EventView extends Activity implements OnClickListener 
 {	
-	DatePicker date_picker; 
-	TimePicker time_picker;
+	protected DatePicker date_picker; 
+	protected TimePicker time_picker;
+	protected TextView location_text;
+	protected TextView details_text;
+	protected Event event;
+	
+	public EventView (Event event)
+	{
+		this.event = event == null? new Event() : event;
+	}
 	
    /** Called when the activity is first created. */
    @Override
@@ -25,10 +34,20 @@ public class DayEvents extends Activity implements OnClickListener
 	   	date_picker = (DatePicker) this.findViewById(R.id.datePicker1);
 	   	time_picker = (TimePicker) this.findViewById(R.id.timePicker1);
 	   	
+	   	setPageFields();
+	   	
 	   	((Button)this.findViewById(R.id.add_event_btn)).setOnClickListener(this);
    	}
    
-   @Override
+   private void setPageFields() 
+   {
+	   date_picker.updateDate(event.getYear(), event.getMonth(), event.getDay());
+	   time_picker.setCurrentHour(event.getHour());
+	   time_picker.setCurrentMinute(event.getMin());
+	   	
+   }
+
+@Override
    protected void onStart()
    {
 	   super.onStart();
@@ -56,7 +75,6 @@ public class DayEvents extends Activity implements OnClickListener
    	@Override
 	public void onClick(View v)
    	{
-   		Event event = new Event();   		
    		event.setDay(date_picker.getDayOfMonth());
    		event.setMonth(date_picker.getMonth());
    		event.setYear(date_picker.getYear());
@@ -65,7 +83,7 @@ public class DayEvents extends Activity implements OnClickListener
    		
    		//TODO: set event location and details
    		
-   		//TODO: push event to events DB
+   		//TODO: push event to DB
    	}
 	   
 }
