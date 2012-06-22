@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import database.Event;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -38,6 +40,7 @@ public class CalendarView extends Activity implements OnClickListener
 		private Button currentMonth;
 		private ImageView prevMonth;
 		private ImageView nextMonth;
+		private Button newEventBtn;
 		private GridView calendarView;
 		private GridCellAdapter adapter;
 		private Calendar _calendar;
@@ -63,6 +66,9 @@ public class CalendarView extends Activity implements OnClickListener
 				selectedDayMonthYearButton = (Button) this.findViewById(R.id.selectedDayMonthYear);
 				selectedDayMonthYearButton.setText("Selected: ");
 
+				newEventBtn = (Button) this.findViewById(R.id.new_eve_btn);
+				newEventBtn.setOnClickListener(this);
+				
 				prevMonth = (ImageView) this.findViewById(R.id.prevMonth);
 				prevMonth.setOnClickListener(this);
 
@@ -86,6 +92,8 @@ public class CalendarView extends Activity implements OnClickListener
 				adapter.add("Hello2");
 				adapter.add("Hello3");
 				events_list.setAdapter(adapter);
+				
+				
 				
 			}
 
@@ -134,6 +142,15 @@ public class CalendarView extends Activity implements OnClickListener
 						Log.d(tag, "Setting Next Month in GridCellAdapter: " + "Month: " + month + " Year: " + year);
 						setGridCellAdapterToDate(month, year);
 					}
+				if (v == newEventBtn)
+				{
+					//TODO: send new event with current time and date
+					Event newEvent = Event.createNewInstance();
+					
+					Intent intent = new Intent(this, EventView.class);	
+					intent.putExtra("event", newEvent);
+					startActivityForResult(intent, 0);
+				}
 
 			}
 
@@ -404,8 +421,7 @@ public class CalendarView extends Activity implements OnClickListener
 				public void onClick(View view)
 					{
 						String date_month_year = (String) view.getTag();
-						selectedDayMonthYearButton.setText("Selected: " + date_month_year);
-						
+						selectedDayMonthYearButton.setText("Selected: " + date_month_year);						
 						
 						try
 							{
@@ -416,12 +432,7 @@ public class CalendarView extends Activity implements OnClickListener
 						catch (ParseException e)
 							{
 								e.printStackTrace();
-							}
-						
-		                Intent intent = new Intent(view.getContext(), EventView.class);
-		                intent.putExtra("date", date_month_year);
-		                startActivityForResult(intent, 0);
-						
+							}						
 					}
 
 				public int getCurrentDayOfMonth()

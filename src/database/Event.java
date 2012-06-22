@@ -1,6 +1,12 @@
 package database;
 
-public class Event {
+import java.io.Serializable;
+
+
+public class Event implements Serializable
+{
+	private static final long serialVersionUID = 1L;
+	
 	private long id;
 	private int day;
 	private int month;
@@ -9,6 +15,17 @@ public class Event {
 	private int min;
 	private String location;
 	private String details;
+	
+	private Event()
+	{ };
+	
+	public static Event createNewInstance()
+	{
+		Event event = new Event();
+		event.setLocation("");
+   		event.setDetails("");
+   		return event;
+	}
 	
 	public long getId() {
 		return id;

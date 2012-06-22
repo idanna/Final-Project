@@ -94,7 +94,7 @@ public class DbAdapter
 
 	private Event cursorToEvent(Cursor cursor) 
 	{
-		Event event = new Event();
+		Event event = Event.createNewInstance();
 		event.setId(cursor.getLong(0));
 		event.setDay(cursor.getInt(1));
 		event.setMonth(cursor.getInt(2));
