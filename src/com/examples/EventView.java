@@ -8,15 +8,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.TimePicker;
 
 public class EventView extends Activity implements OnClickListener 
 {	
 	protected DatePicker date_picker; 
 	protected TimePicker time_picker;
-	protected TextView location_text;
-	protected TextView details_text;
+	protected EditText location_text;
+	protected EditText details_text;
 	protected Event event;
 	
 	public EventView (Event event)
@@ -31,8 +31,10 @@ public class EventView extends Activity implements OnClickListener
 	   	super.onCreate(savedInstanceState);
 	   	setContentView(R.layout.day_events);
 	   	
-	   	date_picker = (DatePicker) this.findViewById(R.id.datePicker1);
-	   	time_picker = (TimePicker) this.findViewById(R.id.timePicker1);
+	   	date_picker = (DatePicker) this.findViewById(R.id.datePicker);
+	   	time_picker = (TimePicker) this.findViewById(R.id.timePicker);
+	   	location_text = (EditText) this.findViewById(R.id.locationText);
+	   	details_text = (EditText) this.findViewById(R.id.detailsText);
 	   	
 	   	setPageFields();
 	   	
