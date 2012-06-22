@@ -16,8 +16,14 @@ public class DbAdapter
 	private SQLiteDatabase database;
 	private Connection connection;
 	private String[] allColumns = { Connection.COLUMN_ID,
-			Connection.COLUMN_DATE };
-
+									Connection.COLUMN_DAY, 
+									Connection.COLUMN_MONTH,
+									Connection.COLUMN_YEAR,
+									Connection.COLUMN_HOUR,
+									Connection.COLUMN_MIN,
+									Connection.COLUMN_LOCATION,
+									Connection.COLUMN_DETAILS };
+	
 	public DbAdapter(Context context) 
 	{
 		connection = new Connection(context);
@@ -33,19 +39,30 @@ public class DbAdapter
 		connection.close();
 	}
 
-	public Event createComment(String comment) 
+	public Event createEvent(Event event) 
 	{
+		//Maybe we need to keep table sorted by date time, might be a good optimization
+		
 		ContentValues values = new ContentValues();
-		values.put(Connection.COLUMN_DATE, comment);
+		
+		values.put(Connection.COLUMN_DAY, event.getDay());
+		values.put(Connection.COLUMN_MONTH, event.getMonth());
+		values.put(Connection.COLUMN_YEAR, event.getYear());
+		values.put(Connection.COLUMN_HOUR, event.getHour());
+		values.put(Connection.COLUMN_MIN, event.getMin());
+		values.put(Connection.COLUMN_LOCATION, event.getLocation());
+		values.put(Connection.COLUMN_DETAILS, event.getDetails());
+		
 		long insertId = database.insert(Connection.TABLE_EVENTS, null,
 				values);
 		Cursor cursor = database.query(Connection.TABLE_EVENTS,
 				allColumns, Connection.COLUMN_ID + " = " + insertId, null,
 				null, null, null);
+		
 		cursor.moveToFirst();
-		Event newComment = cursorToEvent(cursor);
+		Event newEvent = cursorToEvent(cursor);
 		cursor.close();
-		return newComment;
+		return newEvent;
 	}
 
 	public void deleteEvent(Event event) 
@@ -79,7 +96,13 @@ public class DbAdapter
 	{
 		Event event = new Event();
 		event.setId(cursor.getLong(0));
-		event.setDate(cursor.getString(1));
+		event.setDay(cursor.getInt(1));
+		event.setMonth(cursor.getInt(2));
+		event.setYear(cursor.getInt(3));
+		event.setHour(cursor.getInt(4));
+		event.setMin(cursor.getInt(5));
+		event.setLocation(cursor.getString(6));
+		event.setDetails(cursor.getString(7));
 		return event;
 	}
 }

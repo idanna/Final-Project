@@ -1,17 +1,13 @@
 package com.examples;
 
-
-import java.sql.Date;
-import java.util.EventListener;
+import database.Event;
 
 import android.app.Activity;
-import android.location.GpsStatus.Listener;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.TextView;
 import android.widget.TimePicker;
 
 public class DayEvents extends Activity implements OnClickListener 
@@ -38,12 +34,17 @@ public class DayEvents extends Activity implements OnClickListener
 	   super.onStart();
 	   // setting the content for the current date:
 	   String title = "Events for the:" + getDate(); 
+
+	   //TODO: update date_picker from the current event instance
+	   //TODO: update time_picker from the current event instance
    }
    
    	private String getDate()
    	{
    		Bundle extras = getIntent().getExtras();
-   		String date = "Error with date"; // for debuging.
+   		
+   		//TODO: insert to log error if needed
+   		String date = "Error with date";
    		if(extras !=null) 
    		{
    			date = extras.getString("date");
@@ -55,9 +56,16 @@ public class DayEvents extends Activity implements OnClickListener
    	@Override
 	public void onClick(View v)
    	{
-   		@SuppressWarnings("deprecation")
-		Date date = new Date(date_picker.getYear(), date_picker.getMonth(), date_picker.getDayOfMonth());
+   		Event event = new Event();   		
+   		event.setDay(date_picker.getDayOfMonth());
+   		event.setMonth(date_picker.getMonth());
+   		event.setYear(date_picker.getYear());
+   		event.setHour(time_picker.getCurrentHour());
+   		event.setMin(time_picker.getCurrentHour());
    		
+   		//TODO: set event location and details
+   		
+   		//TODO: push event to events DB
    	}
 	   
 }

@@ -2,36 +2,78 @@ package database;
 
 public class Event {
 	private long id;
-	private String date;
-	private String time;
-
+	private int day;
+	private int month;
+	private int year;
+	private int hour;
+	private int min;
+	private String location;
+	private String details;
+	
 	public long getId() {
 		return id;
 	}
-
+	
 	public void setId(long id) {
 		this.id = id;
 	}
-
-	public String getDate() {
-		return date;
+	
+	public String getLocation() {
+		return location;
 	}
 
-	public void setDate(String date) {
-		this.date = date;
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
-	// Will be used by the ArrayAdapter in the ListView
-	@Override
-	public String toString() {
-		return date;
+	public String getDetails() {
+		return details;
 	}
 
-	public String getTime() {
-		return time;
+	public void setDetails(String details) {
+		this.details = details;
 	}
 
-	public void setTime(String time) {
-		this.time = time;
+	public int getDay() {
+		return day;
 	}
+
+	public void setDay(int day) {
+		this.day = day;
+	}
+
+	public int getYear() {
+		return year;
+	}
+
+	public void setYear(int year) {
+		this.year = year;
+	}
+
+	public int getMin() {
+		return min;
+	}
+
+	public void setMin(int min) {
+		this.min = min;
+	}
+
+	public int getMonth() {
+		return month;
+	}
+
+	public void setMonth(int month) {
+		this.month = month;
+	}
+
+	public int getHour() {
+		return hour;
+	}
+
+	public void setHour(int hour) {
+		this.hour = hour;
+	}
+
+
+
 }
