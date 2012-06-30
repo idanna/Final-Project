@@ -1,6 +1,7 @@
 package database;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -8,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class DbAdapter 
 {
@@ -53,11 +55,9 @@ public class DbAdapter
 		values.put(Connection.COLUMN_LOCATION, event.getLocation());
 		values.put(Connection.COLUMN_DETAILS, event.getDetails());
 		
-		long insertId = database.insert(Connection.TABLE_EVENTS, null,
-				values);
-		Cursor cursor = database.query(Connection.TABLE_EVENTS,
-				allColumns, Connection.COLUMN_ID + " = " + insertId, null,
-				null, null, null);
+		long insertId = database.insert(Connection.TABLE_EVENTS, null, values);
+		Cursor cursor = database.query(Connection.TABLE_EVENTS, allColumns, Connection.COLUMN_ID + " = " + insertId, null,
+										null, null, null);
 		
 		cursor.moveToFirst();
 		Event newEvent = cursorToEvent(cursor);
@@ -72,20 +72,46 @@ public class DbAdapter
 		database.delete(Connection.TABLE_EVENTS, Connection.COLUMN_ID
 				+ " = " + id, null);
 	}
-
+	
+	public HashMap<Integer, List<Event>> getEventsMapForMonth(int month)
+	{
+		//TODO: quickly replace 31 to the const MAX_DAYS_IN_MONTH
+		HashMap<Integer, List<Event>> eventsMap = new HashMap<Integer, List<Event>>(31);
+		//TODO: optimize this by sorting by the day.
+		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE month='" + month +"'", null); 
+				//database.query(Connection.TABLE_EVENTS, allColumns, Connection.COLUMN_MONTH + "=" + month, 
+				//null, null, null, null);
+	
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) 
+		{
+			Event event = cursorToEvent(cursor);
+			List<Event> dayList = eventsMap.get(event.getDay());
+			if (dayList == null) // first event for day
+			{
+				dayList = new ArrayList<Event>();
+				eventsMap.put(new Integer(event.getDay()), dayList);
+			}
+			dayList.add(event);
+			cursor.moveToNext();
+		}
+		
+		return eventsMap;
+	}
+	
 	public List<Event> getAllComments() 
 	{
 		List<Event> events = new ArrayList<Event>();
 
 		Cursor cursor = database.query(Connection.TABLE_EVENTS,
 				allColumns, null, null, null, null, null);
-
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			Event event = cursorToEvent(cursor);
 			events.add(event);
 			cursor.moveToNext();
 		}
+
 		
 		// Make sure to close the cursor
 		cursor.close();

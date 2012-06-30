@@ -1,13 +1,9 @@
 package database;
 
-import java.io.Serializable;
-
-
-public class Event implements Serializable
+public class Event
 {
-	private static final long serialVersionUID = 1L;
-	
 	private long id;
+	//TODO: should be all changed to string
 	private int day;
 	private int month;
 	private int year;
@@ -19,12 +15,43 @@ public class Event implements Serializable
 	private Event()
 	{ };
 	
+	/**
+	 * returning the event in format dd-MM-YY|HH:mm|location|details
+	 */
+	@Override
+	public String toString() 
+	{
+		return day + "-" + month + "-" + year + "|" + hour + ":" + min + "|" + location + "|" + details;
+	}
+
 	public static Event createNewInstance()
 	{
 		Event event = new Event();
 		event.setLocation("");
    		event.setDetails("");
    		return event;
+	}
+	
+	/**
+	 * 
+	 * @param eventStr - Should be in the format dd-MM-YY|HH:mm|location|details
+	 * @return new event parsed from string
+	 */
+	public static Event CreateFromString(String eventStr) 
+	{
+		Event e = new Event();
+		String[] prop = eventStr.split("\\|");
+		String[] date = prop[0].split("-");
+		String[] time = prop[1].split("\\:");
+		e.day = Integer.parseInt(date[0]);
+		e.month = Integer.parseInt(date[1]);
+		e.year = Integer.parseInt(date[2]);
+		e.hour = Integer.parseInt(time[0]);
+		e.min = Integer.parseInt(time[1]);
+		e.location = prop[2];
+		e.details = prop[3];
+		
+		return e;
 	}
 	
 	public long getId() {
@@ -90,7 +117,4 @@ public class Event implements Serializable
 	public void setHour(int hour) {
 		this.hour = hour;
 	}
-
-
-
 }

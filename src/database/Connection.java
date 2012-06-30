@@ -21,6 +21,8 @@ public class Connection extends SQLiteOpenHelper {
 	private static final int DATABASE_VERSION = 1;
 
 	// Database creation sql statement
+	//DOTO: why the date is an int ?!
+	// is an arithmetic operation is needed ?
 	private static final String DATABASE_CREATE = "create table "
 			+ TABLE_EVENTS + "(" 
 			+ COLUMN_ID + " integer primary key autoincrement, " 
@@ -30,7 +32,7 @@ public class Connection extends SQLiteOpenHelper {
 			+ COLUMN_HOUR + " int not null,"
 			+ COLUMN_MIN + " int not null,"
 			+ COLUMN_LOCATION + " text not null,"
-			+ COLUMN_DETAILS + " text,);";
+			+ COLUMN_DETAILS + " text);";
 
 	public Connection(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
