@@ -1,6 +1,7 @@
 package clock.db;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -98,7 +99,7 @@ public class DbAdapter
 		return eventsMap;
 	}
 	
-	public List<Event> getAllComments() 
+	public List<Event> getAllEvents() 
 	{
 		List<Event> events = new ArrayList<Event>();
 
@@ -116,7 +117,35 @@ public class DbAdapter
 		cursor.close();
 		return events;
 	}
-
+	
+	
+	/**
+	 * get the next event from the database.
+	 * returns null if no upcoming events.
+	 */
+	public Event getNextEvent()
+	{
+		Cursor cursor = database.rawQuery("select * from events order by year desc, month desc, day desc, hour desc, min desc limit 1", null);
+		cursor.moveToFirst();
+		Calendar latestEvent = cursorToCalander(cursor);
+		Calendar now = Calendar.getInstance();
+		cursor.moveToFirst();
+		Event retEvent = null;
+		//if (latestEvent.compareTo(now) >= 0) // latest event is not relevant.
+		{
+			retEvent = cursorToEvent(cursor);
+		}
+		
+		return retEvent;
+	}
+	
+	private Calendar cursorToCalander(Cursor cursor)
+	{
+		Calendar c = Calendar.getInstance();
+		c.set(cursor.getInt(3), cursor.getInt(2), cursor.getInt(1), cursor.getInt(4), cursor.getInt(5));
+		return c;		
+	}
+	
 	private Event cursorToEvent(Cursor cursor) 
 	{
 		Event event = Event.createNewInstance();

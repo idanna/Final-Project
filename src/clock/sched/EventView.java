@@ -80,24 +80,12 @@ public class EventView extends Activity implements OnClickListener
 	   // saving event to the database
 	   saveToDB();
 	   // setting the alarm, should we ?
-	   setAlarm();
+	   //setAlarm();
 	   Intent i = this.getIntent();
 	   i.putExtra("newEvent", event.toString());
 	   setResult(RESULT_OK, i);
 	   //Close activity
 	   finish();
-	}
-
-	private void setAlarm() 
-	{
-		AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-		Intent intent = new Intent(this, AlarmReceiver.class);
-		intent.putExtra("event_details", event.getDetails());
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-		Calendar time = Calendar.getInstance();
-		Log.d("ALARM", event.toString());
-		time.set(event.getYear(), event.getMonth(), event.getDay(), event.getHour(), event.getMin(), 0);
-		alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);
 	}
 
 	private void saveToDB() 

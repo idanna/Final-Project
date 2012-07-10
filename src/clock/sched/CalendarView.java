@@ -18,6 +18,8 @@ import clock.sched.R;
 
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -49,9 +51,11 @@ public class CalendarView extends Activity implements OnClickListener {
 	private int month, year;
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";
-
+	
 	// $$ added:
 	private ListView eventsList;
+	private Event nextEvent;
+	private DbAdapter dbAdapter;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -88,6 +92,19 @@ public class CalendarView extends Activity implements OnClickListener {
 		adapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
 		adapter.notifyDataSetChanged();
 		calendarView.setAdapter(adapter);
+		dbAdapter = new DbAdapter(this);
+		
+		// setting the next event.
+		dbAdapter.open();
+		nextEvent = dbAdapter.getNextEvent();
+		dbAdapter.close();
+		
+		try {
+			Log.d("NEXT-EVENT", nextEvent.toString());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -104,8 +121,7 @@ public class CalendarView extends Activity implements OnClickListener {
 		adapter.notifyDataSetChanged();
 		calendarView.setAdapter(adapter);
 	}
-
-
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) 
 	{
@@ -122,6 +138,13 @@ public class CalendarView extends Activity implements OnClickListener {
 			ArrayAdapter<String> eventsAdapter = (ArrayAdapter<String>) eventsList.getAdapter();
 			eventsAdapter.add(newEvent.getLocation());
 			eventsAdapter.notifyDataSetChanged();
+			
+			AlarmReceiver.setAlarm(this, newEvent);
+			
+			if(Event.isEarlier(newEvent, nextEvent))
+			{
+				nextEvent = newEvent;
+			}
 		}
 	}
 	
@@ -338,15 +361,12 @@ public class CalendarView extends Activity implements OnClickListener {
 
 			// Trailing Month days
 			for (int i = 0; i < trailingSpaces; i++) {
-				Log.d(tag,
-						"PREV MONTH:= "
-								+ prevMonth
-								+ " => "
-								+ getMonthAsString(prevMonth)
-								+ " "
-								+ String.valueOf((daysInPrevMonth
-										- trailingSpaces + DAY_OFFSET)
-										+ i));
+				Log.d(tag, "PREV MONTH:= "
+							+ prevMonth
+							+ " => "
+							+ getMonthAsString(prevMonth)
+							+ " "
+							+ String.valueOf((daysInPrevMonth - trailingSpaces + DAY_OFFSET) + i));
 				list.add(String.valueOf((daysInPrevMonth - trailingSpaces + DAY_OFFSET)	+ i)
 						+ "-GREY"
 						+ "-"
@@ -403,9 +423,12 @@ public class CalendarView extends Activity implements OnClickListener {
 			String theday = day_color[0];
 			String themonth = day_color[2];
 			String theyear = day_color[3];
-			if ((!eventsPerMonthMap.isEmpty()) && (eventsPerMonthMap != null)) {
-				if (eventsPerMonthMap.containsKey(theday)) {
+			if ((!eventsPerMonthMap.isEmpty()) && (eventsPerMonthMap != null)) 
+			{
+				if (eventsPerMonthMap.containsKey(theday)) 
+				{
 					num_events_per_day = (TextView) row.findViewById(R.id.num_events_per_day);
+					Log.d("DATE:", theday + ": " + num_events_per_day);
 					Integer numEvents = (Integer) eventsPerMonthMap.get(theday).size();
 					num_events_per_day.setText(numEvents.toString());
 				}

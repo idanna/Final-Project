@@ -1,5 +1,8 @@
 package clock.db;
 
+import java.util.Calendar;
+
+import android.R.bool;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
@@ -69,6 +72,18 @@ public class Event
 	   this.min = time.getCurrentMinute();
 	   this.location = location.getText().toString();
 	   this.details = details.getText().toString();
+	}
+	
+	/**
+	 * return true if and only if the first event is earlier (or at the same time as) then the second.
+	 */
+	public static boolean isEarlier(Event newEvent, Event nextEvent) 
+	{
+		Calendar first = Calendar.getInstance();
+		Calendar second = Calendar.getInstance();
+		first.set(newEvent.year, newEvent.month, newEvent.day, newEvent.hour, newEvent.min);
+		second.set(nextEvent.year, nextEvent.month, nextEvent.day, nextEvent.hour, nextEvent.min);
+		return first.compareTo(second) <= 0 ? true : false;
 	}
 	
 	public long getId() {
