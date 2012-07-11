@@ -33,7 +33,7 @@ public class Scheduler implements LocationListener {
 		this.deviceLocation = new DeviceLocation();
 		this.googleHandler = new GDataHandler();
 		
-		//$$ for now:
+		//$$ for now i test it via constructor, the call is the first thing in CalenderView:
 		doYourThing();
 	}
 	

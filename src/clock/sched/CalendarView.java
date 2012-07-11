@@ -60,7 +60,7 @@ public class CalendarView extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) 
 	{
 		
-		// $$ test location:
+		// $$ test the scheduler - just to check how it works:
 		Scheduler sched = new Scheduler(this);
 		
 		
