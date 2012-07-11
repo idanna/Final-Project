@@ -18,8 +18,6 @@ import clock.sched.R;
 
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -60,7 +58,7 @@ public class CalendarView extends Activity implements OnClickListener {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) 
-	{
+	{	
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.simple_calendar_view);
 
