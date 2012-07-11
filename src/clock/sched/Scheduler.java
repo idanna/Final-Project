@@ -18,7 +18,6 @@ public class Scheduler implements LocationListener {
 		
 		public String getGoogleFormattedLoction()
 		{
-			//TODO: check for the right format when using lat/long as origin instead of address
 			return latitude + "," + longtitude;
 		}
 	}
