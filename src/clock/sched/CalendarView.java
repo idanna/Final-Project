@@ -58,7 +58,13 @@ public class CalendarView extends Activity implements OnClickListener {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) 
-	{	
+	{
+		
+		// $$ test location:
+		Scheduler sched = new Scheduler(this);
+		
+		
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.simple_calendar_view);
 
