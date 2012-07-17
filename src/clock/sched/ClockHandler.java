@@ -10,14 +10,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.util.Log;
 
-public class AlarmReceiver extends BroadcastReceiver 
+public class ClockHandler extends BroadcastReceiver 
 {
 	public static void setAlarm(Context c, Event event) 
 	{
 		AlarmManager alarmMgr = (AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
-		Intent intent = new Intent(c, AlarmReceiver.class);
+		Intent intent = new Intent(c, ClockHandler.class);
 		intent.putExtra("eventStr", event.toString());
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(c, 0, intent, 0);
 		Calendar time = Calendar.getInstance();
@@ -25,6 +26,15 @@ public class AlarmReceiver extends BroadcastReceiver
 		time.set(event.getYear(), event.getMonth(), event.getDay(), event.getHour(), event.getMin(), 0);
 		alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);
 	}
+	
+	public static long getTimesLeftToEvent(Event event)
+	{
+		Calendar currentCalendar = Calendar.getInstance();
+		Calendar eventCalendar = event.eventToCalendar();
+				
+		return eventCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis();
+	}
+	
 	
 	@Override
 	public void onReceive(Context context, Intent i) 

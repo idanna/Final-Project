@@ -59,12 +59,6 @@ public class CalendarView extends Activity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) 
 	{
-		
-		// $$ test the scheduler - just to check how it works:
-		Scheduler sched = new Scheduler(this);
-		
-		
-		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.simple_calendar_view);
 
@@ -99,12 +93,14 @@ public class CalendarView extends Activity implements OnClickListener {
 		dbAdapter = new DbAdapter(this);
 		
 		// setting the next event.
+		// TODO: Why is it here?
 		dbAdapter.open();
 		nextEvent = dbAdapter.getNextEvent();
 		dbAdapter.close();
 		
 		try {
-			Log.d("NEXT-EVENT", nextEvent.toString());
+			if (nextEvent != null)
+				Log.d("NEXT-EVENT", nextEvent.toString());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -143,7 +139,8 @@ public class CalendarView extends Activity implements OnClickListener {
 			eventsAdapter.add(newEvent.getLocation());
 			eventsAdapter.notifyDataSetChanged();
 			
-			AlarmReceiver.setAlarm(this, newEvent);
+			ClockHandler.setAlarm(this, newEvent);
+			LocationHandler.setLocationListener(this);
 			
 			if(Event.isEarlier(newEvent, nextEvent))
 			{
@@ -201,6 +198,7 @@ public class CalendarView extends Activity implements OnClickListener {
 		Log.d(tag, "Destroying View ...");
 		super.onDestroy();
 	}
+	
 
 	// ///////////////////////////////////////////////////////////////////////////////////////
 	// Inner Class
@@ -252,6 +250,12 @@ public class CalendarView extends Activity implements OnClickListener {
 			Log.d(tag, "New Calendar:= " + calendar.getTime().toString());
 			Log.d(tag, "CurrentDayOfWeek :" + getCurrentWeekDay());
 			Log.d(tag, "CurrentDayOfMonth :" + getCurrentDayOfMonth());
+			
+			// Set selected date string for current date (if '+' button hit before date selected)
+			selectedDateString = calendar.get(Calendar.DAY_OF_MONTH) + "-" 
+								+ calendar.get(Calendar.MONTH) + "-"
+								+ calendar.get(Calendar.YEAR);
+			selectedDayMonthYearButton.setText("Selected: " + selectedDateString);
 
 			// Print Month
 			printMonth(month, year);

@@ -17,7 +17,7 @@
         </activity>
         <activity android:name="clock.sched.EventView"></activity>
         
-		<receiver  android:process=":remote" android:name="AlarmReceiver"></receiver>
+		<receiver  android:process=":remote" android:name=".ClockHandler"></receiver>
 	
     </application>
 

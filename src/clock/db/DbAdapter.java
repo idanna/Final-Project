@@ -125,15 +125,20 @@ public class DbAdapter
 	 */
 	public Event getNextEvent()
 	{
+		Event retEvent = null;
 		Cursor cursor = database.rawQuery("select * from events order by year desc, month desc, day desc, hour desc, min desc limit 1", null);
 		cursor.moveToFirst();
-		Calendar latestEvent = cursorToCalander(cursor);
-		Calendar now = Calendar.getInstance();
-		cursor.moveToFirst();
-		Event retEvent = null;
-		//if (latestEvent.compareTo(now) >= 0) // latest event is not relevant.
+		if (!cursor.isAfterLast())
 		{
-			retEvent = cursorToEvent(cursor);
+			Calendar latestEvent = cursorToCalander(cursor);
+			Calendar now = Calendar.getInstance();
+			
+			cursor.moveToFirst();
+			
+			//if (latestEvent.compareTo(now) >= 0) // latest event is not relevant.
+			{
+				retEvent = cursorToEvent(cursor);
+			}
 		}
 		
 		return retEvent;

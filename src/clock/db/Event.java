@@ -86,6 +86,12 @@ public class Event
 		return first.compareTo(second) <= 0 ? true : false;
 	}
 	
+	public Calendar eventToCalendar() {
+		Calendar res = Calendar.getInstance();
+		res.set(year, month, day, hour, min);
+		return res;
+	}
+	
 	public long getId() {
 		return id;
 	}
@@ -149,5 +155,7 @@ public class Event
 	public void setHour(int hour) {
 		this.hour = hour;
 	}
+
+
 
 }
