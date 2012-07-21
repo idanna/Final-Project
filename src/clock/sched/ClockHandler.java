@@ -30,7 +30,7 @@ public class ClockHandler extends BroadcastReceiver
 	public static long getTimesLeftToEvent(Event event)
 	{
 		Calendar currentCalendar = Calendar.getInstance();
-		Calendar eventCalendar = event.eventToCalendar();
+		Calendar eventCalendar = event.toCalendar();
 				
 		return eventCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis();
 	}
