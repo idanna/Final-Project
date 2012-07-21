@@ -1,5 +1,7 @@
 package clock.db;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -10,6 +12,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.Editable;
 import android.util.Log;
 
 public class DbAdapter 
@@ -41,6 +44,43 @@ public class DbAdapter
 		connection.close();
 	}
 
+	public void populateAddress(BufferedReader csvFile) throws IOException 
+	{	
+		String line;
+		int count = 0;
+//		while((line=csvFile.readLine()) != null && count < 10)
+//		{
+//			String[] strValues = line.split(",");
+//			ContentValues values = new ContentValues();
+//			values.put(Connection.COLUMN_STREET, strValues[2]);
+//			values.put(Connection.COLUMN_CITY, strValues[0]);
+//			long insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+//			count++;
+//		}
+		
+		ContentValues values = new ContentValues();
+		values.put(Connection.COLUMN_STREET, "קהילת ציון");
+		values.put(Connection.COLUMN_CITY, "הרצליה");
+		long insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+		values = new ContentValues();
+		values.put(Connection.COLUMN_STREET, "רבנו תם");
+		values.put(Connection.COLUMN_CITY, "יפו");
+		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+		values = new ContentValues();
+		values.put(Connection.COLUMN_STREET, "אבן גבירול");
+		values.put(Connection.COLUMN_CITY, "סן פרנסיסקו");
+		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+		values = new ContentValues();
+		values.put(Connection.COLUMN_STREET, "t_Street");
+		values.put(Connection.COLUMN_CITY, "t_City");
+		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+		values.put(Connection.COLUMN_STREET, "t_Street1");
+		values.put(Connection.COLUMN_CITY, "t_City2");
+		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+		
+	}
+	
+	
 	public Event createEvent(Event event) 
 	{
 		//Maybe we need to keep table sorted by date time, might be a good optimization
@@ -163,5 +203,23 @@ public class DbAdapter
 		event.setLocation(cursor.getString(6));
 		event.setDetails(cursor.getString(7));
 		return event;
+	}
+
+	public String[] getStreetSugg(String constrain) 
+	{
+		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_ADDRESS + " where " + Connection.COLUMN_STREET + " LIKE '" + constrain + "%' limit 3", null); 
+		cursor.moveToFirst();
+		String[] sugg = new String[cursor.getCount()];
+		int i = 0;
+		String tmp;
+		while (!cursor.isAfterLast()) 
+		{
+			sugg[i] = cursor.getString(1);
+			cursor.moveToNext();
+			i++;
+		}
+		
+		return sugg;
+		
 	}
 }

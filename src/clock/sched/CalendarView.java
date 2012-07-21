@@ -1,5 +1,9 @@
 package clock.sched;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -260,10 +264,23 @@ public class CalendarView extends Activity implements OnClickListener {
 			// Print Month
 			printMonth(month, year);
 
+			dbAdapter.open();		
+			try 
+			{
+				InputStream in = null;
+				//InputStream streets = getAssets().open("streets.csv", 1AssetManager.ACCESS_STREAMING);
+				BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open("streets.csv")));
+				dbAdapter.populateAddress(br);
+			} 
+			catch (IOException e1)
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
 			// Get events per month
 			//TODO: make it efficient by adding buffer to the prev and next monthes ? 
 			// and add year param
-			dbAdapter.open();
 			eventsPerMonthMap = dbAdapter.getEventsMapForMonth(month - 1);
 			dbAdapter.close();
 		}

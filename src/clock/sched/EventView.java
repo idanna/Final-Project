@@ -13,19 +13,25 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
 
-public class EventView extends Activity implements OnClickListener 
+public class EventView extends Activity implements OnClickListener, OnKeyListener 
 {	
 	protected DatePicker date_picker; 
 	protected TimePicker time_picker;
-	protected EditText location_text;
+	protected AutoCompleteTextView location_text;
 	protected EditText details_text;
 	protected Event event;
 	
@@ -40,7 +46,8 @@ public class EventView extends Activity implements OnClickListener
 
 	   	date_picker = (DatePicker) this.findViewById(R.id.datePicker);
 	   	time_picker = (TimePicker) this.findViewById(R.id.timePicker);
-	   	location_text = (EditText) this.findViewById(R.id.locationText);
+	   	location_text = (AutoCompleteTextView) this.findViewById(R.id.locationText);
+	   	location_text.setOnKeyListener(this);
 	   	details_text = (EditText) this.findViewById(R.id.detailsText);
 	   	dbAdapter = new DbAdapter(this);
 	   	((Button)this.findViewById(R.id.add_event_btn)).setOnClickListener(this);
@@ -76,16 +83,16 @@ public class EventView extends Activity implements OnClickListener
    @Override
    public void onClick(View v)
    {
-	   event.setPropFromViews(date_picker, time_picker, location_text, details_text);
-	   // saving event to the database
-	   saveToDB();
-	   // setting the alarm, should we ?
-	   //setAlarm();
-	   Intent i = this.getIntent();
-	   i.putExtra("newEvent", event.toString());
-	   setResult(RESULT_OK, i);
-	   //Close activity
-	   finish();
+		   event.setPropFromViews(date_picker, time_picker, location_text, details_text);
+		   // saving event to the database
+		   saveToDB();
+		   // setting the alarm, should we ?
+		   //setAlarm();
+		   Intent i = this.getIntent();
+		   i.putExtra("newEvent", event.toString());
+		   setResult(RESULT_OK, i);
+		   //Close activity
+		   finish();		   
 	}
 
 	private void saveToDB() 
@@ -93,6 +100,16 @@ public class EventView extends Activity implements OnClickListener
 	   dbAdapter.open();
 	   dbAdapter.createEvent(event);
 	   dbAdapter.close();		
+	}
+
+	@Override
+	public boolean onKey(View arg0, int arg1, KeyEvent arg2) 
+	{
+		   dbAdapter.open();
+		   String[] sugg = dbAdapter.getStreetSugg(location_text.getText().toString());
+		   dbAdapter.close();
+		   ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, sugg);
+		   location_text.setAdapter(adapter);		return false;
 	}
 	   
 }
