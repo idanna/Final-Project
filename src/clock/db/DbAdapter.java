@@ -59,16 +59,16 @@ public class DbAdapter
 //		}
 		
 		ContentValues values = new ContentValues();
-		values.put(Connection.COLUMN_STREET, "קהילת ציון");
-		values.put(Connection.COLUMN_CITY, "הרצליה");
+		values.put(Connection.COLUMN_STREET, "רבנו ירוחם");
+		values.put(Connection.COLUMN_CITY, "תל אביב");
 		long insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
 		values = new ContentValues();
-		values.put(Connection.COLUMN_STREET, "רבנו תם");
-		values.put(Connection.COLUMN_CITY, "יפו");
+		values.put(Connection.COLUMN_STREET, "׳¨׳‘׳ ׳• ׳×׳�");
+		values.put(Connection.COLUMN_CITY, "׳™׳₪׳•");
 		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
 		values = new ContentValues();
-		values.put(Connection.COLUMN_STREET, "אבן גבירול");
-		values.put(Connection.COLUMN_CITY, "סן פרנסיסקו");
+		values.put(Connection.COLUMN_STREET, "׳�׳‘׳� ׳’׳‘׳™׳¨׳•׳�");
+		values.put(Connection.COLUMN_CITY, "׳¡׳� ׳₪׳¨׳ ׳¡׳™׳¡׳§׳•");
 		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
 		values = new ContentValues();
 		values.put(Connection.COLUMN_STREET, "t_Street");
