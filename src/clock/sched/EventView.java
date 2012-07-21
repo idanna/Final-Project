@@ -103,13 +103,18 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	}
 
 	@Override
-	public boolean onKey(View arg0, int arg1, KeyEvent arg2) 
+	public boolean onKey(View arg0, int arg1, KeyEvent eventCode) 
 	{
+		if(eventCode.getAction() == KeyEvent.ACTION_UP)
+		{
 		   dbAdapter.open();
 		   String[] sugg = dbAdapter.getStreetSugg(location_text.getText().toString());
 		   dbAdapter.close();
 		   ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, sugg);
-		   location_text.setAdapter(adapter);		return false;
+		   location_text.setAdapter(adapter);		   
+		}
+		
+		return false;
 	}
 	   
 }
