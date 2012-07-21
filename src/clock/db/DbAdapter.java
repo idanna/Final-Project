@@ -1,6 +1,7 @@
 package clock.db;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,6 +18,9 @@ import android.util.Log;
 
 public class DbAdapter 
 {
+	// Streets file
+	private final static String STREETS_FILE = ""; //TODO:
+	
 	// Database fields
 	private SQLiteDatabase database;
 	private Connection connection;
@@ -44,39 +48,50 @@ public class DbAdapter
 		connection.close();
 	}
 
-	public void populateAddress(BufferedReader csvFile) throws IOException 
+	public void populateAddress() 
 	{	
 		String line;
 		int count = 0;
-//		while((line=csvFile.readLine()) != null && count < 10)
-//		{
-//			String[] strValues = line.split(",");
-//			ContentValues values = new ContentValues();
-//			values.put(Connection.COLUMN_STREET, strValues[2]);
-//			values.put(Connection.COLUMN_CITY, strValues[0]);
-//			long insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
-//			count++;
-//		}
 		
-		ContentValues values = new ContentValues();
-		values.put(Connection.COLUMN_STREET, "רבנו ירוחם");
-		values.put(Connection.COLUMN_CITY, "תל אביב");
-		long insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
-		values = new ContentValues();
-		values.put(Connection.COLUMN_STREET, "׳¨׳‘׳ ׳• ׳×׳�");
-		values.put(Connection.COLUMN_CITY, "׳™׳₪׳•");
-		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
-		values = new ContentValues();
-		values.put(Connection.COLUMN_STREET, "׳�׳‘׳� ׳’׳‘׳™׳¨׳•׳�");
-		values.put(Connection.COLUMN_CITY, "׳¡׳� ׳₪׳¨׳ ׳¡׳™׳¡׳§׳•");
-		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
-		values = new ContentValues();
-		values.put(Connection.COLUMN_STREET, "t_Street");
-		values.put(Connection.COLUMN_CITY, "t_City");
-		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
-		values.put(Connection.COLUMN_STREET, "t_Street1");
-		values.put(Connection.COLUMN_CITY, "t_City2");
-		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+		try 
+		{
+			FileReader fr = new FileReader(STREETS_FILE);
+			BufferedReader br = new BufferedReader(fr);
+		
+			while((line=br.readLine()) != null && count < 10)
+			{
+				String[] strValues = line.split(",");
+				ContentValues values = new ContentValues();
+				values.put(Connection.COLUMN_STREET, strValues[2]);
+				values.put(Connection.COLUMN_CITY, strValues[0]);
+				long insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+				count++;
+			}
+		}
+		catch (Exception ex)
+		{
+			Log.e("Db populate address", ex.getMessage());
+		}
+		
+//		ContentValues values = new ContentValues();
+//		values.put(Connection.COLUMN_STREET, "רבנו ירוחם");
+//		values.put(Connection.COLUMN_CITY, "תל אביב");
+//		long insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+//		values = new ContentValues();
+//		values.put(Connection.COLUMN_STREET, "׳¨׳‘׳ ׳• ׳×׳�");
+//		values.put(Connection.COLUMN_CITY, "׳™׳₪׳•");
+//		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+//		values = new ContentValues();
+//		values.put(Connection.COLUMN_STREET, "׳�׳‘׳� ׳’׳‘׳™׳¨׳•׳�");
+//		values.put(Connection.COLUMN_CITY, "׳¡׳� ׳₪׳¨׳ ׳¡׳™׳¡׳§׳•");
+//		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+//		values = new ContentValues();
+//		values.put(Connection.COLUMN_STREET, "t_Street");
+//		values.put(Connection.COLUMN_CITY, "t_City");
+//		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+//		values.put(Connection.COLUMN_STREET, "t_Street1");
+//		values.put(Connection.COLUMN_CITY, "t_City2");
+//		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
 		
 	}
 	

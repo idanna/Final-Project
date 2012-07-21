@@ -1,6 +1,8 @@
 package clock.sched;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,6 +26,7 @@ import clock.sched.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -95,6 +98,9 @@ public class CalendarView extends Activity implements OnClickListener {
 		adapter.notifyDataSetChanged();
 		calendarView.setAdapter(adapter);
 		dbAdapter = new DbAdapter(this);
+		
+		//Init db
+		dbAdapter.populateAddress();
 		
 		// setting the next event.
 		// TODO: Why is it here?
@@ -265,18 +271,8 @@ public class CalendarView extends Activity implements OnClickListener {
 			printMonth(month, year);
 
 			dbAdapter.open();		
-			try 
-			{
-				InputStream in = null;
-				//InputStream streets = getAssets().open("streets.csv", 1AssetManager.ACCESS_STREAMING);
-				BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open("streets.csv")));
-				dbAdapter.populateAddress(br);
-			} 
-			catch (IOException e1)
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+
+				
 			
 			// Get events per month
 			//TODO: make it efficient by adding buffer to the prev and next monthes ? 
