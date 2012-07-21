@@ -86,7 +86,7 @@ public class Event
 		return first.compareTo(second) <= 0 ? true : false;
 	}
 	
-	public Calendar eventToCalendar() {
+	public Calendar toCalendar() {
 		Calendar res = Calendar.getInstance();
 		res.set(year, month, day, hour, min);
 		return res;
