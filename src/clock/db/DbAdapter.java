@@ -77,13 +77,18 @@ public class DbAdapter
 			InputStream is = context.getAssets().open(STREETS_FILE);
 			BufferedReader br = new BufferedReader(new InputStreamReader(is, "ISO-8859-8"));
 		
-			while((line=br.readLine()) != null)
+			while((line=br.readLine()) != null && count < 10)
 			{
-				getDetailsFromLine(line, city, street);
-				ContentValues values = new ContentValues();
-				values.put(Connection.COLUMN_STREET, street);
-				values.put(Connection.COLUMN_CITY, city);
-				database.insert(Connection.TABLE_ADDRESS, null, values);
+				String[] strValues = line.split(",");
+				city = strValues[0];
+				street = strValues[2];
+				if (!city.equals("") && !street.equals(""))
+				{
+					ContentValues values = new ContentValues();
+					values.put(Connection.COLUMN_STREET, street);
+					values.put(Connection.COLUMN_CITY, city);
+					database.insert(Connection.TABLE_ADDRESS, null, values);
+				}
 				count++;
 			}
 		}
@@ -95,13 +100,6 @@ public class DbAdapter
 		{
 			this.close();
 		}		
-	}
-	
-	
-	private void getDetailsFromLine(String line, String city, String street) {
-		String[] strValues = line.split(",");
-		city = strValues[0];
-		street = strValues[2];
 	}
 
 	public Event createEvent(Event event) 
