@@ -1,25 +1,25 @@
 package clock.db;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.text.Editable;
 import android.util.Log;
 
 public class DbAdapter 
 {
 	// Streets file
-	private final static String STREETS_FILE = ""; //TODO:
+	private final static String STREETS_FILE = "streets.csv";
 	
 	// Database fields
 	private SQLiteDatabase database;
@@ -47,24 +47,43 @@ public class DbAdapter
 	{
 		connection.close();
 	}
+	
+	public boolean isAddressTableEmpty()
+	{
+		boolean isEmpty = true;
+		
+		this.open();
+		
+		//TODO: what is the best way to do this?
+		
+		this.close();
+		
+		return isEmpty;
+	}
 
-	public void populateAddress() 
+	public void populateAddress(Context context) 
 	{	
-		String line;
+		String line = "";
+		String city = "";
+		String street = "";
 		int count = 0;
+		
+		this.open();
+		
+		//TODO: delete table before inserting - just in case of error in isAddressTablePopulated
 		
 		try 
 		{
-			FileReader fr = new FileReader(STREETS_FILE);
-			BufferedReader br = new BufferedReader(fr);
+			InputStream is = context.getAssets().open(STREETS_FILE);
+			BufferedReader br = new BufferedReader(new InputStreamReader(is, "ISO-8859-8"));
 		
-			while((line=br.readLine()) != null && count < 10)
+			while((line=br.readLine()) != null)
 			{
-				String[] strValues = line.split(",");
+				getDetailsFromLine(line, city, street);
 				ContentValues values = new ContentValues();
-				values.put(Connection.COLUMN_STREET, strValues[2]);
-				values.put(Connection.COLUMN_CITY, strValues[0]);
-				long insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
+				values.put(Connection.COLUMN_STREET, street);
+				values.put(Connection.COLUMN_CITY, city);
+				database.insert(Connection.TABLE_ADDRESS, null, values);
 				count++;
 			}
 		}
@@ -72,30 +91,19 @@ public class DbAdapter
 		{
 			Log.e("Db populate address", ex.getMessage());
 		}
-		
-//		ContentValues values = new ContentValues();
-//		values.put(Connection.COLUMN_STREET, "רבנו ירוחם");
-//		values.put(Connection.COLUMN_CITY, "תל אביב");
-//		long insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
-//		values = new ContentValues();
-//		values.put(Connection.COLUMN_STREET, "׳¨׳‘׳ ׳• ׳×׳�");
-//		values.put(Connection.COLUMN_CITY, "׳™׳₪׳•");
-//		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
-//		values = new ContentValues();
-//		values.put(Connection.COLUMN_STREET, "׳�׳‘׳� ׳’׳‘׳™׳¨׳•׳�");
-//		values.put(Connection.COLUMN_CITY, "׳¡׳� ׳₪׳¨׳ ׳¡׳™׳¡׳§׳•");
-//		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
-//		values = new ContentValues();
-//		values.put(Connection.COLUMN_STREET, "t_Street");
-//		values.put(Connection.COLUMN_CITY, "t_City");
-//		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
-//		values.put(Connection.COLUMN_STREET, "t_Street1");
-//		values.put(Connection.COLUMN_CITY, "t_City2");
-//		insertId = database.insert(Connection.TABLE_ADDRESS, null, values);
-		
+		finally
+		{
+			this.close();
+		}		
 	}
 	
 	
+	private void getDetailsFromLine(String line, String city, String street) {
+		String[] strValues = line.split(",");
+		city = strValues[0];
+		street = strValues[2];
+	}
+
 	public Event createEvent(Event event) 
 	{
 		//Maybe we need to keep table sorted by date time, might be a good optimization
