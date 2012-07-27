@@ -3,6 +3,7 @@ package clock.db;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -18,9 +19,6 @@ import android.util.Log;
 
 public class DbAdapter 
 {
-	// Streets file
-	private final static String STREETS_FILE = "streets.csv";
-	
 	// Database fields
 	private SQLiteDatabase database;
 	private Connection connection;
@@ -35,16 +33,22 @@ public class DbAdapter
 	
 	public DbAdapter(Context context) 
 	{
-		connection = new Connection(context);
+		try {
+			connection = new Connection(context);
+		} 
+		catch (IOException e){
+			Log.d("DBAdapter", "Error in constractor");
+		}
 	}
 
 	public void open() throws SQLException 
 	{
-		database = connection.getWritableDatabase();
+		database = connection.openDataBase();
 	}
 
 	public void close() 
 	{
+		database.close();
 		connection.close();
 	}
 	
@@ -61,61 +65,16 @@ public class DbAdapter
 		return isEmpty;
 	}
 
-	public void populateAddress(Context context) 
-	{	
-		String line = "";
-		String city = "";
-		String street = "";
-		int count = 0;
-		
-		this.open();
-		
-		//TODO: delete table before inserting - just in case of error in isAddressTablePopulated
-		
-		try 
-		{
-			InputStream is = context.getAssets().open(STREETS_FILE);
-			BufferedReader br = new BufferedReader(new InputStreamReader(is, "ISO-8859-8"));
-		
-			while((line=br.readLine()) != null && count < 10)
-			{
-				String[] strValues = line.split(",");
-				city = strValues[0];
-				street = strValues[2];
-				if (!city.equals("") && !street.equals(""))
-				{
-					ContentValues values = new ContentValues();
-					values.put(Connection.COLUMN_STREET, street);
-					values.put(Connection.COLUMN_CITY, city);
-					database.insert(Connection.TABLE_ADDRESS, null, values);
-				}
-				count++;
-			}
-		}
-		catch (Exception ex)
-		{
-			Log.e("Db populate address", ex.getMessage());
-		}
-		finally
-		{
-			this.close();
-		}		
-	}
-
 	public Event createEvent(Event event) 
 	{
-		//Maybe we need to keep table sorted by date time, might be a good optimization
-		
-		ContentValues values = new ContentValues();
-		
+		ContentValues values = new ContentValues();		
 		values.put(Connection.COLUMN_DAY, event.getDay());
 		values.put(Connection.COLUMN_MONTH, event.getMonth());
 		values.put(Connection.COLUMN_YEAR, event.getYear());
 		values.put(Connection.COLUMN_HOUR, event.getHour());
 		values.put(Connection.COLUMN_MIN, event.getMin());
 		values.put(Connection.COLUMN_LOCATION, event.getLocation());
-		values.put(Connection.COLUMN_DETAILS, event.getDetails());
-		
+		values.put(Connection.COLUMN_DETAILS, event.getDetails());		
 		long insertId = database.insert(Connection.TABLE_EVENTS, null, values);
 		Cursor cursor = database.query(Connection.TABLE_EVENTS, allColumns, Connection.COLUMN_ID + " = " + insertId, null,
 										null, null, null);
@@ -178,8 +137,7 @@ public class DbAdapter
 		cursor.close();
 		return events;
 	}
-	
-	
+		
 	/**
 	 * get the next event from the database.
 	 * returns null if no upcoming events.
@@ -228,14 +186,14 @@ public class DbAdapter
 
 	public String[] getStreetSugg(String constrain) 
 	{
-		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_ADDRESS + " where " + Connection.COLUMN_STREET + " LIKE '" + constrain + "%' limit 3", null); 
+		Cursor cursor = database.rawQuery("SELECT DISTINCT " + Connection.COLUMN_STREET + 
+				" FROM " + Connection.TABLE_ADDRESS + " where " + Connection.COLUMN_STREET + " LIKE '" + constrain + "%' limit 3", null); 
 		cursor.moveToFirst();
 		String[] sugg = new String[cursor.getCount()];
 		int i = 0;
-		String tmp;
 		while (!cursor.isAfterLast()) 
 		{
-			sugg[i] = cursor.getString(1);
+			sugg[i] = cursor.getString(0);
 			cursor.moveToNext();
 			i++;
 		}

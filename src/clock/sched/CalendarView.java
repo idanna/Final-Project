@@ -98,11 +98,7 @@ public class CalendarView extends Activity implements OnClickListener {
 		adapter.notifyDataSetChanged();
 		calendarView.setAdapter(adapter);
 		dbAdapter = new DbAdapter(this);
-		
-		//Populate address db if needed
-		if (dbAdapter.isAddressTableEmpty())
-			dbAdapter.populateAddress(this);
-		
+			
 		// setting the next event.
 		// TODO: Why is it here?
 		dbAdapter.open();
