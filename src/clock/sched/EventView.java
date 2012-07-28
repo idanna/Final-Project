@@ -12,6 +12,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -29,6 +30,9 @@ import android.widget.TimePicker;
 
 public class EventView extends Activity implements OnClickListener, OnKeyListener 
 {	
+	protected Button set_date_btn;
+	protected Button set_time_btn;
+	protected Button add_event_btn;
 	protected DatePicker date_picker; 
 	protected TimePicker time_picker;
 	protected AutoCompleteTextView location_text;
@@ -45,13 +49,18 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	super.onCreate(savedInstanceState);
 	   	setContentView(R.layout.day_events);
 
+	   	set_date_btn = (Button)this.findViewById(R.id.setDatePickerBtn);
+	   	set_time_btn = (Button)this.findViewById(R.id.setTimePickerBtn);
+	   	add_event_btn = (Button)this.findViewById(R.id.add_event_btn);
 	   	date_picker = (DatePicker) this.findViewById(R.id.datePicker);
 	   	time_picker = (TimePicker) this.findViewById(R.id.timePicker);
 	   	location_text = (AutoCompleteTextView) this.findViewById(R.id.locationText);
 	   	location_text.setOnKeyListener(this);
 	   	details_text = (EditText) this.findViewById(R.id.detailsText);
 	   	dbAdapter= new DbAdapter(this);
-	   	((Button)this.findViewById(R.id.add_event_btn)).setOnClickListener(this);
+	   	add_event_btn.setOnClickListener(this);
+	   	set_date_btn.setOnClickListener(this);
+	   	set_time_btn.setOnClickListener(this);
 	   	alarmManager = new AlarmsManager(this, dbAdapter);
    	}
    
@@ -81,21 +90,40 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   date_picker.updateDate(event.getYear(), event.getMonth() - 1, event.getDay());
 	   time_picker.setCurrentHour(event.getHour());
 	   time_picker.setCurrentMinute(event.getMin());
+	   date_picker.setVisibility(View.INVISIBLE);
+	   set_time_btn.setEnabled(false);
    }
    
    @Override
    public void onClick(View v)
    {
-	   event.setPropFromViews(date_picker, time_picker, location_text, details_text);
-	   // if the event is before the current time, no need to trouble the alarm manager about that.
-	   if(!Event.earlyThenNow(event))
+	   if (v == add_event_btn)
 	   {
-		   alarmManager.newEvent(event);
+		   event.setPropFromViews(date_picker, time_picker, location_text, details_text);
+		   // if the event is before the current time, no need to trouble the alarm manager about that.
+		   if(!Event.earlyThenNow(event))
+		   {
+			   alarmManager.newEvent(event);
+		   }
+		   // saving event to the database
+		   saveToDB();
+		   LocationHandler.setLocationListener(this);
+		   returnResult();	
 	   }
-	   // saving event to the database
-	   saveToDB();
-	   LocationHandler.setLocationListener(this);
-	   returnResult();	   
+	   if (v == set_date_btn)
+	   {
+		   date_picker.setVisibility(View.VISIBLE);
+		   time_picker.setVisibility(View.INVISIBLE);
+		   set_date_btn.setEnabled(false);
+		   set_time_btn.setEnabled(true);
+	   }
+	   if (v == set_time_btn)
+	   {
+		   date_picker.setVisibility(View.INVISIBLE);
+		   time_picker.setVisibility(View.VISIBLE);
+		   set_date_btn.setEnabled(true);
+		   set_time_btn.setEnabled(false);
+	   }
 	}
 
 	private void returnResult() 

@@ -4,22 +4,56 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-
+
     <LinearLayout
         android:id="@+id/date_time_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
-        <TimePicker
-            android:id="@+id/timePicker"
+        <LinearLayout
+            android:id="@+id/setters"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content" >
 
-        <DatePicker
-            android:id="@+id/datePicker"
+            <Button
+                android:id="@+id/setDatePickerBtn"
+                android:layout_width="137dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.06"
+                android:text="Set Date" />
+
+            <Button
+                android:id="@+id/setTimePickerBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0.26"
+                android:text="Set Time" />
+        </LinearLayout>
+
+        <AbsoluteLayout
+            android:id="@+id/pickers"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content" >
+
+            <TimePicker
+                android:id="@+id/timePicker"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <DatePicker
+                android:id="@+id/datePicker"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <Space
+                android:layout_width="139dp"
+                android:layout_height="1dp" />
+
+            <Space
+                android:layout_width="1dp"
+                android:layout_height="21dp" />
+        </AbsoluteLayout>
     </LinearLayout>
 
     <AutoCompleteTextView
