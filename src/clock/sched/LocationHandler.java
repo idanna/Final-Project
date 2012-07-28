@@ -10,7 +10,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
-public class LocationHandler implements LocationListener {
+public class LocationHandler implements LocationListener 
+{
 	
 	Context context;
 	
@@ -57,7 +58,8 @@ public class LocationHandler implements LocationListener {
 //	}
 
 	@Override
-	public void onLocationChanged(Location location) {
+	public void onLocationChanged(Location location) 
+	{
 		String origin = null;
 		String destination = null;
 		long duration = 0;

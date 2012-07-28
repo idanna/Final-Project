@@ -186,16 +186,20 @@ public class DbAdapter
 
 	public String[] getStreetSugg(String constrain) 
 	{
-		Cursor cursor = database.rawQuery("SELECT DISTINCT " + Connection.COLUMN_STREET + 
-				" FROM " + Connection.TABLE_ADDRESS + " where " + Connection.COLUMN_STREET + " LIKE '" + constrain + "%' limit 3", null); 
-		cursor.moveToFirst();
-		String[] sugg = new String[cursor.getCount()];
-		int i = 0;
-		while (!cursor.isAfterLast()) 
+		String[] sugg = new String[0];
+		if (constrain.length() > 2)
 		{
-			sugg[i] = cursor.getString(0);
-			cursor.moveToNext();
-			i++;
+			Cursor cursor = database.rawQuery("SELECT DISTINCT " + Connection.COLUMN_STREET + 
+					" FROM " + Connection.TABLE_ADDRESS + " where " + Connection.COLUMN_STREET + " LIKE '" + constrain + "%' limit 3", null); 
+			cursor.moveToFirst();
+			sugg = new String[cursor.getCount()];
+			int i = 0;
+			while (!cursor.isAfterLast()) 
+			{
+				sugg[i] = cursor.getString(0);
+				cursor.moveToNext();
+				i++;
+			}
 		}
 		
 		return sugg;

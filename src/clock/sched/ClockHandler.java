@@ -15,16 +15,22 @@ import android.util.Log;
 
 public class ClockHandler extends BroadcastReceiver 
 {
-	public static void setAlarm(Context c, Event event) 
+	public static void setAlarm(Context context, Event event) 
 	{
-		AlarmManager alarmMgr = (AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
-		Intent intent = new Intent(c, ClockHandler.class);
-		intent.putExtra("eventStr", event.toString());
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(c, 0, intent, 0);
+		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		PendingIntent pendingIntent = getPendingIntent(context, event);
 		Calendar time = Calendar.getInstance();
 		Log.d("ALARM", event.toString());
 		time.set(event.getYear(), event.getMonth(), event.getDay(), event.getHour(), event.getMin(), 0);
 		alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);
+	}
+	
+	private static PendingIntent getPendingIntent(Context context, Event event)
+	{
+		Intent intent = new Intent(context, ClockHandler.class);
+		intent.putExtra("eventStr", event.toString());
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+		return pendingIntent;
 	}
 	
 	public static long getTimesLeftToEvent(Event event)
@@ -39,6 +45,7 @@ public class ClockHandler extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent i) 
 	{
+		Log.d("ALARM", "Inside OnReceive");
 		Bundle b = i.getExtras();
 		String eventStr = b.getString("eventStr");
 		DbAdapter db = new DbAdapter(context);
@@ -56,7 +63,14 @@ public class ClockHandler extends BroadcastReceiver
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
+	}
+
+	public static void cancelEventAlarm(Context context, Event latestEvent) 
+	{
+		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		PendingIntent pendingIntent = getPendingIntent(context, latestEvent);
+		alarmMgr.cancel(pendingIntent);		
 	}
 
 }

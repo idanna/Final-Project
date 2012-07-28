@@ -35,6 +35,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	protected EditText details_text;
 	protected Event event;
 	
+	private AlarmsManager alarmManager;
 	private DbAdapter dbAdapter;
 	
    /** Called when the activity is first created. */
@@ -49,8 +50,9 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	location_text = (AutoCompleteTextView) this.findViewById(R.id.locationText);
 	   	location_text.setOnKeyListener(this);
 	   	details_text = (EditText) this.findViewById(R.id.detailsText);
-	   	dbAdapter = new DbAdapter(this);
+	   	dbAdapter= new DbAdapter(this);
 	   	((Button)this.findViewById(R.id.add_event_btn)).setOnClickListener(this);
+	   	alarmManager = new AlarmsManager(this, dbAdapter);
    	}
    
    @Override
@@ -83,16 +85,21 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
    @Override
    public void onClick(View v)
    {
-		   event.setPropFromViews(date_picker, time_picker, location_text, details_text);
-		   // saving event to the database
-		   saveToDB();
-		   // setting the alarm, should we ?
-		   //setAlarm();
-		   Intent i = this.getIntent();
-		   i.putExtra("newEvent", event.toString());
-		   setResult(RESULT_OK, i);
-		   //Close activity
-		   finish();		   
+	   event.setPropFromViews(date_picker, time_picker, location_text, details_text);
+	   // saving event to the database
+	   saveToDB();
+	   alarmManager.newEvent(event);
+	   LocationHandler.setLocationListener(this);
+	   returnResult();	   
+	}
+
+	private void returnResult() 
+	{
+	   Intent i = this.getIntent();
+	   i.putExtra("newEvent", event.toString());
+	   setResult(RESULT_OK, i);
+	   //Close activity
+	   finish();		
 	}
 
 	private void saveToDB() 

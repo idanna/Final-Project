@@ -2,6 +2,8 @@ package clock.db;
 
 import java.util.Calendar;
 
+import clock.sched.AlarmsManager;
+
 import android.R.bool;
 import android.widget.DatePicker;
 import android.widget.EditText;

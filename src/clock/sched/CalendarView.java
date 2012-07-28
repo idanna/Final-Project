@@ -57,9 +57,7 @@ public class CalendarView extends Activity implements OnClickListener {
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";
 	
-	// $$ added:
 	private ListView eventsList;
-	private Event nextEvent;
 	private DbAdapter dbAdapter;
 
 	/** Called when the activity is first created. */
@@ -69,16 +67,21 @@ public class CalendarView extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.simple_calendar_view);
 
-		_calendar = Calendar.getInstance(Locale.getDefault());
-		month = _calendar.get(Calendar.MONTH) + 1;
-		year = _calendar.get(Calendar.YEAR);
-		Log.d(tag, "Calendar Instance:= " + "Month: " + month + " " + "Year: "
-				+ year);
+		initCalander();
+		initUI();
+		
+		adapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
+		adapter.notifyDataSetChanged();
+		calendarView.setAdapter(adapter);
+		dbAdapter = new DbAdapter(this);
+	}
 
+	private void initUI() 
+	{
 		selectedDayMonthYearButton = (Button) this
 				.findViewById(R.id.selectedDayMonthYear);
 		selectedDayMonthYearButton.setText("Selected: ");
-
+		
 		newEventBtn = (Button) this.findViewById(R.id.new_eve_btn);
 		newEventBtn.setOnClickListener(this);
 
@@ -93,25 +96,15 @@ public class CalendarView extends Activity implements OnClickListener {
 
 		calendarView = (GridView) this.findViewById(R.id.calendar);
 		eventsList = (ListView) this.findViewById(R.id.eventsList);
-		// Initialized
-		adapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
-		adapter.notifyDataSetChanged();
-		calendarView.setAdapter(adapter);
-		dbAdapter = new DbAdapter(this);
-			
-		// setting the next event.
-		// TODO: Why is it here?
-		dbAdapter.open();
-		nextEvent = dbAdapter.getNextEvent();
-		dbAdapter.close();
-		
-		try {
-			if (nextEvent != null)
-				Log.d("NEXT-EVENT", nextEvent.toString());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	}
+
+	private void initCalander() 
+	{
+		_calendar = Calendar.getInstance(Locale.getDefault());
+		month = _calendar.get(Calendar.MONTH) + 1;
+		year = _calendar.get(Calendar.YEAR);
+		Log.d(tag, "Calendar Instance:= " + "Month: " + month + " " + "Year: "
+				+ year);
 	}
 
 	/**
@@ -144,66 +137,72 @@ public class CalendarView extends Activity implements OnClickListener {
 			// adding to the view
 			ArrayAdapter<String> eventsAdapter = (ArrayAdapter<String>) eventsList.getAdapter();
 			eventsAdapter.add(newEvent.getLocation());
-			eventsAdapter.notifyDataSetChanged();
-			
-			ClockHandler.setAlarm(this, newEvent);
-			LocationHandler.setLocationListener(this);
-			
-			if(Event.isEarlier(newEvent, nextEvent))
-			{
-				nextEvent = newEvent;
-			}
+			eventsAdapter.notifyDataSetChanged();			
 		}
 	}
 	
-	//TODO: make this more readable.
 	@Override
 	public void onClick(View v)
-	{
+	{		
 		if (v == prevMonth)
 		{
-			if (month <= 1)
-			{
-				month = 12;
-				year--;
-			}
-			else
-			{
-				month--;
-			}
-			Log.d(tag, "Setting Prev Month in GridCellAdapter: " + "Month: " + month + " Year: " + year);
-			setGridCellAdapterToDate(month, year);
+			backwardMonth();			
 		}
 		if (v == nextMonth)
 		{
-			if (month > 11)
-			{
-				month = 1;
-				year++;
-			}
-			else
-			{
-				month++;
-			}
-			
-			Log.d(tag, "Setting Next Month in GridCellAdapter: " + "Month: " + month + " Year: " + year);
-			setGridCellAdapterToDate(month, year);
+			forwardMonth();
 		}
 		if (v == newEventBtn)
 		{
-			//TODO: send new event with current time and date
-			GridCellAdapter grid = (GridCellAdapter) calendarView.getAdapter();
-			Intent intent = new Intent(this, EventView.class);	
-			intent.putExtra("selectedDate", grid.getSelectedDate());
-			startActivityForResult(intent, 0);
+			changeToEventView();
 		}
 
 	}
 
+	private void changeToEventView() 
+	{
+		//TODO: send new event with current time and date
+		GridCellAdapter grid = (GridCellAdapter) calendarView.getAdapter();
+		Intent intent = new Intent(this, EventView.class);	
+		intent.putExtra("selectedDate", grid.getSelectedDate());
+		startActivityForResult(intent, 0);		
+	}
+
+	private void forwardMonth() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void backwardMonth() 
+	{
+		if (month <= 1)
+		{
+			month = 12;
+			year--;
+		}
+		else
+		{
+			month--;
+		}
+		Log.d(tag, "Setting Prev Month in GridCellAdapter: " + "Month: " + month + " Year: " + year);
+		setGridCellAdapterToDate(month, year);		
+	}
+
 	@Override
-	public void onDestroy() {
-		Log.d(tag, "Destroying View ...");
-		super.onDestroy();
+	public void onDestroy() 
+	{
+		if (month > 11)
+		{
+			month = 1;
+			year++;
+		}
+		else
+		{
+			month++;
+		}
+		
+		Log.d(tag, "Setting Next Month in GridCellAdapter: " + "Month: " + month + " Year: " + year);
+		setGridCellAdapterToDate(month, year);
 	}
 	
 
