@@ -87,8 +87,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
    {
 	   event.setPropFromViews(date_picker, time_picker, location_text, details_text);
 	   // saving event to the database
-	   saveToDB();
 	   alarmManager.newEvent(event);
+	   saveToDB();
 	   LocationHandler.setLocationListener(this);
 	   returnResult();	   
 	}

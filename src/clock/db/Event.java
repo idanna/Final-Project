@@ -68,7 +68,7 @@ public class Event
 	public void setPropFromViews(DatePicker date, TimePicker time, EditText location, EditText details) 
 	{
 	   this.day = date.getDayOfMonth();
-	   this.month = date.getMonth();
+	   this.month = date.getMonth() + 1;
 	   this.year = date.getYear();
 	   this.hour = time.getCurrentHour();
 	   this.min = time.getCurrentMinute();
@@ -158,6 +158,40 @@ public class Event
 		this.hour = hour;
 	}
 
+	public static String getSqlRepresent(Event event) 
+	{
+		String retStr = event.getYear() + "-";
+		retStr = padZeroIfNedded(event.getMonth(), retStr);
+		retStr += event.getMonth() + "-";
+		retStr = padZeroIfNedded(event.getDay(), retStr);
+		retStr += event.getDay() + " ";
+		retStr = padZeroIfNedded(event.getHour(), retStr);
+		retStr += event.getHour() + "-";
+		retStr = padZeroIfNedded(event.getMin(), retStr);
+		retStr += event.getMin() + "-00";		
+		return retStr;
+	}
+	
+	private static String padZeroIfNedded(int num, String str)
+	{
+		if (num < 10)
+		{
+			str += "0";
+		}
+		
+		return str;
+	}
 
+	public void setDateFromSql(String sqlDateTime) 
+	{
+		String[] dateTime = sqlDateTime.split(" ");
+		String[] date = dateTime[0].split("-");
+		String[] time = dateTime[1].split("-");
+		this.year = Integer.parseInt(date[0]);
+		this.month = Integer.parseInt(date[1]);
+		this.day = Integer.parseInt(date[2]);
+		this.hour = Integer.parseInt(time[0]);
+		this.min = Integer.parseInt(time[1]);
+	}
 
 }

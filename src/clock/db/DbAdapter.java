@@ -6,8 +6,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import android.content.ContentValues;
@@ -23,11 +25,7 @@ public class DbAdapter
 	private SQLiteDatabase database;
 	private Connection connection;
 	private String[] allColumns = { Connection.COLUMN_ID,
-									Connection.COLUMN_DAY, 
-									Connection.COLUMN_MONTH,
-									Connection.COLUMN_YEAR,
-									Connection.COLUMN_HOUR,
-									Connection.COLUMN_MIN,
+									Connection.COLUMN_DATE,
 									Connection.COLUMN_LOCATION,
 									Connection.COLUMN_DETAILS };
 	
@@ -67,12 +65,9 @@ public class DbAdapter
 
 	public Event createEvent(Event event) 
 	{
-		ContentValues values = new ContentValues();		
-		values.put(Connection.COLUMN_DAY, event.getDay());
-		values.put(Connection.COLUMN_MONTH, event.getMonth());
-		values.put(Connection.COLUMN_YEAR, event.getYear());
-		values.put(Connection.COLUMN_HOUR, event.getHour());
-		values.put(Connection.COLUMN_MIN, event.getMin());
+		ContentValues values = new ContentValues();
+		String dateSqlFormat = Event.getSqlRepresent(event); 
+		values.put(Connection.COLUMN_DATE, dateSqlFormat);
 		values.put(Connection.COLUMN_LOCATION, event.getLocation());
 		values.put(Connection.COLUMN_DETAILS, event.getDetails());		
 		long insertId = database.insert(Connection.TABLE_EVENTS, null, values);
@@ -93,12 +88,15 @@ public class DbAdapter
 				+ " = " + id, null);
 	}
 	
-	public HashMap<Integer, List<Event>> getEventsMapForMonth(int month)
+	public HashMap<Integer, List<Event>> getEventsMapForMonth(int month, int year)
 	{
 		//TODO: quickly replace 31 to the const MAX_DAYS_IN_MONTH
 		HashMap<Integer, List<Event>> eventsMap = new HashMap<Integer, List<Event>>(31);
-		//TODO: optimize this by sorting by the day.
-		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE month='" + month +"'", null); 
+		String yearMonth = String.valueOf(year) + "-";
+		yearMonth += month < 10 ? "0" + month : month;
+		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
+				"date <= '" + yearMonth + "-31 23-59-59'" + " AND " +
+				"date >= '" + yearMonth + "-00 00-00-00'", null); 
 				//database.query(Connection.TABLE_EVENTS, allColumns, Connection.COLUMN_MONTH + "=" + month, 
 				//null, null, null, null);
 	
@@ -145,19 +143,25 @@ public class DbAdapter
 	public Event getNextEvent()
 	{
 		Event retEvent = null;
-		Cursor cursor = database.rawQuery("select * from events order by year desc, month desc, day desc, hour desc, min desc limit 1", null);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
+        String currentTime = sdf.format(new Date());
+		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
+				"date > '" + currentTime + "' order by date limit 1", null);
+		Log.d("Next SQL", "SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
+				"date > '" + currentTime + "' order by date limit 1");
 		cursor.moveToFirst();
 		if (!cursor.isAfterLast())
 		{
-			Calendar latestEvent = cursorToCalander(cursor);
-			Calendar now = Calendar.getInstance();
-			
 			cursor.moveToFirst();
-			
-			//if (latestEvent.compareTo(now) >= 0) // latest event is not relevant.
-			{
-				retEvent = cursorToEvent(cursor);
-			}
+			retEvent = cursorToEvent(cursor);
+		}
+		if (retEvent != null)
+		{
+			Log.d("NEXT EVENT", retEvent.toString());
+		}
+		else
+		{
+			Log.d("NEXT EVENT", " NO EVENT");
 		}
 		
 		return retEvent;
@@ -174,13 +178,9 @@ public class DbAdapter
 	{
 		Event event = Event.createNewInstance();
 		event.setId(cursor.getLong(0));
-		event.setDay(cursor.getInt(1));
-		event.setMonth(cursor.getInt(2));
-		event.setYear(cursor.getInt(3));
-		event.setHour(cursor.getInt(4));
-		event.setMin(cursor.getInt(5));
-		event.setLocation(cursor.getString(6));
-		event.setDetails(cursor.getString(7));
+		event.setDateFromSql(cursor.getString(1));
+		event.setLocation(cursor.getString(2));
+		event.setDetails(cursor.getString(3));
 		return event;
 	}
 

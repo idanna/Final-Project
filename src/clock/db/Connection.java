@@ -23,11 +23,12 @@ public class Connection extends SQLiteOpenHelper
 	public static final String COLUMN_CITY = "city";
 	
 	// events attr
-	public static final String COLUMN_DAY = "day";
-	public static final String COLUMN_MONTH = "month";
-	public static final String COLUMN_YEAR = "year";
-	public static final String COLUMN_HOUR = "hour";
-	public static final String COLUMN_MIN = "min";
+	public static final String COLUMN_DATE = "date";
+//	public static final String COLUMN_DAY = "day";
+//	public static final String COLUMN_MONTH = "month";
+//	public static final String COLUMN_YEAR = "year";
+//	public static final String COLUMN_HOUR = "hour";
+//	public static final String COLUMN_MIN = "min";
 	public static final String COLUMN_LOCATION = "location";
 	public static final String COLUMN_DETAILS = "details";
 

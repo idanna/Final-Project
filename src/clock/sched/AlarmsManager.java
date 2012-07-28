@@ -31,17 +31,22 @@ public class AlarmsManager
 		}
 		
 		//DOTO: should be 3 options, BEFORE, AFTER, CRASH
-		if (Event.isEarlier(newEvent, latestEvent))
+		if (latestEvent == null || Event.isEarlier(newEvent, latestEvent))
 		{
 			handleLatestEventChange(newEvent);
 		}
 		
 	}
 	
-	private void handleLatestEventChange(Event eventToSchedual) 
+	private void handleLatestEventChange(Event newLatest) 
 	{
-		ClockHandler.cancelEventAlarm(context, latestEvent);
-		ClockHandler.setAlarm(context, eventToSchedual);		
+		if(latestEvent != null)
+		{
+			ClockHandler.cancelEventAlarm(context, latestEvent);
+		}
+		
+		this.latestEvent = newLatest;
+		ClockHandler.setAlarm(context, newLatest);		
 	}
 
 	private void cancelEvent(Event event)

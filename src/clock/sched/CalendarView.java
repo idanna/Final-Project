@@ -58,7 +58,6 @@ public class CalendarView extends Activity implements OnClickListener {
 	private static final String dateTemplate = "MMMM yyyy";
 	
 	private ListView eventsList;
-	private DbAdapter dbAdapter;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -73,7 +72,6 @@ public class CalendarView extends Activity implements OnClickListener {
 		adapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
 		adapter.notifyDataSetChanged();
 		calendarView.setAdapter(adapter);
-		dbAdapter = new DbAdapter(this);
 	}
 
 	private void initUI() 
@@ -258,7 +256,7 @@ public class CalendarView extends Activity implements OnClickListener {
 			
 			// Set selected date string for current date (if '+' button hit before date selected)
 			selectedDateString = calendar.get(Calendar.DAY_OF_MONTH) + "-" 
-								+ calendar.get(Calendar.MONTH) + "-"
+								+ (calendar.get(Calendar.MONTH) + 1) + "-"
 								+ calendar.get(Calendar.YEAR);
 			selectedDayMonthYearButton.setText("Selected: " + selectedDateString);
 
@@ -272,7 +270,7 @@ public class CalendarView extends Activity implements OnClickListener {
 			// Get events per month
 			//TODO: make it efficient by adding buffer to the prev and next monthes ? 
 			// and add year param
-			eventsPerMonthMap = dbAdapter.getEventsMapForMonth(month - 1);
+			eventsPerMonthMap = dbAdapter.getEventsMapForMonth(month - 1, year);
 			dbAdapter.close();
 		}
 		
