@@ -143,7 +143,7 @@ public class DbAdapter
 	public Event getNextEvent()
 	{
 		Event retEvent = null;
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH-mm-ss");
         String currentTime = sdf.format(new Date());
 		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
 				"date > '" + currentTime + "' order by date limit 1", null);

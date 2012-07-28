@@ -1,6 +1,8 @@
 package clock.db;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import clock.sched.AlarmsManager;
 
@@ -192,6 +194,15 @@ public class Event
 		this.day = Integer.parseInt(date[2]);
 		this.hour = Integer.parseInt(time[0]);
 		this.min = Integer.parseInt(time[1]);
+	}
+
+	public static boolean earlyThenNow(Event event) 
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH-mm-ss");
+        String currentTimeStr = sdf.format(new Date());
+        Event currentTime = new Event();
+        currentTime.setDateFromSql(currentTimeStr);
+        return isEarlier(event, currentTime);
 	}
 
 }

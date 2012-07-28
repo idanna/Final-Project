@@ -72,12 +72,13 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 			event.setYear(Integer.parseInt(date[2])); 
 	   	}
 	   	
+	   	Log.d("UI SET TO:", event.toString());
    		setPageFields();
    }
    
    private void setPageFields() 
    {   
-	   date_picker.updateDate(event.getYear(), event.getMonth(), event.getDay());
+	   date_picker.updateDate(event.getYear(), event.getMonth() - 1, event.getDay());
 	   time_picker.setCurrentHour(event.getHour());
 	   time_picker.setCurrentMinute(event.getMin());
    }
@@ -86,8 +87,12 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
    public void onClick(View v)
    {
 	   event.setPropFromViews(date_picker, time_picker, location_text, details_text);
+	   // if the event is before the current time, no need to trouble the alarm manager about that.
+	   if(!Event.earlyThenNow(event))
+	   {
+		   alarmManager.newEvent(event);
+	   }
 	   // saving event to the database
-	   alarmManager.newEvent(event);
 	   saveToDB();
 	   LocationHandler.setLocationListener(this);
 	   returnResult();	   

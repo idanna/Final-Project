@@ -435,7 +435,7 @@ public class CalendarView extends Activity implements OnClickListener {
 			Log.d(tag, "Current Day: " + getCurrentDayOfMonth());
 			String[] day_color = list.get(position).split("-");
 			String theday = day_color[0];
-			String themonth = day_color[2];
+			String themonth = String.valueOf((Integer.parseInt(day_color[2]) + 1));
 			String theyear = day_color[3];
 			if ((!eventsPerMonthMap.isEmpty()) && (eventsPerMonthMap != null)) 
 			{

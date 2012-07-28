@@ -22,7 +22,7 @@ public class ClockHandler extends BroadcastReceiver
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		Calendar time = Calendar.getInstance();
 		Log.d("ALARM", "Set Alarm To:" + event.toString());
-		time.set(event.getYear(), event.getMonth(), event.getDay(), event.getHour(), event.getMin(), 0);
+		time.set(event.getYear(), event.getMonth() - 1, event.getDay(), event.getHour(), event.getMin(), 0);
 		alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);
 	}
 	
@@ -50,7 +50,7 @@ public class ClockHandler extends BroadcastReceiver
 		Bundle b = i.getExtras();
 		String eventStr = b.getString("eventStr");
 		Event eventToHandle = Event.CreateFromString(eventStr);
-		Log.d("ALARM", eventToHandle.getDetails());
+		Log.d("ALARM", "In bundle: " + eventToHandle.toString());
 		DbAdapter db = new DbAdapter(context);
 		db.open();
 		Event nextEvent = db.getNextEvent();
