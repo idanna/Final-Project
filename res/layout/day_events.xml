@@ -4,18 +4,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/date_time_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
-    <TimePicker
-        android:id="@+id/timePicker"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <DatePicker
-        android:id="@+id/datePicker"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <AutoCompleteTextView android:text="AutoCompleteTextView"
+        <TimePicker
+            android:id="@+id/timePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <DatePicker
+            android:id="@+id/datePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <AutoCompleteTextView
         android:id="@+id/locationText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,7 +31,7 @@
 
         <requestFocus />
     </AutoCompleteTextView>
-
+
     <EditText
         android:id="@+id/detailsText"
         android:layout_width="match_parent"

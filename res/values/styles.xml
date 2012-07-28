@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="calendar_button" parent="android:Widget.Button">
+        <item name="android:background">@drawable/calendar_bar</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+</resources>
