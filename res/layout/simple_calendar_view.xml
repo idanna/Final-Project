@@ -4,33 +4,36 @@
     android:layout_height="fill_parent"
     android:background="@drawable/bg"
     android:orientation="vertical" >
-
-    <GridLayout
+
+    <LinearLayout
         android:id="@+id/top_menu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/selectedDayMonthYear"
-            android:layout_width="268dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/calendar_top_header"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="#FFFFFF" />
-
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
         <Button
             android:id="@+id/new_eve_btn"
             style="@style/calendar_button"
             android:layout_width="47dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
             android:text="+" />
+
+        <Button
+            android:id="@+id/selectedDayMonthYear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/calendar_top_header"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#FFFFFF" />
 
         <Space
             android:layout_width="267dp"
-            android:layout_height="15dp"
-            android:layout_column="2" />
-    </GridLayout>
+            android:layout_height="15dp" />
+    </LinearLayout>
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
