@@ -3,6 +3,7 @@ package clock.sched;
 import java.security.acl.LastOwnerException;
 
 import android.content.Context;
+import android.util.Log;
 
 import clock.db.DbAdapter;
 import clock.db.Event;
@@ -29,6 +30,7 @@ public class AlarmsManager
 			dbAdapter.close();
 		}
 		
+		//DOTO: should be 3 options, BEFORE, AFTER, CRASH
 		if (Event.isEarlier(newEvent, latestEvent))
 		{
 			handleLatestEventChange(newEvent);

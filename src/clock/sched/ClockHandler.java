@@ -1,5 +1,6 @@
 package clock.sched;
 
+import java.security.acl.LastOwnerException;
 import java.util.Calendar;
 
 import clock.db.DbAdapter;
@@ -20,7 +21,7 @@ public class ClockHandler extends BroadcastReceiver
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		Calendar time = Calendar.getInstance();
-		Log.d("ALARM", event.toString());
+		Log.d("ALARM", "Set Alarm To:" + event.toString());
 		time.set(event.getYear(), event.getMonth(), event.getDay(), event.getHour(), event.getMin(), 0);
 		alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);
 	}
@@ -45,9 +46,11 @@ public class ClockHandler extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent i) 
 	{
-		Log.d("ALARM", "Inside OnReceive");
+		Log.d("ALARM", "Inside OnReceive:");
 		Bundle b = i.getExtras();
 		String eventStr = b.getString("eventStr");
+		Event eventToHandle = Event.CreateFromString(eventStr);
+		Log.d("ALARM", eventToHandle.getDetails());
 		DbAdapter db = new DbAdapter(context);
 		db.open();
 		Event nextEvent = db.getNextEvent();
@@ -68,6 +71,7 @@ public class ClockHandler extends BroadcastReceiver
 
 	public static void cancelEventAlarm(Context context, Event latestEvent) 
 	{
+		Log.d("ALARM", "Cancel Event:" + latestEvent.toString());
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, latestEvent);
 		alarmMgr.cancel(pendingIntent);		

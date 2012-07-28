@@ -168,9 +168,20 @@ public class CalendarView extends Activity implements OnClickListener {
 		startActivityForResult(intent, 0);		
 	}
 
-	private void forwardMonth() {
-		// TODO Auto-generated method stub
+	private void forwardMonth() 
+	{
+		if (month > 11)
+		{
+			month = 1;
+			year++;
+		}
+		else
+		{
+			month++;
+		}
 		
+		Log.d(tag, "Setting Next Month in GridCellAdapter: " + "Month: " + month + " Year: " + year);
+		setGridCellAdapterToDate(month, year);
 	}
 
 	private void backwardMonth() 
@@ -191,18 +202,6 @@ public class CalendarView extends Activity implements OnClickListener {
 	@Override
 	public void onDestroy() 
 	{
-		if (month > 11)
-		{
-			month = 1;
-			year++;
-		}
-		else
-		{
-			month++;
-		}
-		
-		Log.d(tag, "Setting Next Month in GridCellAdapter: " + "Month: " + month + " Year: " + year);
-		setGridCellAdapterToDate(month, year);
 	}
 	
 
