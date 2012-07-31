@@ -77,7 +77,7 @@ public class CalendarView extends Activity implements OnClickListener {
 	private void initUI() 
 	{
 		selectedDayMonthYearButton = (Button) this
-				.findViewById(R.id.selectedDayMonthYear);
+				.findViewById(R.id.selected_date);
 		selectedDayMonthYearButton.setText("Selected: ");
 		
 		newEventBtn = (Button) this.findViewById(R.id.new_eve_btn);

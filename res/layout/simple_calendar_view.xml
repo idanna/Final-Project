@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal" >
-
+
         <Button
             android:id="@+id/new_eve_btn"
             style="@style/calendar_button"
@@ -20,9 +20,9 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="5dp"
             android:text="+" />
-
+
         <Button
-            android:id="@+id/selectedDayMonthYear"
+            android:id="@+id/selected_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"

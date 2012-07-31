@@ -25,11 +25,14 @@ import android.view.View.OnKeyListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.ToggleButton;
 
-public class EventView extends Activity implements OnClickListener, OnKeyListener 
+public class EventView extends Activity implements OnClickListener, OnKeyListener, OnCheckedChangeListener 
 {	
 	protected Button set_date_btn;
 	protected Button set_time_btn;
@@ -39,9 +42,11 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	protected AutoCompleteTextView location_text;
 	protected EditText details_text;
 	protected Event event;
+	protected ToggleButton alarm_on_off;
 	
 	private AlarmsManager alarmManager;
 	private DbAdapter dbAdapter;
+	protected boolean alarmOnOffStatus;
 	
    /** Called when the activity is first created. */
    @Override
@@ -53,6 +58,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	set_date_btn = (Button)this.findViewById(R.id.setDatePickerBtn);
 	   	set_time_btn = (Button)this.findViewById(R.id.setTimePickerBtn);
 	   	add_event_btn = (Button)this.findViewById(R.id.add_event_btn);
+	   	alarm_on_off = (ToggleButton)this.findViewById(R.id.alarm_on_off);
 	   	date_picker = (DatePicker) this.findViewById(R.id.datePicker);
 	   	time_picker = (TimePicker) this.findViewById(R.id.timePicker);
 	   	location_text = (AutoCompleteTextView) this.findViewById(R.id.locationText);
@@ -62,6 +68,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	add_event_btn.setOnClickListener(this);
 	   	set_date_btn.setOnClickListener(this);
 	   	set_time_btn.setOnClickListener(this);
+	   	alarm_on_off.setOnCheckedChangeListener(this);
+	   	alarmOnOffStatus = false;
 	   	alarmManager = new AlarmsManager(this, dbAdapter);
    	}
    
@@ -100,12 +108,16 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
    {
 	   if (v == add_event_btn)
 	   {
-		   event.setPropFromViews(date_picker, time_picker, location_text, details_text);
+		   //TODO: check if it's a legal event - if this event overlapped by duration time with other events!!!
+			
+		   event.setPropFromViews(date_picker, time_picker, location_text, details_text, alarmOnOffStatus);
+		   
 		   // if the event is before or overlapped the current time, no need to trouble the alarm manager about that.
 		   if(Event.compareToNow(event) == eComparison.AFTER)
 		   {
 			   alarmManager.newEvent(event);
 		   }
+		   
 		   // saving event to the database
 		   saveToDB();
 		   LocationHandler.setLocationListener(this);
@@ -156,6 +168,12 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 		}
 		
 		return false;
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		if (buttonView == alarm_on_off)
+			alarmOnOffStatus = isChecked;
 	}
 	   
 }

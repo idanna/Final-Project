@@ -40,27 +40,30 @@ public final class R {
     }
     public static final class id {
         public static final int LinearLayout1=0x7f070002;
-        public static final int add_event_btn=0x7f07000c;
-        public static final int calendar=0x7f070014;
+        public static final int add_event_btn=0x7f07000d;
+        public static final int alarm_on_off=0x7f07000f;
+        public static final int calendar=0x7f070017;
         public static final int calendar_day_gridcell=0x7f070000;
-        public static final int calendarheader=0x7f070013;
-        public static final int currentMonth=0x7f070011;
+        public static final int calendarheader=0x7f070016;
+        public static final int currentMonth=0x7f070014;
         public static final int datePicker=0x7f070009;
         public static final int date_time_picker=0x7f070003;
         public static final int detailsText=0x7f07000b;
-        public static final int eventsList=0x7f070015;
+        public static final int eventsList=0x7f070018;
         public static final int locationText=0x7f07000a;
-        public static final int new_eve_btn=0x7f07000e;
-        public static final int nextMonth=0x7f070012;
+        public static final int new_eve_btn=0x7f070011;
+        public static final int nextMonth=0x7f070015;
         public static final int num_events_per_day=0x7f070001;
         public static final int pickers=0x7f070007;
-        public static final int prevMonth=0x7f070010;
-        public static final int selectedDayMonthYear=0x7f07000f;
+        public static final int prevMonth=0x7f070013;
+        public static final int selected_date=0x7f070012;
         public static final int setDatePickerBtn=0x7f070005;
         public static final int setTimePickerBtn=0x7f070006;
+        public static final int set_buttons=0x7f07000c;
         public static final int setters=0x7f070004;
+        public static final int textView1=0x7f07000e;
         public static final int timePicker=0x7f070008;
-        public static final int top_menu=0x7f07000d;
+        public static final int top_menu=0x7f070010;
     }
     public static final class layout {
         public static final int calendar_day_gridcell=0x7f030000;

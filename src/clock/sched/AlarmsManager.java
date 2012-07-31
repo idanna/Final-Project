@@ -1,9 +1,6 @@
 package clock.sched;
 
-import java.security.acl.LastOwnerException;
-
 import android.content.Context;
-import android.util.Log;
 
 import clock.db.DbAdapter;
 import clock.db.Event;
@@ -30,9 +27,6 @@ public class AlarmsManager
 			latestEvent = dbAdapter.getNextEvent();
 			dbAdapter.close();
 		}
-		
-		//TODO: check if it's a legal event - if this event overlapped by duration time with other events!!!
-		
 		
 		if (latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE)
 		{

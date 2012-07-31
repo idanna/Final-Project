@@ -28,6 +28,7 @@ public class Event
 	private int min;
 	private String location;
 	private String details;
+	private boolean withAlarm;
 	
 	private Event()
 	{ };
@@ -46,6 +47,7 @@ public class Event
 		Event event = new Event();
 		event.setLocation("");
    		event.setDetails("");
+   		event.withAlarm = false;
    		return event;
 	}
 	
@@ -73,7 +75,7 @@ public class Event
 	/**
 	 * sets events properties from UI elements.
 	 */
-	public void setPropFromViews(DatePicker date, TimePicker time, EditText location, EditText details) 
+	public void setPropFromViews(DatePicker date, TimePicker time, EditText location, EditText details, boolean withAlarm) 
 	{
 	   this.day = date.getDayOfMonth();
 	   this.month = date.getMonth() + 1;
@@ -82,10 +84,11 @@ public class Event
 	   this.min = time.getCurrentMinute();
 	   this.location = location.getText().toString();
 	   this.details = details.getText().toString();
+	   this.withAlarm = withAlarm;
 	}
 	
 	/**
-	 * return comparison value between first and second events.
+	 * return comparison value between first and second events (only by event start time)
 	 */
 	public static eComparison compareBetweenEvents(Event firstEvent, Event secondEvent) 
 	{
@@ -174,6 +177,16 @@ public class Event
 
 	public void setHour(int hour) {
 		this.hour = hour;
+	}
+	
+	public boolean getWithAlarmStatus()
+	{
+		return withAlarm;
+	}
+	
+	public void setWithAlarmStatus(boolean status)
+	{
+		this.withAlarm = status;
 	}
 
 	public static String getSqlRepresent(Event event) 
