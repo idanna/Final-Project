@@ -13,6 +13,12 @@ import android.widget.TimePicker;
 
 public class Event
 {
+	public enum eComparison{
+		BEFORE,
+		OVERLAPPED,
+		AFTER
+	}
+	
 	private long id;
 	//TODO: should be all changed to string
 	private int day;
@@ -79,15 +85,25 @@ public class Event
 	}
 	
 	/**
-	 * return true if and only if the first event is earlier (or at the same time as) then the second.
+	 * return comparison value between first and second events.
 	 */
-	public static boolean isEarlier(Event newEvent, Event nextEvent) 
+	public static eComparison compareBetweenEvents(Event firstEvent, Event secondEvent) 
 	{
-		Calendar first = Calendar.getInstance();
-		Calendar second = Calendar.getInstance();
-		first.set(newEvent.year, newEvent.month, newEvent.day, newEvent.hour, newEvent.min);
-		second.set(nextEvent.year, nextEvent.month, nextEvent.day, nextEvent.hour, nextEvent.min);
-		return first.compareTo(second) <= 0 ? true : false;
+		eComparison result;
+		Calendar firstCalendar = Calendar.getInstance();
+		Calendar secondCalendar = Calendar.getInstance();
+		firstCalendar.set(firstEvent.year, firstEvent.month, firstEvent.day, firstEvent.hour, firstEvent.min);
+		secondCalendar.set(secondEvent.year, secondEvent.month, secondEvent.day, secondEvent.hour, secondEvent.min);
+		int comparedValue = firstCalendar.compareTo(secondCalendar);
+		
+		if (comparedValue < 0) 
+			result = eComparison.BEFORE;
+		else if (comparedValue == 0)
+			result = eComparison.OVERLAPPED;
+		else
+			result = eComparison.AFTER;
+		
+		return result;
 	}
 	
 	public Calendar toCalendar() {
@@ -196,13 +212,13 @@ public class Event
 		this.min = Integer.parseInt(time[1]);
 	}
 
-	public static boolean earlyThenNow(Event event) 
+	public static eComparison compareToNow(Event event) 
 	{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH-mm-ss");
         String currentTimeStr = sdf.format(new Date());
         Event currentTime = new Event();
         currentTime.setDateFromSql(currentTimeStr);
-        return isEarlier(event, currentTime);
+        return compareBetweenEvents(event, currentTime);
 	}
 
 }

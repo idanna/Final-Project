@@ -4,6 +4,7 @@ import java.util.Calendar;
 
 import clock.db.DbAdapter;
 import clock.db.Event;
+import clock.db.Event.eComparison;
 
 import clock.sched.R;
 
@@ -100,8 +101,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   if (v == add_event_btn)
 	   {
 		   event.setPropFromViews(date_picker, time_picker, location_text, details_text);
-		   // if the event is before the current time, no need to trouble the alarm manager about that.
-		   if(!Event.earlyThenNow(event))
+		   // if the event is before or overlapped the current time, no need to trouble the alarm manager about that.
+		   if(Event.compareToNow(event) == eComparison.AFTER)
 		   {
 			   alarmManager.newEvent(event);
 		   }
