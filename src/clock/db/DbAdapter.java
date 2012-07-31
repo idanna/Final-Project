@@ -27,7 +27,8 @@ public class DbAdapter
 	private String[] allColumns = { Connection.COLUMN_ID,
 									Connection.COLUMN_DATE,
 									Connection.COLUMN_LOCATION,
-									Connection.COLUMN_DETAILS };
+									Connection.COLUMN_DETAILS,
+									Connection.COLUMN_ALARM};
 	
 	public DbAdapter(Context context) 
 	{
@@ -69,7 +70,8 @@ public class DbAdapter
 		String dateSqlFormat = Event.getSqlRepresent(event); 
 		values.put(Connection.COLUMN_DATE, dateSqlFormat);
 		values.put(Connection.COLUMN_LOCATION, event.getLocation());
-		values.put(Connection.COLUMN_DETAILS, event.getDetails());		
+		values.put(Connection.COLUMN_DETAILS, event.getDetails());
+		values.put(Connection.COLUMN_ALARM, event.getWithAlarmStatus() == false? 0 : 1);
 		long insertId = database.insert(Connection.TABLE_EVENTS, null, values);
 		Cursor cursor = database.query(Connection.TABLE_EVENTS, allColumns, Connection.COLUMN_ID + " = " + insertId, null,
 										null, null, null);
@@ -167,13 +169,6 @@ public class DbAdapter
 		return retEvent;
 	}
 	
-	private Calendar cursorToCalander(Cursor cursor)
-	{
-		Calendar c = Calendar.getInstance();
-		c.set(cursor.getInt(3), cursor.getInt(2), cursor.getInt(1), cursor.getInt(4), cursor.getInt(5));
-		return c;		
-	}
-	
 	private Event cursorToEvent(Cursor cursor) 
 	{
 		Event event = Event.createNewInstance();
@@ -181,6 +176,7 @@ public class DbAdapter
 		event.setDateFromSql(cursor.getString(1));
 		event.setLocation(cursor.getString(2));
 		event.setDetails(cursor.getString(3));
+		event.setWithAlarmStatus(cursor.getInt(4) == 1);
 		return event;
 	}
 
