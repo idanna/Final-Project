@@ -3,6 +3,7 @@ package clock.sched;
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.outsources.GDataHandler;
+import clock.outsources.GDataHandler.TrafficData;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -12,14 +13,25 @@ import android.util.Log;
 
 public class LocationHandler implements LocationListener 
 {
-	
 	Context context;
+	private GDataHandler googleHandler = new GDataHandler();
+	private static final double MIN_TIME_PERCENTAGE = 0.03d;
+	private static final float MIN_DISTANCE_MIN_TIME_PERCENTAGE = 0.03f;
+	private static final long TIMES_UP = 5L;		//in seconds
+	private static final float DISTANCE_UP = 100;	//in meters
+	private long timesLeftToEvent;
+	private float distanceLeftToEvent;
+	private static LocationManager lm;
 	
-	public static void setLocationListener(Context c)
+	public static void setLocationListener(Context c, Event event)
 	{
-		long minimumTimeInterval = 1000L * 60 * 10;		//milliseconds
-		float minimumDistanceInterval =  1.0f * 1000;	//meters
-		LocationManager lm = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
+		long minimumTimeInterval = 1000L;			//set first handler to 1 second minimum time
+		float minimumDistanceInterval =  1.0f; 		//and 1 meter minimum distance
+		
+		//Initiate location manager
+		lm = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
+		
+		//Setup first Location Update Request
 		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
 				minimumTimeInterval, minimumDistanceInterval, new LocationHandler(c));
 	}
@@ -60,33 +72,68 @@ public class LocationHandler implements LocationListener
 	@Override
 	public void onLocationChanged(Location location) 
 	{
-		String origin = null;
-		String destination = null;
-		long duration = 0;
-		
 		DbAdapter db = new DbAdapter(this.context);
 		db.open();
 		Event nextEvent = db.getNextEvent();
 		db.close();
 				
-		origin = location.getLongitude() + "," + location.getLatitude();
-		destination = nextEvent == null? null : nextEvent.getLocation();
-		
-		if (origin == null || destination == null) 
-			Log.e("Location Handler", "On location changed: origin/destination is null");
+		if (nextEvent == null || location == null) 
+			Log.e("Location Handler", "On location changed: next event is null");
 		else
 		{
-			GDataHandler googleHandler = new GDataHandler();
-			duration = googleHandler.getDuration(origin, destination);
+			try
+			{
+				calculateMinTimeAndDistanceIntervals(location, nextEvent);
+				if (timesLeftToEvent < TIMES_UP && distanceLeftToEvent < DISTANCE_UP)
+				{
+					//TODO: user has reached destination
+					Log.d("LocationHandler", "User has reached destination");
+				}
+				else if (timesLeftToEvent <= 0)
+				{
+					//TODO: time is up, no need to recall on location changed
+					//			otherwise we should notice user about this late
+					Log.d("LocationHandler", "Times up, user is late");
+				}
+				else
+				{
+					long minimumTimeInterval = (long)(Double.longBitsToDouble(timesLeftToEvent) * MIN_TIME_PERCENTAGE);
+					float minimumDistanceInterval =  distanceLeftToEvent * MIN_DISTANCE_MIN_TIME_PERCENTAGE;
+					
+					//Setup next Location Update Request
+					lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
+							minimumTimeInterval, minimumDistanceInterval, this);
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.e("LocationHandler", "Calculating time and distance intervals failed: " + ex.getMessage());
+			}
+						
 		}
-			
-		long timesLeftToEvent = nextEvent == null ? 0 : ClockHandler.getTimesLeftToEvent(nextEvent);
 		
-		if (duration > timesLeftToEvent && timesLeftToEvent > 0)
+	}
+
+	private void calculateMinTimeAndDistanceIntervals(Location location, Event nextEvent) throws Exception {
+		String origin = location.getLongitude() + "," + location.getLatitude();
+		String destination = nextEvent.getLocation();
+		if (origin == null || destination == null)
 		{
-			//ARE YOU FUCKING CRAZY - you're gonna be so late, your boss will fired you
+			throw new Exception("Error: LocationHandler, origin or destination is null");
 		}
 		
+		TrafficData trafficData = googleHandler.calculateTrafficInfo(origin, destination);
+		timesLeftToEvent = nextEvent == null ? 0 : ClockHandler.getTimesLeftToEvent(nextEvent);
+		
+		if (trafficData.getDuration() == -1l || trafficData.getDistance() == -1f)
+		{
+			throw new Exception("Error: LocationHandler, duration or distance not found");
+		}
+		
+		//include travel time inside timesLeftToEvent
+		timesLeftToEvent -= trafficData.getDuration();	
+		
+		distanceLeftToEvent = trafficData.getDistance();		
 	}
 
 	@Override

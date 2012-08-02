@@ -14,6 +14,32 @@ import org.xml.sax.InputSource;
 
 public class GDataHandler 
 {
+	public class TrafficData
+	{
+		public TrafficData()
+		{
+			duration = -1l;
+			distance = -1f;
+		}
+		
+		private long duration;
+		private float distance;
+		
+		public long getDuration() {
+			return duration;
+		}
+		public void setDuration(long duration) {
+			this.duration = duration;
+		}
+
+		public float getDistance() {
+			return distance;
+		}
+		public void setDistance(float distance) {
+			this.distance = distance;
+		}
+	}
+	
 	private URL googleUrl;
 	private XPathFactory xpf;
 	private XPath xpath;
@@ -30,69 +56,89 @@ public class GDataHandler
 	 * @param to - destination place with same format as origin
 	 * @return Duration in seconds. If error occurred or places not found then -1 is returned.
 	 */
-	public int getDuration(String from, String to)
+	public TrafficData calculateTrafficInfo(String from, String to) throws Exception
 	{
-		int res = -1;
+		TrafficData trafficData = new TrafficData();
 		
-		try{
-			from = URLEncoder.encode(from, "UTF-8");
-			to = URLEncoder.encode(to, "UTF-8");
-			
-			String query = "http://maps.googleapis.com/maps/api/directions/xml?"
-					+ "origin=" + from
-					+ "&destination=" + to
-					+ "&sensor=false"; 
-			//NOTICE: in order to use device location as origin, sensor should be set as true
-			
-			googleUrl = new URL(query);
-			
-			URLConnection uc = googleUrl.openConnection();
+		from = URLEncoder.encode(from, "UTF-8");
+		to = URLEncoder.encode(to, "UTF-8");
+		
+		String query = "http://maps.googleapis.com/maps/api/directions/xml?"
+				+ "origin=" + from
+				+ "&destination=" + to
+				+ "&sensor=false"; 
+		//NOTICE: in order to use device location as origin, sensor should be set as true
+		
+		googleUrl = new URL(query);
+		
+		URLConnection uc = googleUrl.openConnection();
 
-			BufferedReader in = new BufferedReader(new InputStreamReader(uc.getInputStream()));
-			
-			String xmlStr = ""; 
-			String inputLine;
-			
-			in.readLine();
+		BufferedReader in = new BufferedReader(new InputStreamReader(uc.getInputStream()));
+		
+		String xmlStr = ""; 
+		String inputLine;
+		
+		in.readLine();
 
-	        while ((inputLine = in.readLine()) != null) 
-			{
-				xmlStr = xmlStr.concat(inputLine);
-				xmlStr = xmlStr.concat("\n");
-			}
-        
-			InputSource is = new InputSource();
-			is.setCharacterStream(new StringReader(xmlStr));
-			
-			String xPathExpression = "DirectionsResponse/route/leg/step/duration/value";
-			NodeList nl = this.parseXml(is, xPathExpression);		
-			res = this.getDurationFromNodeList(nl);
-		  
-		}
-		catch (Exception ex)
+        while ((inputLine = in.readLine()) != null) 
 		{
-			res = -1;
+			xmlStr = xmlStr.concat(inputLine);
+			xmlStr = xmlStr.concat("\n");
 		}
+    
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(xmlStr));
+		
+		//Calculate duration
+		String xPathDurationExpression = "DirectionsResponse/route/leg/step/duration/value";
+		NodeList durationNodeList = this.parseXml(is, xPathDurationExpression);		
+		trafficData.setDuration(this.getDurationFromNodeList(durationNodeList));
+		
+		//Calculate distance
+		String xPathDistanceExpression = "DirectionsResponse/route/leg/step/distance/value";
+		NodeList distanceNodeList = this.parseXml(is, xPathDistanceExpression);
+		trafficData.setDistance(this.getDistanceFromNodeList(distanceNodeList));
 
-		return res;	
+		return trafficData;	
 	}
 
-	private int getDurationFromNodeList(NodeList nl) {
+	private long getDurationFromNodeList(NodeList durationNodeList) {
 		String valueStr;
-		int value = 0;
+		long value = 0;
 		
-		for (int i=0 ; i < nl.getLength() ; ++i)
+		for (int i=0 ; i < durationNodeList.getLength() ; ++i)
 		{
-			valueStr = nl.item(i).getFirstChild().getNodeValue();
+			valueStr = durationNodeList.item(i).getFirstChild().getNodeValue();
 			if (valueStr != null)
 			{
-				value += Integer.parseInt(valueStr);
+				value += Long.parseLong(valueStr);
 			}
 		}
 		
-		if (nl.getLength() == 0)
+		if (durationNodeList.getLength() == 0)
 		{
-			value = -1;
+			value = -1l;
+		}
+		
+		return value;
+	}
+	
+	private float getDistanceFromNodeList(NodeList distanceNodeList) {
+		String valueStr;
+		float value = 0;
+		
+		for (int i=0 ; i < distanceNodeList.getLength() ; ++i)
+		{
+			valueStr = distanceNodeList.item(i).getFirstChild().getNodeValue();
+			if (valueStr != null)
+			{
+				value += Float.parseFloat(valueStr);
+			}
+		}
+		
+		if (distanceNodeList.getLength() == 0)
+		{
+			value = -1f;
 		}
 		
 		return value;
@@ -104,7 +150,6 @@ public class GDataHandler
 		Object result = expr.evaluate(xmlSrc, XPathConstants.NODESET);
 		return (NodeList) result;
 	}
-
 
 }
 

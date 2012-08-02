@@ -1,6 +1,5 @@
 package clock.sched;
 
-import java.security.acl.LastOwnerException;
 import java.util.Calendar;
 
 import clock.db.DbAdapter;
@@ -11,7 +10,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.format.Time;
 import android.util.Log;
 
 public class ClockHandler extends BroadcastReceiver 
@@ -59,13 +57,15 @@ public class ClockHandler extends BroadcastReceiver
 		{
 			Log.d("ALARM", "There's not to alarm");
 		}
-		
-		try {
-			Log.d("ALARM", "next Event:" + nextEvent.toString());
-			//Toast.makeText(context, nextEvent.toString(), Toast.LENGTH_LONG).show();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		else
+		{
+			try {
+				Log.d("ALARM", "next Event:" + nextEvent.toString());
+				//Toast.makeText(context, nextEvent.toString(), Toast.LENGTH_LONG).show();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

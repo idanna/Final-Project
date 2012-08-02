@@ -1,7 +1,5 @@
 package clock.sched;
 
-import java.util.Calendar;
-
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.db.Event.eComparison;
@@ -9,14 +7,8 @@ import clock.db.Event.eComparison;
 import clock.sched.R;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.location.Address;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -120,7 +112,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 		   
 		   // saving event to the database
 		   saveToDB();
-		   LocationHandler.setLocationListener(this);
+		   LocationHandler.setLocationListener(this, event);
 		   returnResult();	
 	   }
 	   if (v == set_date_btn)
