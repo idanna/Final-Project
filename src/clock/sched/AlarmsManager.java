@@ -11,12 +11,14 @@ public class AlarmsManager
 	private DbAdapter dbAdapter;
 	private Context context;
 	private Event latestEvent;
+	private LocationHandler locationHandler;
 	
 	public AlarmsManager(Context context, DbAdapter dbAdapter) 
 	{
 		super();
 		this.dbAdapter = dbAdapter;
 		this.context = context;
+		this.locationHandler = new LocationHandler(context);
 	}
 
 	public void newEvent(Event newEvent)
@@ -30,20 +32,10 @@ public class AlarmsManager
 		
 		if (latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE)
 		{
-			handleLatestEventChange(newEvent);
+			this.latestEvent = newEvent;
+			locationHandler.setLocationListener(this.latestEvent);
 		}
 		
-	}
-	
-	private void handleLatestEventChange(Event newLatest) 
-	{
-		if(latestEvent != null)
-		{
-			ClockHandler.cancelEventAlarm(context, latestEvent);
-		}
-		
-		this.latestEvent = newLatest;
-		ClockHandler.setAlarm(context, newLatest);		
 	}
 
 	private void cancelEvent(Event event)

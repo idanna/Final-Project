@@ -71,12 +71,13 @@
         android:layout_gravity="center"
         android:src="@drawable/blue_bg_with_text" >
     </ImageView>
-
+
     <GridView
         android:id="@+id/calendar"
         android:layout_width="fill_parent"
-        android:layout_height="196dp"
+        android:layout_height="216dp"
         android:numColumns="7" >
+
     </GridView>
 
     <ListView

@@ -4,7 +4,9 @@ import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.outsources.GDataHandler;
 import clock.outsources.GDataHandler.TrafficData;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,7 +15,7 @@ import android.util.Log;
 
 public class LocationHandler implements LocationListener 
 {
-	Context context;
+	private Context context;
 	private GDataHandler googleHandler = new GDataHandler();
 	private static final double MIN_TIME_PERCENTAGE = 0.03d;
 	private static final float MIN_DISTANCE_MIN_TIME_PERCENTAGE = 0.03f;
@@ -21,69 +23,40 @@ public class LocationHandler implements LocationListener
 	private static final float DISTANCE_UP = 100;	//in meters
 	private long timesLeftToEvent;
 	private float distanceLeftToEvent;
-	private static LocationManager lm;
-	
-	public static void setLocationListener(Context c, Event event)
-	{
-		long minimumTimeInterval = 1000L;			//set first handler to 1 second minimum time
-		float minimumDistanceInterval =  1.0f; 		//and 1 meter minimum distance
-		
-		//Initiate location manager
-		lm = (LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
-		
-		//Setup first Location Update Request
-		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
-				minimumTimeInterval, minimumDistanceInterval, new LocationHandler(c));
-	}
+	private LocationManager lm;
+	private Event nextEvent;
 	
 	public LocationHandler(Context context)
 	{
 		this.context = context;
 	}
-	
-//	private String getLocation()
-//	{
-//		String formattedLocation = "";
-//
-//		LocationManager lm = (LocationManager) this.context.getSystemService(Context.LOCATION_SERVICE);
-//		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L,1.0f, this);
-//		
-//		try 
-//		{
-//			//Start GPS service if needed
-//			if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER))
-//			{
-//				//TODO: this is wrong because it force the user to start GPS, instead, we should ask the user to do so.
-//				context.startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-//			}
-//			Location l = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-//			deviceLocation.longtitude = l.getLongitude();
-//			deviceLocation.latitude = l.getLatitude();
-//			formattedLocation = deviceLocation.getGoogleFormattedLocation();
-//		}
-//		catch(Exception ex)
-//		{
-//			Log.d("Scheduler", "Error while trying to get last known location");
-//		}
-//	
-//		return formattedLocation;
-//	}
+
+	public void setLocationListener(Event event)
+	{
+		// Remove listener before setting the next event with the new one
+		setAndClearLocationManager();
+		this.nextEvent = event;
+		
+		long minimumTimeInterval = 1000L;			//set first handler to 1 second minimum time
+		float minimumDistanceInterval =  1.0f; 		//and 1 meter minimum distance
+		
+		//Setup first Location Update Request
+		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
+				minimumTimeInterval, minimumDistanceInterval, this);
+	}
+
 
 	@Override
 	public void onLocationChanged(Location location) 
 	{
-		DbAdapter db = new DbAdapter(this.context);
-		db.open();
-		Event nextEvent = db.getNextEvent();
-		db.close();
 				
 		if (nextEvent == null || location == null) 
-			Log.e("Location Handler", "On location changed: next event is null");
+			Log.e("Location Handler", "On location changed: next event or location is null");
 		else
 		{
 			try
 			{
-				calculateMinTimeAndDistanceIntervals(location, nextEvent);
+				calculateMinTimeAndDistanceIntervals(location);
 				if (timesLeftToEvent < TIMES_UP && distanceLeftToEvent < DISTANCE_UP)
 				{
 					//TODO: user has reached destination
@@ -100,6 +73,9 @@ public class LocationHandler implements LocationListener
 					long minimumTimeInterval = (long)(Double.longBitsToDouble(timesLeftToEvent) * MIN_TIME_PERCENTAGE);
 					float minimumDistanceInterval =  distanceLeftToEvent * MIN_DISTANCE_MIN_TIME_PERCENTAGE;
 					
+					//On each new update, clear the latest location update listener
+					setAndClearLocationManager();
+					
 					//Setup next Location Update Request
 					lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
 							minimumTimeInterval, minimumDistanceInterval, this);
@@ -113,8 +89,22 @@ public class LocationHandler implements LocationListener
 		}
 		
 	}
+	
+	private void setAndClearLocationManager() 
+	{
+		if (lm == null)
+		{
+			//Initiate location manager
+			lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+		}
+		else
+		{
+			//Remove on update listen
+			lm.removeUpdates(this);
+		}		
+	}
 
-	private void calculateMinTimeAndDistanceIntervals(Location location, Event nextEvent) throws Exception {
+	private void calculateMinTimeAndDistanceIntervals(Location location) throws Exception {
 		String origin = location.getLongitude() + "," + location.getLatitude();
 		String destination = nextEvent.getLocation();
 		if (origin == null || destination == null)
@@ -139,13 +129,13 @@ public class LocationHandler implements LocationListener
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
+		//		Message to user - Application need the gps to be enabled
 		
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
-		
+				
 	}
 
 	@Override

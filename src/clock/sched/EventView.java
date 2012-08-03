@@ -36,8 +36,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	protected Event event;
 	protected ToggleButton alarm_on_off;
 	
-	private AlarmsManager alarmManager;
-	private DbAdapter dbAdapter;
+	protected AlarmsManager alarmManager;
+	protected DbAdapter dbAdapter;
 	protected boolean alarmOnOffStatus;
 	
    /** Called when the activity is first created. */
@@ -112,7 +112,6 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 		   
 		   // saving event to the database
 		   saveToDB();
-		   LocationHandler.setLocationListener(this, event);
 		   returnResult();	
 	   }
 	   if (v == set_date_btn)
