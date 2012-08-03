@@ -1,7 +1,5 @@
 package clock.sched;
 
-import java.security.Provider;
-
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
