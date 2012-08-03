@@ -1,15 +1,15 @@
 package clock.sched;
 
-import clock.db.DbAdapter;
+import java.security.Provider;
+
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -135,12 +135,32 @@ public class LocationHandler implements LocationListener
 
 	@Override
 	public void onProviderEnabled(String provider) {
-				
+		if (nextEvent != null)
+		{
+			//When provider enable, we take the last known location and start onLocationChanged process
+			Location location = lm.getLastKnownLocation(provider);
+			onLocationChanged(location);
+		}
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub
+		if (nextEvent != null)
+		{
+			switch (status) {
+			case LocationProvider.OUT_OF_SERVICE:
+			case LocationProvider.TEMPORARILY_UNAVAILABLE:
+				//TODO: do we need to inform the user?
+				
+				break;		
+			case LocationProvider.AVAILABLE:
+				onProviderEnabled(provider);
+				break;
+			default:
+				Log.d("LocationHandler", "Reached unknown place while provider status changed");
+				break;
+			}
+		}
 		
 	}
 
