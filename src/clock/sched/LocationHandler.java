@@ -2,8 +2,8 @@ package clock.sched;
 
 import clock.db.DbAdapter;
 import clock.db.Event;
-import clock.outsources.GDataHandler;
-import clock.outsources.GDataHandler.TrafficData;
+import clock.outsources.GoogleTrafficHandler;
+import clock.outsources.GoogleTrafficHandler.TrafficData;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +16,7 @@ import android.util.Log;
 public class LocationHandler implements LocationListener 
 {
 	private Context context;
-	private GDataHandler googleHandler = new GDataHandler();
+	private GoogleTrafficHandler googleHandler = new GoogleTrafficHandler();
 	private static final double MIN_TIME_PERCENTAGE = 0.03d;
 	private static final float MIN_DISTANCE_MIN_TIME_PERCENTAGE = 0.03f;
 	private static final long TIMES_UP = 5L;		//in seconds

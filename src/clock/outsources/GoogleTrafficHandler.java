@@ -12,7 +12,7 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-public class GDataHandler 
+public class GoogleTrafficHandler 
 {
 	public class TrafficData
 	{
@@ -44,7 +44,7 @@ public class GDataHandler
 	private XPathFactory xpf;
 	private XPath xpath;
 	
-	public GDataHandler()
+	public GoogleTrafficHandler()
 	{
 		xpf = XPathFactory.newInstance();
 		xpath = xpf.newXPath();
