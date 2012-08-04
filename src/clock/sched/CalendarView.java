@@ -56,13 +56,13 @@ public class CalendarView extends Activity implements OnClickListener
 	private GridCellAdapter dayOfMonthAdapter;
 	private Calendar _calendar;
 	private int month, year;
-	@SuppressLint("NewApi")
+	private AlarmsManager alarmsManager;
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";
     //TODO: move this to resources
     private static final String[] menuItems = {"Edit", "Delete"};
 	
-	private ListView eventsList;
+	private ListView currentDayEventsList;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -74,8 +74,9 @@ public class CalendarView extends Activity implements OnClickListener
 		initCalander();
 		initUI();
 		
-		registerForContextMenu(eventsList);
-		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
+		registerForContextMenu(currentDayEventsList);
+		alarmsManager = new AlarmsManager(this, new DbAdapter(this));
+		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
 		dayOfMonthAdapter.notifyDataSetChanged();
 		calendarView.setAdapter(dayOfMonthAdapter);
 	}
@@ -99,7 +100,7 @@ public class CalendarView extends Activity implements OnClickListener
 		nextMonth.setOnClickListener(this);
 
 		calendarView = (GridView) this.findViewById(R.id.calendar);
-		eventsList = (ListView) this.findViewById(R.id.eventsList);
+		currentDayEventsList = (ListView) this.findViewById(R.id.eventsList);
 	}
 
 	private void initCalander() 
@@ -119,7 +120,7 @@ public class CalendarView extends Activity implements OnClickListener
 	private void setGridCellAdapterToDate(int month, int year) 
 	{
 		//TODO: why are we create new instance each month ? 
-		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
+		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
 		_calendar.set(year, month - 1, _calendar.get(Calendar.DAY_OF_MONTH));
 		currentMonth.setText(dateFormatter.format(dateTemplate,	_calendar.getTime()));
 		dayOfMonthAdapter.notifyDataSetChanged();
@@ -139,7 +140,7 @@ public class CalendarView extends Activity implements OnClickListener
 			// adding event to eventsPerMonth map
 			dayOfMonthAdapter.addEventToMonth(newEvent);
 			// adding to the view
-			ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) eventsList.getAdapter();
+			ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) currentDayEventsList.getAdapter();
 			eventsAdapter.add(newEvent);
 			eventsAdapter.notifyDataSetChanged();
 			dayOfMonthAdapter.notifyDataSetChanged();
@@ -152,7 +153,7 @@ public class CalendarView extends Activity implements OnClickListener
 		  if (v.getId() == R.id.eventsList) 
 		  {
 			    AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
-			    Event pressedEvent = (Event) eventsList.getAdapter().getItem(info.position);
+			    Event pressedEvent = (Event) currentDayEventsList.getAdapter().getItem(info.position);
 			    menu.setHeaderTitle(pressedEvent.toString());
 			    for (int i = 0; i < menuItems.length; i++) 
 			    {
@@ -168,18 +169,29 @@ public class CalendarView extends Activity implements OnClickListener
 		  AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		  int menuItemIndex = item.getItemId();
 		  String menuItemName = menuItems[menuItemIndex];
-		  Event pressedEvent = (Event) eventsList.getAdapter().getItem(info.position);
-		  if (menuItemName == "Delete")
-		  {  
-		  }
-		  else if (menuItemName == "Edit")
+		  Event pressedEvent = (Event) currentDayEventsList.getAdapter().getItem(info.position);
+		  // acting like event is deleted on both options.
+		  deleteEvent(pressedEvent);
+		  if (menuItemName == "Edit")
 		  {
-			  changeToEventView("editEvent", pressedEvent.encodeToString());
+			  	alarmsManager.deleteEvent(pressedEvent);
+	   			changeToEventView("editEvent", pressedEvent.encodeToString());
 		  }
 		  
 		  return true;
 	}	
 	
+	private void deleteEvent(Event pressedEvent) 
+	{
+	  	alarmsManager.deleteEvent(pressedEvent);
+		dayOfMonthAdapter.removeEventFromMonth(pressedEvent);
+		// removing from the day events list.
+		ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) currentDayEventsList.getAdapter();
+		eventsAdapter.remove(pressedEvent);
+		eventsAdapter.notifyDataSetChanged();
+		dayOfMonthAdapter.notifyDataSetChanged();
+	}
+
 	@Override
 	public void onClick(View v)
 	{		
@@ -490,8 +502,10 @@ public class CalendarView extends Activity implements OnClickListener
 					num_events_per_day = (TextView) row.findViewById(R.id.num_events_per_day);
 					Log.d("DATE:", theday + ": " + num_events_per_day);
 					Integer numEvents = (Integer) eventsPerMonthMap.get(theday).size();
-					num_events_per_day.setText(numEvents.toString());
+					String numOfEventsStr = numEvents == 0 ? "" : numEvents.toString();
+					num_events_per_day.setText(numOfEventsStr);
 				}
+				
 			}
 
 			// Set the Day GridCell
@@ -559,6 +573,12 @@ public class CalendarView extends Activity implements OnClickListener
 			return currentWeekDay;
 		}
 		
+		public void removeEventFromMonth(Event event) 
+		{
+			List<Event> dayEvents = eventsPerMonthMap.get(String.valueOf(event.getDay()));
+			dayEvents.remove(event);
+		}
+
 		public void addEventToMonth(Event newEvent) 
 		{
 			List<Event> dayEvents = eventsPerMonthMap.get(String.valueOf(newEvent.getDay()));

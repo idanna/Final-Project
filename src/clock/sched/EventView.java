@@ -34,8 +34,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	protected AutoCompleteTextView location_text;
 	protected EditText details_text;
 	protected Event event;
-	protected ToggleButton alarm_on_off;
-	
+	protected ToggleButton alarm_on_off;	
 	protected AlarmsManager alarmManager;
 	protected DbAdapter dbAdapter;
 	protected boolean alarmOnOffStatus;
@@ -123,26 +122,24 @@ private void setPageFields()
 			   alarmManager.newEvent(event);
 		   }
 		   
-		   // saving event to the database
-		   saveToDB();
 		   returnResult();	
 	   }
-	   if (v == set_date_btn)
+	   else // date/time toggling.
 	   {
+		   boolean dateVisibility = v == set_date_btn;
+		   setDateTimeBtns(dateVisibility, !dateVisibility);		   
+	   }
+	   
+	}
+   
+   	private void setDateTimeBtns(boolean dateVisibility, boolean timeVisibility)
+   	{
 		   date_picker.setVisibility(View.VISIBLE);
 		   time_picker.setVisibility(View.INVISIBLE);
 		   set_date_btn.setEnabled(false);
-		   set_time_btn.setEnabled(true);
-	   }
-	   if (v == set_time_btn)
-	   {
-		   date_picker.setVisibility(View.INVISIBLE);
-		   time_picker.setVisibility(View.VISIBLE);
-		   set_date_btn.setEnabled(true);
-		   set_time_btn.setEnabled(false);
-	   }
-	}
-
+		   set_time_btn.setEnabled(true);   		
+   	}
+   	
 	private void returnResult() 
 	{
 	   Intent i = this.getIntent();
@@ -150,13 +147,6 @@ private void setPageFields()
 	   setResult(RESULT_OK, i);
 	   //Close activity
 	   finish();		
-	}
-
-	private void saveToDB() 
-	{
-	   dbAdapter.open();
-	   dbAdapter.createEvent(event);
-	   dbAdapter.close();		
 	}
 
 	@Override

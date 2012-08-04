@@ -33,9 +33,15 @@ public class Event
 	@Override
 	public String toString() 
 	{
-		return this.details;
+		return getpadedZeroStr(this.hour) + ":" + getpadedZeroStr(this.min) + " " + this.location + "- " + this.details;
 	}
-
+	
+	@Override
+	public boolean equals(Object o) 
+	{
+		Event other = (Event) o;
+		return other.id == this.id; 
+	}
 	public static Event createNewInstance()
 	{
 		Event event = new Event();
@@ -192,28 +198,29 @@ public class Event
 		return day + "-" + month + "-" + year + "|" + hour + ":" + min + "|" + location + "|" + details + "|" + id;
 	}
 	
+	/**
+	 * 
+	 * @param event
+	 * @return String in the format of "YYYY-MM-DD HH-mm-00"
+	 */
 	public static String getSqlTimeRepresent(Event event) 
 	{
 		String retStr = event.getYear() + "-";
-		retStr = padZeroIfNedded(event.getMonth(), retStr);
-		retStr += event.getMonth() + "-";
-		retStr = padZeroIfNedded(event.getDay(), retStr);
-		retStr += event.getDay() + " ";
-		retStr = padZeroIfNedded(event.getHour(), retStr);
-		retStr += event.getHour() + "-";
-		retStr = padZeroIfNedded(event.getMin(), retStr);
-		retStr += event.getMin() + "-00";		
+		retStr += getpadedZeroStr(event.getMonth()) + "-";
+		retStr += getpadedZeroStr(event.getDay()) + " ";
+		retStr += getpadedZeroStr(event.getHour()) + "-";
+		retStr += getpadedZeroStr(event.getMin()) + "-00";
 		return retStr;
 	}
 	
-	private static String padZeroIfNedded(int num, String str)
+	/*
+	 * Return string of of two digits representing the num given
+	 * Exmp: input: 1 => "01" input 24 => "24"
+	 */
+	private static String getpadedZeroStr(int num)
 	{
-		if (num < 10)
-		{
-			str += "0";
-		}
-		
-		return str;
+		String retStr = num < 10 ? "0" + String.valueOf(num) : String.valueOf(num);
+		return retStr;
 	}
 
 	public void setDateFromSql(String sqlDateTime) 

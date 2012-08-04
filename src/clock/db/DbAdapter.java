@@ -58,7 +58,7 @@ public class DbAdapter
 		return isEmpty;
 	}
 
-	public Event createEvent(Event event) 
+	public Event insertEvent(Event event) 
 	{
 		ContentValues values = new ContentValues();
 		String dateSqlFormat = Event.getSqlTimeRepresent(event); 
