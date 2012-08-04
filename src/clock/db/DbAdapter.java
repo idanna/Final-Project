@@ -84,10 +84,10 @@ public class DbAdapter
 				+ " = " + id, null);
 	}
 	
-	public HashMap<Integer, List<Event>> getEventsMapForMonth(int month, int year)
+	public HashMap<String, List<Event>> getEventsMapForMonth(int month, int year)
 	{
 		//TODO: quickly replace 31 to the const MAX_DAYS_IN_MONTH
-		HashMap<Integer, List<Event>> eventsMap = new HashMap<Integer, List<Event>>(31);
+		HashMap<String, List<Event>> eventsMap = new HashMap<String, List<Event>>(31);
 		String yearMonth = String.valueOf(year) + "-";
 		yearMonth += month < 10 ? "0" + month : month;
 		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
@@ -100,11 +100,11 @@ public class DbAdapter
 		while (!cursor.isAfterLast()) 
 		{
 			Event event = cursorToEvent(cursor);
-			List<Event> dayList = eventsMap.get(event.getDay());
+			List<Event> dayList = eventsMap.get(String.valueOf(event.getDay()));
 			if (dayList == null) // first event for day
 			{
 				dayList = new ArrayList<Event>();
-				eventsMap.put(new Integer(event.getDay()), dayList);
+				eventsMap.put(String.valueOf(event.getDay()), dayList);
 			}
 			dayList.add(event);
 			cursor.moveToNext();
@@ -181,8 +181,6 @@ public class DbAdapter
 		{
 			Cursor cursor = database.query(Connection.TABLE_ADDRESS, new String[] {Connection.COLUMN_STREET}, Connection.COLUMN_STREET + " LIKE ? limit 3",
 					new String[] {constrain + "%"}, null, null, null);
-//			Cursor cursor = database.rawQuery("SELECT DISTINCT " + Connection.COLUMN_STREET + 
-//					" FROM " + Connection.TABLE_ADDRESS + " where " + Connection.COLUMN_STREET + " LIKE '" + constrain + "%' limit 3", null); 
 			cursor.moveToFirst();
 			sugg = new String[cursor.getCount()];
 			int i = 0;

@@ -135,7 +135,8 @@ public class CalendarView extends Activity implements OnClickListener {
 			// adding to the view
 			ArrayAdapter<String> eventsAdapter = (ArrayAdapter<String>) eventsList.getAdapter();
 			eventsAdapter.add(newEvent.getLocation());
-			eventsAdapter.notifyDataSetChanged();			
+			eventsAdapter.notifyDataSetChanged();
+			adapter.notifyDataSetChanged();
 		}
 	}
 	
@@ -197,15 +198,10 @@ public class CalendarView extends Activity implements OnClickListener {
 		setGridCellAdapterToDate(month, year);		
 	}
 
-	@Override
-	public void onDestroy() 
-	{
-	}
-	
-
 	// ///////////////////////////////////////////////////////////////////////////////////////
 	// Inner Class
-	public class GridCellAdapter extends BaseAdapter implements OnClickListener {
+	public class GridCellAdapter extends BaseAdapter implements OnClickListener 
+	{
 		private static final String tag = "GridCellAdapter";
 		private final Context _context;
 
@@ -224,7 +220,7 @@ public class CalendarView extends Activity implements OnClickListener {
 		private int currentWeekDay;
 		private Button gridcell;
 		private TextView num_events_per_day;
-		private final HashMap<Integer, List<Event>> eventsPerMonthMap;
+		private final HashMap<String, List<Event>> eventsPerMonthMap;
 		private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
 		
 		private String selectedDateString;
@@ -259,13 +255,13 @@ public class CalendarView extends Activity implements OnClickListener {
 								+ calendar.get(Calendar.YEAR);
 			selectedDayMonthYearButton.setText("Selected: " + selectedDateString);
 			// Print Month
-			printMonth(month, year);
 			dbAdapter.open();									
 			// Get events per month
 			//TODO: make it efficient by adding buffer to the prev and next monthes ? 
 			// and add year param
 			eventsPerMonthMap = dbAdapter.getEventsMapForMonth(month, year);
 			dbAdapter.close();
+			printMonth(month, year);
 		}
 		
 		public String getSelectedDate()
@@ -413,7 +409,8 @@ public class CalendarView extends Activity implements OnClickListener {
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(int position, View convertView, ViewGroup parent) 
+		{
 			View row = convertView;
 			if (row == null) {
 				LayoutInflater inflater = (LayoutInflater) _context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -466,7 +463,7 @@ public class CalendarView extends Activity implements OnClickListener {
 		{
 			selectedDateString = (String) view.getTag();
 			selectedDayMonthYearButton.setText("Selected: " + selectedDateString);
-			int day = Integer.parseInt(selectedDateString.split("-")[0]);
+			String day = selectedDateString.split("-")[0];
 			
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(_context, android.R.layout.simple_list_item_1);
 			List<Event> eventsForDay = eventsPerMonthMap.get(day);
@@ -517,13 +514,12 @@ public class CalendarView extends Activity implements OnClickListener {
 		
 		public void addEventToMonth(Event newEvent) 
 		{
-			List<Event> dayEvents = eventsPerMonthMap.get(newEvent.getDay());
+			List<Event> dayEvents = eventsPerMonthMap.get(String.valueOf(newEvent.getDay()));
 			if (dayEvents == null) // first event
 			{
 				dayEvents = new ArrayList<Event>(2);
-				eventsPerMonthMap.put(newEvent.getDay(), dayEvents);
+				eventsPerMonthMap.put(String.valueOf(newEvent.getDay()), dayEvents);
 			}
-			
 			dayEvents.add(newEvent);
 		}
 	}
