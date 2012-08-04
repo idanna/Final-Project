@@ -1,11 +1,5 @@
 package clock.sched;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,10 +25,15 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -43,7 +42,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class CalendarView extends Activity implements OnClickListener {
+public class CalendarView extends Activity implements OnClickListener 
+{
 	private static final String tag = "SimpleCalendarViewActivity";
 	private Button selectedDayMonthYearButton;
 	private Button currentMonth;
@@ -56,6 +56,8 @@ public class CalendarView extends Activity implements OnClickListener {
 	private int month, year;
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";
+    //TODO: move this to resources
+    private static final String[] menuItems = {"Edit", "Delete"};
 	
 	private ListView eventsList;
 
@@ -69,6 +71,7 @@ public class CalendarView extends Activity implements OnClickListener {
 		initCalander();
 		initUI();
 		
+		registerForContextMenu(eventsList);
 		adapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
 		adapter.notifyDataSetChanged();
 		calendarView.setAdapter(adapter);
@@ -139,6 +142,37 @@ public class CalendarView extends Activity implements OnClickListener {
 			adapter.notifyDataSetChanged();
 		}
 	}
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) 
+	{
+		  if (v.getId() == R.id.eventsList) 
+		  {
+			    AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo; 
+			    menu.setHeaderTitle(eventsList.getAdapter().getItem(info.position).toString());
+			    for (int i = 0; i < menuItems.length; i++) 
+			    {
+			      menu.add(Menu.NONE, i, i, menuItems[i]);
+			    }    
+		  }
+	  
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) 
+	{
+		  AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+		  int menuItemIndex = item.getItemId();
+		  String menuItemName = menuItems[menuItemIndex];
+		  if (menuItemName == "Delete")
+		  {  
+		  }
+		  else if (menuItemName == "Edit")
+		  {
+		  }
+		  
+		  return true;
+	}	
 	
 	@Override
 	public void onClick(View v)
@@ -239,8 +273,7 @@ public class CalendarView extends Activity implements OnClickListener {
 			this.eventsList = eventsList;
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1);
 			adapter.add("Events list");
-			this.eventsList.setAdapter(adapter);
-			
+			this.eventsList.setAdapter(adapter);			
 			Log.d(tag, "==> Passed in Date FOR Month: " + month + " "
 					+ "Year: " + year);
 			Calendar calendar = Calendar.getInstance();
