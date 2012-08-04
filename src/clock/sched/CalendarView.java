@@ -252,25 +252,19 @@ public class CalendarView extends Activity implements OnClickListener {
 			setCurrentWeekDay(calendar.get(Calendar.DAY_OF_WEEK));
 			Log.d(tag, "New Calendar:= " + calendar.getTime().toString());
 			Log.d(tag, "CurrentDayOfWeek :" + getCurrentWeekDay());
-			Log.d(tag, "CurrentDayOfMonth :" + getCurrentDayOfMonth());
-			
+			Log.d(tag, "CurrentDayOfMonth :" + getCurrentDayOfMonth());			
 			// Set selected date string for current date (if '+' button hit before date selected)
 			selectedDateString = calendar.get(Calendar.DAY_OF_MONTH) + "-" 
 								+ (calendar.get(Calendar.MONTH) + 1) + "-"
 								+ calendar.get(Calendar.YEAR);
 			selectedDayMonthYearButton.setText("Selected: " + selectedDateString);
-
 			// Print Month
 			printMonth(month, year);
-
-			dbAdapter.open();		
-
-				
-			
+			dbAdapter.open();									
 			// Get events per month
 			//TODO: make it efficient by adding buffer to the prev and next monthes ? 
 			// and add year param
-			eventsPerMonthMap = dbAdapter.getEventsMapForMonth(month - 1, year);
+			eventsPerMonthMap = dbAdapter.getEventsMapForMonth(month, year);
 			dbAdapter.close();
 		}
 		

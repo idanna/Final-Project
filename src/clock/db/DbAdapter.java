@@ -179,8 +179,10 @@ public class DbAdapter
 		String[] sugg = new String[0];
 		if (constrain.length() > 2)
 		{
-			Cursor cursor = database.rawQuery("SELECT DISTINCT " + Connection.COLUMN_STREET + 
-					" FROM " + Connection.TABLE_ADDRESS + " where " + Connection.COLUMN_STREET + " LIKE '" + constrain + "%' limit 3", null); 
+			Cursor cursor = database.query(Connection.TABLE_ADDRESS, new String[] {Connection.COLUMN_STREET}, Connection.COLUMN_STREET + " LIKE ? limit 3",
+					new String[] {constrain + "%"}, null, null, null);
+//			Cursor cursor = database.rawQuery("SELECT DISTINCT " + Connection.COLUMN_STREET + 
+//					" FROM " + Connection.TABLE_ADDRESS + " where " + Connection.COLUMN_STREET + " LIKE '" + constrain + "%' limit 3", null); 
 			cursor.moveToFirst();
 			sugg = new String[cursor.getCount()];
 			int i = 0;
