@@ -61,7 +61,7 @@ public class DbAdapter
 	public Event createEvent(Event event) 
 	{
 		ContentValues values = new ContentValues();
-		String dateSqlFormat = Event.getSqlRepresent(event); 
+		String dateSqlFormat = Event.getSqlTimeRepresent(event); 
 		values.put(Connection.COLUMN_DATE, dateSqlFormat);
 		values.put(Connection.COLUMN_LOCATION, event.getLocation());
 		values.put(Connection.COLUMN_DETAILS, event.getDetails());

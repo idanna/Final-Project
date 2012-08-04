@@ -70,28 +70,41 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
    {
 	   	super.onStart();
 	   	Bundle b = getIntent().getExtras();
-	   	String selctedDate;
-		selctedDate = (String) b.get("selectedDate").toString();
-   		event = Event.createNewInstance();
-   		// there was a day selected at the calander.
-	   	if (event != null)
+	   	if(b.containsKey("selectedDate")) // new event.
 	   	{
-		   	String[] date = selctedDate.split("-");
-			event.setDay(Integer.parseInt(date[0]));
-			event.setMonth(Integer.parseInt(date[1]));
-			event.setYear(Integer.parseInt(date[2])); 
+	   		setForNewEvent(b.get("selectedDate").toString());
+	   	}
+	   	else // edit event
+	   	{
+	   		String eventStr = b.get("editEvent").toString();
+	   		event = Event.CreateFromString(eventStr);
 	   	}
 	   	
 	   	Log.d("UI SET TO:", event.toString());
    		setPageFields();
    }
    
-   private void setPageFields() 
+   private void setForNewEvent(String newEventInitDate) 
+   {
+  		event = Event.createNewInstance();
+  		// there was a day selected at the calander.
+	   	if (event != null)
+	   	{
+		   	String[] date = newEventInitDate.split("-");
+			event.setDay(Integer.parseInt(date[0]));
+			event.setMonth(Integer.parseInt(date[1]));
+			event.setYear(Integer.parseInt(date[2])); 
+	   	}	
+   }
+
+private void setPageFields() 
    {   
 	   date_picker.updateDate(event.getYear(), event.getMonth() - 1, event.getDay());
 	   time_picker.setCurrentHour(event.getHour());
 	   time_picker.setCurrentMinute(event.getMin());
 	   date_picker.setVisibility(View.INVISIBLE);
+	   location_text.setText(event.getLocation());
+	   details_text.setText(event.getDetails());
 	   set_time_btn.setEnabled(false);
    }
    
@@ -133,7 +146,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	private void returnResult() 
 	{
 	   Intent i = this.getIntent();
-	   i.putExtra("newEvent", event.toString());
+	   i.putExtra("newEvent", event.encodeToString());
 	   setResult(RESULT_OK, i);
 	   //Close activity
 	   finish();		

@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import clock.db.Event;
 import clock.sched.R;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -51,9 +53,10 @@ public class CalendarView extends Activity implements OnClickListener
 	private ImageView nextMonth;
 	private Button newEventBtn;
 	private GridView calendarView;
-	private GridCellAdapter adapter;
+	private GridCellAdapter dayOfMonthAdapter;
 	private Calendar _calendar;
 	private int month, year;
+	@SuppressLint("NewApi")
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";
     //TODO: move this to resources
@@ -72,9 +75,9 @@ public class CalendarView extends Activity implements OnClickListener
 		initUI();
 		
 		registerForContextMenu(eventsList);
-		adapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
-		adapter.notifyDataSetChanged();
-		calendarView.setAdapter(adapter);
+		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
+		dayOfMonthAdapter.notifyDataSetChanged();
+		calendarView.setAdapter(dayOfMonthAdapter);
 	}
 
 	private void initUI() 
@@ -116,11 +119,11 @@ public class CalendarView extends Activity implements OnClickListener
 	private void setGridCellAdapterToDate(int month, int year) 
 	{
 		//TODO: why are we create new instance each month ? 
-		adapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
+		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), eventsList, R.id.calendar_day_gridcell, month, year);
 		_calendar.set(year, month - 1, _calendar.get(Calendar.DAY_OF_MONTH));
 		currentMonth.setText(dateFormatter.format(dateTemplate,	_calendar.getTime()));
-		adapter.notifyDataSetChanged();
-		calendarView.setAdapter(adapter);
+		dayOfMonthAdapter.notifyDataSetChanged();
+		calendarView.setAdapter(dayOfMonthAdapter);
 	}
 	
 	@Override
@@ -134,12 +137,12 @@ public class CalendarView extends Activity implements OnClickListener
 			String eventStr = b.getString("newEvent");
 			Event newEvent = Event.CreateFromString(eventStr);
 			// adding event to eventsPerMonth map
-			adapter.addEventToMonth(newEvent);
+			dayOfMonthAdapter.addEventToMonth(newEvent);
 			// adding to the view
-			ArrayAdapter<String> eventsAdapter = (ArrayAdapter<String>) eventsList.getAdapter();
-			eventsAdapter.add(newEvent.getLocation());
+			ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) eventsList.getAdapter();
+			eventsAdapter.add(newEvent);
 			eventsAdapter.notifyDataSetChanged();
-			adapter.notifyDataSetChanged();
+			dayOfMonthAdapter.notifyDataSetChanged();
 		}
 	}
 	
@@ -148,8 +151,9 @@ public class CalendarView extends Activity implements OnClickListener
 	{
 		  if (v.getId() == R.id.eventsList) 
 		  {
-			    AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo; 
-			    menu.setHeaderTitle(eventsList.getAdapter().getItem(info.position).toString());
+			    AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+			    Event pressedEvent = (Event) eventsList.getAdapter().getItem(info.position);
+			    menu.setHeaderTitle(pressedEvent.toString());
 			    for (int i = 0; i < menuItems.length; i++) 
 			    {
 			      menu.add(Menu.NONE, i, i, menuItems[i]);
@@ -164,11 +168,13 @@ public class CalendarView extends Activity implements OnClickListener
 		  AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		  int menuItemIndex = item.getItemId();
 		  String menuItemName = menuItems[menuItemIndex];
+		  Event pressedEvent = (Event) eventsList.getAdapter().getItem(info.position);
 		  if (menuItemName == "Delete")
 		  {  
 		  }
 		  else if (menuItemName == "Edit")
 		  {
+			  changeToEventView("editEvent", pressedEvent.encodeToString());
 		  }
 		  
 		  return true;
@@ -192,12 +198,20 @@ public class CalendarView extends Activity implements OnClickListener
 
 	}
 
-	private void changeToEventView() 
+	/**
+	 * Change to Event View for a new event.
+	 */
+	private void changeToEventView()
+	{
+		GridCellAdapter grid = (GridCellAdapter) calendarView.getAdapter();
+		this.changeToEventView("selectedDate", grid.getSelectedDate());
+	}
+	
+	private void changeToEventView(String extraDataKey, String extraData) 
 	{
 		//TODO: send new event with current time and date
-		GridCellAdapter grid = (GridCellAdapter) calendarView.getAdapter();
 		Intent intent = new Intent(this, EventView.class);	
-		intent.putExtra("selectedDate", grid.getSelectedDate());
+		intent.putExtra(extraDataKey, extraData);
 		startActivityForResult(intent, 0);		
 	}
 
@@ -265,15 +279,13 @@ public class CalendarView extends Activity implements OnClickListener
 		public GridCellAdapter(Context context, ListView eventsList, int textViewResourceId,	int month, int year) 
 		{
 			super();
+			initDataMembers();
 			this._context = context;
 			this.dbAdapter = new DbAdapter(context);
 			this.list = new ArrayList<String>();
 			this.month = month;
-			this.year = year;	
+			this.year = year;
 			this.eventsList = eventsList;
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1);
-			adapter.add("Events list");
-			this.eventsList.setAdapter(adapter);			
 			Log.d(tag, "==> Passed in Date FOR Month: " + month + " "
 					+ "Year: " + year);
 			Calendar calendar = Calendar.getInstance();
@@ -289,14 +301,24 @@ public class CalendarView extends Activity implements OnClickListener
 			selectedDayMonthYearButton.setText("Selected: " + selectedDateString);
 			// Print Month
 			dbAdapter.open();									
-			// Get events per month
 			//TODO: make it efficient by adding buffer to the prev and next monthes ? 
-			// and add year param
 			eventsPerMonthMap = dbAdapter.getEventsMapForMonth(month, year);
 			dbAdapter.close();
+			ArrayAdapter<Event> eventsListAdapter = new ArrayAdapter<Event>(context, android.R.layout.simple_list_item_1);
+			if(eventsPerMonthMap.containsKey(String.valueOf(currentDayOfMonth)))
+			{
+				eventsListAdapter.addAll(eventsPerMonthMap.get(String.valueOf(currentDayOfMonth)));
+			}
+			//addEventsToAdapter(eventsListAdapter, eventsPerMonthMap.get(String.valueOf(currentDayOfMonth)));
+			this.eventsList.setAdapter(eventsListAdapter);		
 			printMonth(month, year);
 		}
 		
+		private void initDataMembers() {
+			// TODO Auto-generated method stub
+			
+		}
+
 		public String getSelectedDate()
 		{
 			return selectedDateString;
@@ -498,14 +520,14 @@ public class CalendarView extends Activity implements OnClickListener
 			selectedDayMonthYearButton.setText("Selected: " + selectedDateString);
 			String day = selectedDateString.split("-")[0];
 			
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(_context, android.R.layout.simple_list_item_1);
+			ArrayAdapter<Event> adapter = new ArrayAdapter<Event>(_context, android.R.layout.simple_list_item_1);
 			List<Event> eventsForDay = eventsPerMonthMap.get(day);
 			
 			//TODO: what do we want to display ? 
 			// this is only for keeping the flow
 			if(eventsForDay != null)
 			{
-				addDataToAdapter(adapter, eventsForDay);				
+				adapter.addAll(eventsForDay);				
 			}
 			
 			adapter.notifyDataSetChanged();
@@ -518,14 +540,6 @@ public class CalendarView extends Activity implements OnClickListener
 			} 
 			catch (ParseException e) {
 				e.printStackTrace();
-			}
-		}
-
-		private void addDataToAdapter(ArrayAdapter<String> adapter, List<Event> eventsForDay) 
-		{
-			for (Iterator<Event> iterator = eventsForDay.iterator(); iterator.hasNext();) {
-				Event event = iterator.next();
-				adapter.add(event.getLocation());				
 			}
 		}
 

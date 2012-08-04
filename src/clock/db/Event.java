@@ -30,13 +30,10 @@ public class Event
 	private Event()
 	{ };
 	
-	/**
-	 * returning the event in format dd-MM-YY|HH:mm|location|details
-	 */
 	@Override
 	public String toString() 
 	{
-		return day + "-" + month + "-" + year + "|" + hour + ":" + min + "|" + location + "|" + details;
+		return this.details;
 	}
 
 	public static Event createNewInstance()
@@ -50,7 +47,7 @@ public class Event
 	
 	/**
 	 * 
-	 * @param eventStr - Should be in the format dd-MM-YY|HH:mm|location|details
+	 * @param eventStr - Should be in the format dd-MM-YY|HH:mm|location|details|id
 	 * @return new event parsed from string
 	 */
 	public static Event CreateFromString(String eventStr) 
@@ -66,6 +63,7 @@ public class Event
 		e.min = Integer.parseInt(time[1]);
 		e.location = prop[2];
 		e.details = prop[3];
+		e.id = Long.parseLong(prop[4]);
 		
 		return e;
 	}
@@ -185,8 +183,16 @@ public class Event
 	{
 		this.withAlarm = status;
 	}
-
-	public static String getSqlRepresent(Event event) 
+	
+	/**
+	 * returning the event in format dd-MM-YY|HH:mm|location|details|id
+	 */
+	public String encodeToString()
+	{
+		return day + "-" + month + "-" + year + "|" + hour + ":" + min + "|" + location + "|" + details + "|" + id;
+	}
+	
+	public static String getSqlTimeRepresent(Event event) 
 	{
 		String retStr = event.getYear() + "-";
 		retStr = padZeroIfNedded(event.getMonth(), retStr);
