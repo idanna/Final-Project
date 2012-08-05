@@ -5,6 +5,5 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="src" path="assets"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="C:/Users/Idan/Dropbox/סדנא/שעון מעורר/GWeatherDependencies.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
