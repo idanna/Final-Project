@@ -127,18 +127,27 @@ private void setPageFields()
 	   else // date/time toggling.
 	   {
 		   boolean dateVisibility = v == set_date_btn;
-		   setDateTimeBtns(dateVisibility, !dateVisibility);		   
+		   setDateTimeBtns(!dateVisibility, dateVisibility);		   
 	   }
 	   
 	}
    
    	private void setDateTimeBtns(boolean dateVisibility, boolean timeVisibility)
    	{
-		   date_picker.setVisibility(View.VISIBLE);
-		   time_picker.setVisibility(View.INVISIBLE);
-		   set_date_btn.setEnabled(false);
-		   set_time_btn.setEnabled(true);   		
-   	}
+   			if (dateVisibility == true)
+   			{
+   			   	date_picker.setVisibility(View.VISIBLE);
+   			   	time_picker.setVisibility(View.INVISIBLE);   				
+   			}
+   			else
+   			{
+   			   	date_picker.setVisibility(View.INVISIBLE);
+   			   	time_picker.setVisibility(View.VISIBLE);   				
+   			}
+   			
+		   	set_date_btn.setEnabled(dateVisibility);
+		   	set_time_btn.setEnabled(timeVisibility);   		
+	}
    	
 	private void returnResult() 
 	{
