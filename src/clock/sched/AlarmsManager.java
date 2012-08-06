@@ -20,27 +20,33 @@ public class AlarmsManager
 	private DbAdapter dbAdapter;
 	private Context context;
 	private Event latestEvent;
-	private LocationHandler locationHandler;
+//	private LocationHandler locationHandler;
 	
 	public AlarmsManager(Context context, DbAdapter dbAdapter) 
 	{
 		super();
 		this.dbAdapter = dbAdapter;
 		this.context = context;
-		this.locationHandler = new LocationHandler(context);
+		//this.locationHandler = new LocationHandler(context);
 	}
 
 	public void newEvent(Event newEvent)
 	{
+		// saving the new event to db, and ref
 		dbAdapter.open();
 		dbAdapter.insertEvent(newEvent);
 		refreshLastEvent();
 		dbAdapter.close();
-		if (latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE)
+		if(Event.compareToNow(newEvent) == eComparison.AFTER)
 		{
-			this.latestEvent = newEvent;
-			//TODO: why AlarmManager holds a location manager ?
-			locationHandler.setLocationListener(this.latestEvent);
+			if (latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE)
+			{
+				ClockHandler.cancelEventAlarm(context, latestEvent);
+				this.latestEvent = newEvent;
+				ClockHandler.setAlarm(context, latestEvent);
+//				locationHandler.setLocationListener(this.latestEvent);
+			}
+			
 		}
 		
 	}
@@ -56,7 +62,7 @@ public class AlarmsManager
 			refreshLastEvent();
 			if (latestEvent != null)
 			{
-//				ClockHandler.setAlarm(context, latestEvent);
+				ClockHandler.setAlarm(context, latestEvent);
 			}
 			
 			ClockHandler.cancelEventAlarm(context, event);			

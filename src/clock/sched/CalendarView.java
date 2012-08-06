@@ -174,7 +174,6 @@ public class CalendarView extends Activity implements OnClickListener
 		  deleteEvent(pressedEvent);
 		  if (menuItemName == "Edit")
 		  {
-			  	alarmsManager.deleteEvent(pressedEvent);
 	   			changeToEventView("editEvent", pressedEvent.encodeToString());
 		  }
 		  

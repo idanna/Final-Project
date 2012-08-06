@@ -43,7 +43,6 @@ public class LocationHandler implements LocationListener
 				minimumTimeInterval, minimumDistanceInterval, this);
 	}
 
-
 	@Override
 	public void onLocationChanged(Location location) 
 	{

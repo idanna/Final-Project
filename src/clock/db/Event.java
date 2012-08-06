@@ -70,6 +70,7 @@ public class Event
 		e.location = prop[2];
 		e.details = prop[3];
 		e.id = Long.parseLong(prop[4]);
+		e.withAlarm = Boolean.parseBoolean(prop[5]);
 		
 		return e;
 	}
@@ -195,7 +196,7 @@ public class Event
 	 */
 	public String encodeToString()
 	{
-		return day + "-" + month + "-" + year + "|" + hour + ":" + min + "|" + location + "|" + details + "|" + id;
+		return day + "-" + month + "-" + year + "|" + hour + ":" + min + "|" + location + "|" + details + "|" + id + "|" +  withAlarm;
 	}
 	
 	/**

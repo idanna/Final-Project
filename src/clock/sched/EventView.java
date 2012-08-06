@@ -105,6 +105,7 @@ private void setPageFields()
 	   location_text.setText(event.getLocation());
 	   details_text.setText(event.getDetails());
 	   set_time_btn.setEnabled(false);
+	   alarm_on_off.setChecked(event.getWithAlarmStatus());
    }
    
    @Override
@@ -115,13 +116,8 @@ private void setPageFields()
 		   //TODO: check if it's a legal event - if this event overlapped by duration time with other events!!!
 			
 		   event.setPropFromViews(date_picker, time_picker, location_text, details_text, alarmOnOffStatus);
-		   
 		   // if the event is before or overlapped the current time, no need to trouble the alarm manager about that.
-		   if(Event.compareToNow(event) == eComparison.AFTER)
-		   {
-			   alarmManager.newEvent(event);
-		   }
-		   
+		   alarmManager.newEvent(event);
 		   returnResult();	
 	   }
 	   else // date/time toggling.
