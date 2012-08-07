@@ -35,6 +35,7 @@ public class Connection extends SQLiteOpenHelper
 
 	private static final String DATABASE_NAME = "smart_clock.db";
 	private static final int DATABASE_VERSION = 1;
+	public static final String PAST_EVENT = "3";
 
     //The Android's default system path of your application database.
     private static String DB_PATH = "/data/data/clock.sched/databases/";

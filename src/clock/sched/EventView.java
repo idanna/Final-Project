@@ -22,6 +22,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class EventView extends Activity implements OnClickListener, OnKeyListener, OnCheckedChangeListener 
@@ -114,11 +115,18 @@ private void setPageFields()
 	   if (v == add_event_btn)
 	   {
 		   //TODO: check if it's a legal event - if this event overlapped by duration time with other events!!!
-			
+		   // yes ! so we can show a message that's explains and keep user on this page.
 		   event.setPropFromViews(date_picker, time_picker, location_text, details_text, alarmOnOffStatus);
 		   // if the event is before or overlapped the current time, no need to trouble the alarm manager about that.
-		   alarmManager.newEvent(event);
-		   returnResult();	
+		   try 
+		   {
+			   alarmManager.newEvent(event);
+			   returnResult();
+		   } 
+		   catch (Exception e) 
+		   {
+			   Toast.makeText(this, "Error with address",Toast.LENGTH_LONG).show();
+		   }	
 	   }
 	   else // date/time toggling.
 	   {

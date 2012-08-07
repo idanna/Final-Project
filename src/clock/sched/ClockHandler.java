@@ -11,62 +11,96 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 public class ClockHandler extends BroadcastReceiver 
 {
-	public static void setAlarm(Context context, Event event) 
+	/**
+	 * Setting an alarm to the event time - extra Time (in minutes);
+	 * @param context
+	 * @param event The event to schedule
+	 * @param extraTime Extra minutes to substract from the event actual time. 
+	 */
+	public static void setAlarm(Context context, Event event, int extraTime) 
 	{
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		Calendar time = Calendar.getInstance();
 		Log.d("ALARM", "Set Alarm To:" + event.toString());
 		time.set(event.getYear(), event.getMonth() - 1, event.getDay(), event.getHour(), event.getMin(), 0);
+		// setting the clock backward 'extraTime' minutres.
+		time.add(Calendar.MINUTE, -extraTime);
 		alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);
 	}
 	
 	private static PendingIntent getPendingIntent(Context context, Event event)
 	{
 		Intent intent = new Intent(context, ClockHandler.class);
-		intent.putExtra("eventStr", event.toString());
+		intent.putExtra("eventStr", event.encodeToString());
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 		return pendingIntent;
 	}
-	
-	public static long getTimesLeftToEvent(Event event)
-	{
-		Calendar currentCalendar = Calendar.getInstance();
-		Calendar eventCalendar = event.toCalendar();
-				
-		return eventCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis();
-	}
-	
-	
+
+	// moved into Event member funcion.
+	//	public static long getTimesLeftToEvent(Event event)	
 	@Override
 	public void onReceive(Context context, Intent i) 
 	{
 		Log.d("ALARM", "Inside OnReceive:");
-		Bundle b = i.getExtras();
-		String eventStr = b.getString("eventStr");
-		Event eventToHandle = Event.CreateFromString(eventStr);
-		Log.d("ALARM", "In bundle: " + eventToHandle.toString());
 		DbAdapter db = new DbAdapter(context);
 		db.open();
 		Event nextEvent = db.getNextEvent();
 		db.close();
-		if(nextEvent == null)
+		if (nextEvent != null)
 		{
-			Log.d("ALARM", "There's not to alarm");
-		}
-		else
-		{
-			try {
-				Log.d("ALARM", "next Event:" + nextEvent.toString());
-				//Toast.makeText(context, nextEvent.toString(), Toast.LENGTH_LONG).show();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			long travelTime = 0;
+			//long travelTime = lc.getMinTimeInterval(nextEvent.getLocation()).getDuration();
+			int arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
+			if (isAlarmIfNeeded(nextEvent, arrangeTime, travelTime))
+			{
+				//TODO: alarm that time has come !
+				Log.d("ALARM", "Time is come for: " + nextEvent.toString());
+				db.setEventAsDirty(nextEvent);
+				nextEvent = db.getNextEvent();
+				travelTime = 0;
+				//long travelTime = lc.getMinTimeInterval(nextEvent.getLocation()).getDuration();
+				arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0; 
 			}
+			
+			setNextAlarm(context, arrangeTime, travelTime, nextEvent);
 		}
+		
+	} 
+
+	/**
+	 * Return true if its time to alarm 
+	 * @param nextEvent
+	 * @param arrangeTime
+	 * @param travelTime
+	 * @return
+	 */
+	private boolean isAlarmIfNeeded(Event nextEvent, int arrangeTime, long travelTime) 
+	{
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	private void setNextAlarm(Context context,int arrangeTime, long travelTime, Event nextEvent) 
+	{
+		Log.d("ALARM", "Inside setNextAlarm:");
+		try // what if there's an internet problem when trying to set the next alarm ? (same in AlarmManager)
+		{
+			LocationHandler lc = new LocationHandler(context);
+			Log.d("ALARM", "set: " + nextEvent + "Travel/Arrage" + travelTime + "//" + arrangeTime);
+			ClockHandler.setAlarm(context, nextEvent, (int)(travelTime + arrangeTime));
+		} 
+		catch (Exception e) 
+		{
+			Log.d("ALARM", "Could'nt set cont alarm to: " + nextEvent);
+		}
+		
+		
+		
 	}
 
 	public static void cancelEventAlarm(Context context, Event latestEvent) 

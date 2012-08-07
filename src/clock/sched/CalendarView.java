@@ -43,6 +43,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class CalendarView extends Activity implements OnClickListener 
 {
@@ -182,7 +183,15 @@ public class CalendarView extends Activity implements OnClickListener
 	
 	private void deleteEvent(Event pressedEvent) 
 	{
-	  	alarmsManager.deleteEvent(pressedEvent);
+	  	try 
+	  	{
+			alarmsManager.deleteEvent(pressedEvent);
+		} 
+	  	catch(Exception e) 
+	  	{
+	  		Toast.makeText(this, "Error schedual next event", Toast.LENGTH_LONG).show();
+		}
+	  	
 		dayOfMonthAdapter.removeEventFromMonth(pressedEvent);
 		// removing from the day events list.
 		ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) currentDayEventsList.getAdapter();

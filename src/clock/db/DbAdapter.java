@@ -133,7 +133,7 @@ public class DbAdapter
 	}
 		
 	/**
-	 * get the next event from the database.
+	 * get the next event from the database (where alarm field != PAST_EVENT).
 	 * returns null if no upcoming events.
 	 */
 	public Event getNextEvent()
@@ -142,7 +142,7 @@ public class DbAdapter
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH-mm-ss");
         String currentTime = sdf.format(new Date());
 		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
-				"date > '" + currentTime + "' order by date limit 1", null);
+				"date > '" + currentTime + " AND " + Connection.COLUMN_ALARM + "!=" + Connection.PAST_EVENT + " order by date limit 1", null);
 		Log.d("Next SQL", "SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
 				"date > '" + currentTime + "' order by date limit 1");
 		cursor.moveToFirst();
@@ -161,7 +161,7 @@ public class DbAdapter
 		}
 		
 		return retEvent;
-	}
+	}	
 	
 	private Event cursorToEvent(Cursor cursor) 
 	{
@@ -195,4 +195,26 @@ public class DbAdapter
 		return sugg;
 		
 	}
+
+	/**
+	 * 
+	 * @return the time the system learned user need to arrange.
+	 */
+	public int getArrangeTime() 
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	/**
+	 * Setting the alarm value of the event in the db to be PAST_EVET
+	 * Signing it as not releavent for alarm queries.
+	 * @param pastEvent - event to set as PAST
+	 */
+	public void setEventAsDirty(Event pastEvent) 
+	{
+		database.execSQL("UPDATE " + Connection.TABLE_EVENTS + " SET " + Connection.COLUMN_ALARM + 
+				"=" + Connection.PAST_EVENT + " WHERE id=" + pastEvent.getId());
+	}
+
 }

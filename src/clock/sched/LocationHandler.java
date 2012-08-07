@@ -4,6 +4,7 @@ import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 import android.content.Context;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -100,8 +101,25 @@ public class LocationHandler implements LocationListener
 			lm.removeUpdates(this);
 		}		
 	}
-
-	private void calculateMinTimeAndDistanceIntervals(Location location) throws Exception {
+	
+	/**
+	 * Will return the Min time intercal from the current locaion (last best known) and the destination.
+	 * @param destination the place heading for.
+	 * @throws Exception 
+	 */
+	public TrafficData getMinTimeInterval(String destination) throws Exception
+	{
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+		String provider = lm.getBestProvider(criteria, true);
+		Location location = lm.getLastKnownLocation(provider);
+		String origin = location.getLongitude() + "," + location.getLatitude();
+		return googleHandler.calculateTrafficInfo(origin, destination);
+	}
+	
+	private void calculateMinTimeAndDistanceIntervals(Location location) throws Exception 
+	{
 		String origin = location.getLongitude() + "," + location.getLatitude();
 		String destination = nextEvent.getLocation();
 		if (origin == null || destination == null)
@@ -110,7 +128,7 @@ public class LocationHandler implements LocationListener
 		}
 		
 		TrafficData trafficData = googleHandler.calculateTrafficInfo(origin, destination);
-		timesLeftToEvent = nextEvent == null ? 0 : ClockHandler.getTimesLeftToEvent(nextEvent);
+		timesLeftToEvent = nextEvent == null ? 0 : nextEvent.getTimesLeftToEvent();
 		
 		if (trafficData.getDuration() == -1l || trafficData.getDistance() == -1f)
 		{

@@ -117,6 +117,14 @@ public class Event
 		return res;
 	}
 	
+	public long getTimesLeftToEvent()
+	{
+		Calendar currentCalendar = Calendar.getInstance();
+		Calendar eventCalendar = this.toCalendar();
+				
+		return eventCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis();
+	}
+	
 	public long getId() {
 		return id;
 	}
@@ -192,7 +200,7 @@ public class Event
 	}
 	
 	/**
-	 * returning the event in format dd-MM-YY|HH:mm|location|details|id
+	 * returning the event in format dd-MM-YY|HH:mm|location|details|id|with_alarm
 	 */
 	public String encodeToString()
 	{
@@ -236,13 +244,18 @@ public class Event
 		this.min = Integer.parseInt(time[1]);
 	}
 
-	public static eComparison compareToNow(Event event) 
+	private eComparison compareToNow(Event event) 
 	{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH-mm-ss");
         String currentTimeStr = sdf.format(new Date());
         Event currentTime = new Event();
         currentTime.setDateFromSql(currentTimeStr);
         return compareBetweenEvents(event, currentTime);
+	}
+
+	public boolean isAfterNow() 
+	{
+		return compareToNow(this) == eComparison.AFTER;
 	}
 
 }
