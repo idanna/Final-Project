@@ -59,14 +59,21 @@ public class ClockHandler extends BroadcastReceiver
 			// TODO: set TIMES_UP value
 			if (timesLeftToEvent > TIMES_UP)
 			{
-				long travelTime = GoogleAdapter.getTravelTimeToEvent(nextEvent);
-				long arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
-				long timesLeftToGoOut = timesLeftToEvent - travelTime - arrangeTime;
-				
-				// User interaction if needed
-				EventProgressHandler.handleEventProgress(nextEvent, timesLeftToGoOut);
-				
-				setNextAlarm(context, arrangeTime, travelTime, nextEvent);
+				try
+				{
+					long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent);
+					long arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
+					long timesLeftToGoOut = timesLeftToEvent - travelTime - arrangeTime;
+					
+					// User interaction if needed
+					EventProgressHandler.handleEventProgress(nextEvent, timesLeftToGoOut);
+					
+					setNextAlarm(context, arrangeTime, travelTime, nextEvent);
+				}
+				catch (Exception ex)
+				{
+					
+				}
 			}
 			else
 			{

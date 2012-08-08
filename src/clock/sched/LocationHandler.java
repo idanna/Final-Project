@@ -20,17 +20,24 @@ public class LocationHandler implements LocationListener
 	private static final float DISTANCE_UP = 0f;
 	private static Context current_context;
 	
-	public static void setLocationListener(Context context, Event event)
+	public static void setLocationListener(Context context, Event event, float distanceToEventLocation)
 	{	
 		// Need context for the 'onLocationChanged' - db adapter
 		current_context = context;
-		float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(event);
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.ACCURACY_FINE);
-		LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
-		PendingIntent pendingIntent = getPendingIntent(context, event);
-		float minDistanceInterval = distanceToEventLocation * MIN_DISTANCE_INTERVAL_PERCENTAGE;
-		lm.requestLocationUpdates(MIN_TIME_INTERVAL, minDistanceInterval, criteria, pendingIntent);
+		try
+		{
+//			float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(context, event);
+			Criteria criteria = new Criteria();
+			criteria.setAccuracy(Criteria.ACCURACY_FINE);
+			LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
+			PendingIntent pendingIntent = getPendingIntent(context, event);
+			float minDistanceInterval = distanceToEventLocation * MIN_DISTANCE_INTERVAL_PERCENTAGE;
+			lm.requestLocationUpdates(MIN_TIME_INTERVAL, minDistanceInterval, criteria, pendingIntent);
+		}
+		catch (Exception ex)
+		{
+			//TODO: 
+		}
 	}
 	
 	private static PendingIntent getPendingIntent(Context context, Event event)
@@ -57,12 +64,19 @@ public class LocationHandler implements LocationListener
 		db.close();
 		if (nextEvent != null)
 		{
-			float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(nextEvent);
-			
-			// TODO: set DISTANCE_UP value
-			if (distanceToEventLocation > DISTANCE_UP)
+			try
 			{
-				EventProgressHandler.handleEventProgress(nextEvent, distanceToEventLocation);
+				float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(current_context, nextEvent);
+				
+				// TODO: set DISTANCE_UP value
+				if (distanceToEventLocation > DISTANCE_UP)
+				{
+						EventProgressHandler.handleEventProgress(nextEvent, distanceToEventLocation);
+				}
+			}
+			catch (Exception ex)
+			{
+				//TODO:
 			}
 			
 //			if (timesLeftToEvent < TIMES_UP && distanceLeftToEvent < DISTANCE_UP)

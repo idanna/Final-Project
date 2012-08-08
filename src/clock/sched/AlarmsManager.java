@@ -8,6 +8,7 @@ import clock.db.Event.eComparison;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
 import clock.outsources.GoogleWeatherHandler;
+import clock.outsources.GoogleTrafficHandler.TrafficData;
 
 /**
  * Manager All alarms service in DataBase 
@@ -47,31 +48,41 @@ public class AlarmsManager
 		{
 			throw new IllegalAddressException();
 		}
-		long timeToPlace = GoogleAdapter.getTravelTimeToEvent(newEvent);
-		
-		dbAdapter.open();
-		refreshLastEvent();
-		dbAdapter.insertEvent(newEvent);
-		if(newEvent.getWithAlarmStatus() == true && newEvent.isAfterNow() &&
-						(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
+		try
 		{
-			int arrageTime = newEvent.getWithAlarmStatus() == true ? dbAdapter.getArrangeTime() : 0;
-			if (latestEvent != null)
-			{
-				ClockHandler.cancelEventAlarm(context, latestEvent);
-				LocationHandler.cancelLocationListener(context, latestEvent);
-			}
+			TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent);
 			
-			this.latestEvent = newEvent;
-			ClockHandler.setAlarm(context, latestEvent, ((int)timeToPlace + arrageTime));
-			LocationHandler.setLocationListener(context, latestEvent);
+			dbAdapter.open();
+			refreshLastEvent();
+			dbAdapter.insertEvent(newEvent);
+			if(newEvent.getWithAlarmStatus() == true && newEvent.isAfterNow() &&
+							(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
+			{
+				int arrageTime = newEvent.getWithAlarmStatus() == true ? dbAdapter.getArrangeTime() : 0;
+				if (latestEvent != null)
+				{
+					ClockHandler.cancelEventAlarm(context, latestEvent);
+					LocationHandler.cancelLocationListener(context, latestEvent);
+				}
+				
+				this.latestEvent = newEvent;
+				ClockHandler.setAlarm(context, latestEvent, ((int)trafficData.getDuration() + arrageTime));
+				LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
+			}
 		}
-		
-		dbAdapter.close();		
+		catch (Exception ex)
+		{
+			//TODO:
+		}
+		finally
+		{
+			dbAdapter.close();
+		}
 	}
 
 	public void deleteEvent(Event event) throws Exception
 	{
+		//TODO: how many refresh and latest and new and what the hell?!?
 		dbAdapter.open();
 		refreshLastEvent();
 		dbAdapter.deleteEvent(event);
@@ -81,10 +92,17 @@ public class AlarmsManager
 			refreshLastEvent();
 			if (latestEvent != null)
 			{
-				long timeToPlace = GoogleAdapter.getTravelTimeToEvent(latestEvent);
-				int timeToArrange = dbAdapter.getArrangeTime();
-				ClockHandler.setAlarm(context, latestEvent, (int)(timeToArrange + timeToPlace));
-				LocationHandler.setLocationListener(context, latestEvent);
+				try
+				{
+					TrafficData trafficData = GoogleAdapter.getTrafficData(context, latestEvent);
+					int timeToArrange = dbAdapter.getArrangeTime();
+					ClockHandler.setAlarm(context, latestEvent, (int)(timeToArrange + trafficData.getDuration()));
+					LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
+				}
+				catch (Exception ex)
+				{
+					//TODO:
+				}
 			}
 			
 			ClockHandler.cancelEventAlarm(context, event);
