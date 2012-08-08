@@ -61,7 +61,7 @@ public class ClockHandler extends BroadcastReceiver
 			{
 				try
 				{
-					long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent);
+					long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent, null);
 					long arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
 					long timesLeftToGoOut = timesLeftToEvent - travelTime - arrangeTime;
 					

@@ -41,16 +41,14 @@ public class AlarmsManager
 	public void newEvent(Event newEvent) throws IllegalAddressException, InternetDisconnectedException
 	{
 		if (!GoogleAdapter.isInternetConnected())
-		{
 			throw new InternetDisconnectedException();
-		}
+		
 		if (!GoogleAdapter.isLegalAddress(newEvent.getLocation()))
-		{
 			throw new IllegalAddressException();
-		}
+
 		try
 		{
-			TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent);
+			TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
 			
 			dbAdapter.open();
 			refreshLastEvent();
@@ -94,7 +92,7 @@ public class AlarmsManager
 			{
 				try
 				{
-					TrafficData trafficData = GoogleAdapter.getTrafficData(context, latestEvent);
+					TrafficData trafficData = GoogleAdapter.getTrafficData(context, latestEvent, null);
 					int timeToArrange = dbAdapter.getArrangeTime();
 					ClockHandler.setAlarm(context, latestEvent, (int)(timeToArrange + trafficData.getDuration()));
 					LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());

@@ -18,23 +18,47 @@ public class GoogleAdapter {
 	private static Event lastEvent;
 	private static float lastDistanceToEventLocation = 0;
 	
-	public static TrafficData getTrafficData(Context context, Event event) throws Exception
+	/**
+	 * 
+	 * @param context
+	 * @param event
+	 * @param location - if set to null then consider last known location from OS service
+	 * @return
+	 * @throws Exception
+	 */
+	public static TrafficData getTrafficData(Context context, Event event, Location location) throws Exception
 	{
-		String origin = getOrigin(context);
+		String origin = getOrigin(context, location);
 		TrafficData trafficData = gTrafficHandler.calculateTrafficInfo(origin, event.getLocation());
 		return trafficData;
 	}
 	
-	public static long getTravelTimeToEvent(Context context, Event event) throws Exception
+	/**
+	 * 
+	 * @param context
+	 * @param event
+	 * @param location - if set to null then consider last known location from OS service
+	 * @return
+	 * @throws Exception
+	 */
+	public static long getTravelTimeToEvent(Context context, Event event, Location location) throws Exception
 	{
-		String origin = getOrigin(context);
+		String origin = getOrigin(context, location);
 		TrafficData trafficData = gTrafficHandler.calculateTrafficInfo(origin, event.getLocation());
 		return trafficData.getDuration();
 	}
 
-	public static float getDistanceToEventLocation(Context context, Event event) throws Exception
+	/**
+	 * 
+	 * @param context
+	 * @param event
+	 * @param location - if set to null then consider last known location from OS service
+	 * @return
+	 * @throws Exception
+	 */
+	public static float getDistanceToEventLocation(Context context, Event event, Location location) throws Exception
 	{
-		String origin = getOrigin(context);
+		String origin = getOrigin(context, location);
 		if (isCacheDetails(origin, event))
 		{
 			return lastDistanceToEventLocation;
@@ -55,13 +79,16 @@ public class GoogleAdapter {
 			
 	}
 
-	private static String getOrigin(Context context) 
+	private static String getOrigin(Context context, Location location) 
 	{
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.ACCURACY_FINE);
-		LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		String provider = lm.getBestProvider(criteria, true);
-		Location location = lm.getLastKnownLocation(provider);
+		if (location == null)
+		{
+			Criteria criteria = new Criteria();
+			criteria.setAccuracy(Criteria.ACCURACY_FINE);
+			LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+			String provider = lm.getBestProvider(criteria, true);
+			location = lm.getLastKnownLocation(provider);
+		}
 		return location.getLongitude() + "," + location.getLatitude();
 	}
 

@@ -66,7 +66,7 @@ public class LocationHandler implements LocationListener
 		{
 			try
 			{
-				float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(current_context, nextEvent);
+				float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(current_context, nextEvent, location);
 				
 				// TODO: set DISTANCE_UP value
 				if (distanceToEventLocation > DISTANCE_UP)
@@ -78,75 +78,8 @@ public class LocationHandler implements LocationListener
 			{
 				//TODO:
 			}
-			
-//			if (timesLeftToEvent < TIMES_UP && distanceLeftToEvent < DISTANCE_UP)
-//			{
-//				//TODO: user has reached destination
-//				Log.d("LocationHandler", "User has reached destination");
-//			}
-//			else if (timesLeftToEvent <= 0)
-//			{
-//				//TODO: time is up, no need to recall on location changed
-//				//			otherwise we should notice user about this late
-//				Log.d("LocationHandler", "Times up, user is late");
-//			}
-//			else
-//			{
-//				long minimumTimeInterval = (long)(Double.longBitsToDouble(timesLeftToEvent) * MIN_TIME_PERCENTAGE);
-//				float minimumDistanceInterval =  distanceLeftToEvent * MIN_DISTANCE_MIN_TIME_PERCENTAGE;
-//				
-//				//On each new update, clear the latest location update listener
-//				setAndClearLocationManager();
-//				
-//				//Setup next Location Update Request
-//				lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
-//						minimumTimeInterval, minimumDistanceInterval, this);
-//			}
 		}
-//		catch (Exception ex)
-//		{
-//			Log.e("LocationHandler", "Calculating time and distance intervals failed: " + ex.getMessage());
-//		}
-						
-		
 	}
-	
-//	/**
-//	 * Will return the Min time intercal from the current locaion (last best known) and the destination.
-//	 * @param destination the place heading for.
-//	 * @throws Exception 
-//	 */
-//	public TrafficData getMinTimeInterval(String destination) throws Exception
-//	{
-//		
-//		String provider = lm.getBestProvider(criteria, true);
-//		Location location = lm.getLastKnownLocation(provider);
-//		String origin = location.getLongitude() + "," + location.getLatitude();
-//		return googleHandler.calculateTrafficInfo(origin, destination);
-//	}
-//	
-//	private void calculateMinTimeAndDistanceIntervals(Location location) throws Exception 
-//	{
-//		String origin = location.getLongitude() + "," + location.getLatitude();
-//		String destination = nextEvent.getLocation();
-//		if (origin == null || destination == null)
-//		{
-//			throw new Exception("Error: LocationHandler, origin or destination is null");
-//		}
-//		
-//		TrafficData trafficData = googleHandler.calculateTrafficInfo(origin, destination);
-//		timesLeftToEvent = nextEvent == null ? 0 : nextEvent.getTimesLeftToEvent();
-//		
-//		if (trafficData.getDuration() == -1l || trafficData.getDistance() == -1f)
-//		{
-//			throw new Exception("Error: LocationHandler, duration or distance not found");
-//		}
-//		
-//		//include travel time inside timesLeftToEvent
-//		timesLeftToEvent -= trafficData.getDuration();	
-//		
-//		distanceLeftToEvent = trafficData.getDistance();		
-//	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
