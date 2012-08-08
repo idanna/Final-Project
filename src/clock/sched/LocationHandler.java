@@ -1,9 +1,10 @@
 package clock.sched;
 
+import clock.db.DbAdapter;
 import clock.db.Event;
-import clock.outsources.GoogleTrafficHandler;
-import clock.outsources.GoogleTrafficHandler.TrafficData;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -14,167 +15,160 @@ import android.util.Log;
 
 public class LocationHandler implements LocationListener 
 {
-	private Context context;
-	private GoogleTrafficHandler googleHandler = new GoogleTrafficHandler();
-	private static final double MIN_TIME_PERCENTAGE = 0.03d;
-	private static final float MIN_DISTANCE_MIN_TIME_PERCENTAGE = 0.03f;
-	private static final long TIMES_UP = 5L;		//in seconds
-	private static final float DISTANCE_UP = 100;	//in meters
-	private long timesLeftToEvent;
-	private float distanceLeftToEvent;
-	private LocationManager lm;
-	private Event nextEvent;
+	private static final long MIN_TIME_INTERVAL = 0;		// Ignore minimum time interval - only location matters
+	private static final float MIN_DISTANCE_INTERVAL_PERCENTAGE = 0.03f;
+	private static final float DISTANCE_UP = 0f;
+	private static Context current_context;
 	
-	public LocationHandler(Context context)
-	{
-		this.context = context;
+	public static void setLocationListener(Context context, Event event)
+	{	
+		// Need context for the 'onLocationChanged' - db adapter
+		current_context = context;
+		float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(event);
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
+		PendingIntent pendingIntent = getPendingIntent(context, event);
+		float minDistanceInterval = distanceToEventLocation * MIN_DISTANCE_INTERVAL_PERCENTAGE;
+		lm.requestLocationUpdates(MIN_TIME_INTERVAL, minDistanceInterval, criteria, pendingIntent);
 	}
-
-	public void setLocationListener(Event event)
+	
+	private static PendingIntent getPendingIntent(Context context, Event event)
 	{
-		// Remove listener before setting the next event with the new one
-		setAndClearLocationManager();
-		this.nextEvent = event;
-		
-		long minimumTimeInterval = 1000L;			//set first handler to 1 second minimum time
-		float minimumDistanceInterval =  1.0f; 		//and 1 meter minimum distance
-		
-		//Setup first Location Update Request
-		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
-				minimumTimeInterval, minimumDistanceInterval, this);
+		Intent intent = new Intent(context, LocationHandler.class);
+		intent.putExtra("eventStr", event.encodeToString());
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+		return pendingIntent;
+	}
+	
+	public static void cancelLocationListener(Context context, Event event)
+	{
+		PendingIntent pendingIntent = getPendingIntent(context, event);
+		LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
+		lm.removeUpdates(pendingIntent);
 	}
 
 	@Override
 	public void onLocationChanged(Location location) 
 	{
-				
-		if (nextEvent == null || location == null) 
-			Log.e("Location Handler", "On location changed: next event or location is null");
-		else
+		DbAdapter db = new DbAdapter(current_context);
+		db.open();
+		Event nextEvent = db.getNextEvent();
+		db.close();
+		if (nextEvent != null)
 		{
-			try
+			float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(nextEvent);
+			
+			// TODO: set DISTANCE_UP value
+			if (distanceToEventLocation > DISTANCE_UP)
 			{
-				calculateMinTimeAndDistanceIntervals(location);
-				if (timesLeftToEvent < TIMES_UP && distanceLeftToEvent < DISTANCE_UP)
-				{
-					//TODO: user has reached destination
-					Log.d("LocationHandler", "User has reached destination");
-				}
-				else if (timesLeftToEvent <= 0)
-				{
-					//TODO: time is up, no need to recall on location changed
-					//			otherwise we should notice user about this late
-					Log.d("LocationHandler", "Times up, user is late");
-				}
-				else
-				{
-					long minimumTimeInterval = (long)(Double.longBitsToDouble(timesLeftToEvent) * MIN_TIME_PERCENTAGE);
-					float minimumDistanceInterval =  distanceLeftToEvent * MIN_DISTANCE_MIN_TIME_PERCENTAGE;
-					
-					//On each new update, clear the latest location update listener
-					setAndClearLocationManager();
-					
-					//Setup next Location Update Request
-					lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
-							minimumTimeInterval, minimumDistanceInterval, this);
-				}
+				EventProgressHandler.handleEventProgress(nextEvent, distanceToEventLocation);
 			}
-			catch (Exception ex)
-			{
-				Log.e("LocationHandler", "Calculating time and distance intervals failed: " + ex.getMessage());
-			}
+			
+//			if (timesLeftToEvent < TIMES_UP && distanceLeftToEvent < DISTANCE_UP)
+//			{
+//				//TODO: user has reached destination
+//				Log.d("LocationHandler", "User has reached destination");
+//			}
+//			else if (timesLeftToEvent <= 0)
+//			{
+//				//TODO: time is up, no need to recall on location changed
+//				//			otherwise we should notice user about this late
+//				Log.d("LocationHandler", "Times up, user is late");
+//			}
+//			else
+//			{
+//				long minimumTimeInterval = (long)(Double.longBitsToDouble(timesLeftToEvent) * MIN_TIME_PERCENTAGE);
+//				float minimumDistanceInterval =  distanceLeftToEvent * MIN_DISTANCE_MIN_TIME_PERCENTAGE;
+//				
+//				//On each new update, clear the latest location update listener
+//				setAndClearLocationManager();
+//				
+//				//Setup next Location Update Request
+//				lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
+//						minimumTimeInterval, minimumDistanceInterval, this);
+//			}
+		}
+//		catch (Exception ex)
+//		{
+//			Log.e("LocationHandler", "Calculating time and distance intervals failed: " + ex.getMessage());
+//		}
 						
-		}
 		
 	}
 	
-	private void setAndClearLocationManager() 
-	{
-		if (lm == null)
-		{
-			//Initiate location manager
-			lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		}
-		else
-		{
-			//Remove on update listen
-			lm.removeUpdates(this);
-		}		
-	}
-	
-	/**
-	 * Will return the Min time intercal from the current locaion (last best known) and the destination.
-	 * @param destination the place heading for.
-	 * @throws Exception 
-	 */
-	public TrafficData getMinTimeInterval(String destination) throws Exception
-	{
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.ACCURACY_FINE);
-		lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		String provider = lm.getBestProvider(criteria, true);
-		Location location = lm.getLastKnownLocation(provider);
-		String origin = location.getLongitude() + "," + location.getLatitude();
-		return googleHandler.calculateTrafficInfo(origin, destination);
-	}
-	
-	private void calculateMinTimeAndDistanceIntervals(Location location) throws Exception 
-	{
-		String origin = location.getLongitude() + "," + location.getLatitude();
-		String destination = nextEvent.getLocation();
-		if (origin == null || destination == null)
-		{
-			throw new Exception("Error: LocationHandler, origin or destination is null");
-		}
-		
-		TrafficData trafficData = googleHandler.calculateTrafficInfo(origin, destination);
-		timesLeftToEvent = nextEvent == null ? 0 : nextEvent.getTimesLeftToEvent();
-		
-		if (trafficData.getDuration() == -1l || trafficData.getDistance() == -1f)
-		{
-			throw new Exception("Error: LocationHandler, duration or distance not found");
-		}
-		
-		//include travel time inside timesLeftToEvent
-		timesLeftToEvent -= trafficData.getDuration();	
-		
-		distanceLeftToEvent = trafficData.getDistance();		
-	}
+//	/**
+//	 * Will return the Min time intercal from the current locaion (last best known) and the destination.
+//	 * @param destination the place heading for.
+//	 * @throws Exception 
+//	 */
+//	public TrafficData getMinTimeInterval(String destination) throws Exception
+//	{
+//		
+//		String provider = lm.getBestProvider(criteria, true);
+//		Location location = lm.getLastKnownLocation(provider);
+//		String origin = location.getLongitude() + "," + location.getLatitude();
+//		return googleHandler.calculateTrafficInfo(origin, destination);
+//	}
+//	
+//	private void calculateMinTimeAndDistanceIntervals(Location location) throws Exception 
+//	{
+//		String origin = location.getLongitude() + "," + location.getLatitude();
+//		String destination = nextEvent.getLocation();
+//		if (origin == null || destination == null)
+//		{
+//			throw new Exception("Error: LocationHandler, origin or destination is null");
+//		}
+//		
+//		TrafficData trafficData = googleHandler.calculateTrafficInfo(origin, destination);
+//		timesLeftToEvent = nextEvent == null ? 0 : nextEvent.getTimesLeftToEvent();
+//		
+//		if (trafficData.getDuration() == -1l || trafficData.getDistance() == -1f)
+//		{
+//			throw new Exception("Error: LocationHandler, duration or distance not found");
+//		}
+//		
+//		//include travel time inside timesLeftToEvent
+//		timesLeftToEvent -= trafficData.getDuration();	
+//		
+//		distanceLeftToEvent = trafficData.getDistance();		
+//	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-		//		Message to user - Application need the gps to be enabled
+		// TODO - Notify EventProgressHandler
 		
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		if (nextEvent != null)
-		{
-			//When provider enable, we take the last known location and start onLocationChanged process
-			Location location = lm.getLastKnownLocation(provider);
-			onLocationChanged(location);
-		}
+		// TODO - Notify EventProgressHandler
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		if (nextEvent != null)
+		if (current_context != null)
 		{
-			switch (status) {
-			case LocationProvider.OUT_OF_SERVICE:
-			case LocationProvider.TEMPORARILY_UNAVAILABLE:
-				//TODO: do we need to inform the user?
-				
-				break;		
-			case LocationProvider.AVAILABLE:
-				onProviderEnabled(provider);
-				break;
-			default:
-				Log.d("LocationHandler", "Reached unknown place while provider status changed");
-				break;
-			}
+			DbAdapter db = new DbAdapter(current_context);
+			db.open();
+			Event nextEvent = db.getNextEvent();
+			db.close();
+			if (nextEvent != null)
+			{
+				switch (status) {
+				case LocationProvider.OUT_OF_SERVICE:
+				case LocationProvider.TEMPORARILY_UNAVAILABLE:
+					//TODO: do we need to inform the user?
+					
+					break;		
+				case LocationProvider.AVAILABLE:
+					onProviderEnabled(provider);
+					break;
+				default:
+					Log.d("LocationHandler", "Reached unknown place while provider status changed");
+					break;
+				}
+			}	
 		}
 		
 	}

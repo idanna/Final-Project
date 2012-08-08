@@ -8,6 +8,8 @@ import clock.sched.R;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -97,7 +99,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	}	
    }
 
-private void setPageFields() 
+   private void setPageFields() 
    {   
 	   date_picker.updateDate(event.getYear(), event.getMonth() - 1, event.getDay());
 	   time_picker.setCurrentHour(event.getHour());

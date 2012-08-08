@@ -1,22 +1,18 @@
 package clock.sched;
 
-import java.security.acl.LastOwnerException;
-
 import android.content.Context;
-import android.util.Log;
-import android.widget.Toast;
 
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.db.Event.eComparison;
-import clock.outsources.GoogleTrafficHandler;
-import clock.outsources.GoogleTrafficHandler.TrafficData;
+import clock.exceptions.IllegalAddressException;
+import clock.exceptions.InternetDisconnectedException;
+import clock.outsources.GoogleWeatherHandler;
 
 /**
- * Manager All alarms service infornt the DataBase 
+ * Manager All alarms service in DataBase 
  * And the Android alarm services.
- * Manage all the internal alarm schedualing logic.
- * @author Idan
+ * Manage all the internal alarm scheduling logic.
  *
  */
 public class AlarmsManager 
@@ -30,23 +26,29 @@ public class AlarmsManager
 	public AlarmsManager(Context context, DbAdapter dbAdapter) 
 	{
 		super();
-		this.locationHandler = new LocationHandler(context);
 		this.dbAdapter = dbAdapter;
 		this.context = context;
-		this.locationHandler = new LocationHandler(context);
 	}
+	
 	/**
 	 * Informs the alarm manager about a new event.
 	 * saves the alarm in db, manage the alarm set/cancel in case needed.
 	 * @param newEvent 
-	 * @throws Exception in case of problems with google geo. Event is not saved nor alarms change.
-	 */
-	public void newEvent(Event newEvent) throws Exception
+	 * @throws InternetDisconnectedException in case of problems with the internet connection
+	 * @throws IllegalAddressException in case of problems with the new event address
+	 **/
+	public void newEvent(Event newEvent) throws IllegalAddressException, InternetDisconnectedException
 	{
-		// first trying to get time to place, to assure address is correct.
-		//$$ only for now
-		//long timeToPlace = locationHandler.getMinTimeInterval(newEvent.getLocation()).getDuration();
-		long timeToPlace = 0;
+		if (!GoogleAdapter.isInternetConnected())
+		{
+			throw new InternetDisconnectedException();
+		}
+		if (!GoogleAdapter.isLegalAddress(newEvent.getLocation()))
+		{
+			throw new IllegalAddressException();
+		}
+		long timeToPlace = GoogleAdapter.getTravelTimeToEvent(newEvent);
+		
 		dbAdapter.open();
 		refreshLastEvent();
 		dbAdapter.insertEvent(newEvent);
@@ -57,11 +59,12 @@ public class AlarmsManager
 			if (latestEvent != null)
 			{
 				ClockHandler.cancelEventAlarm(context, latestEvent);
+				LocationHandler.cancelLocationListener(context, latestEvent);
 			}
 			
 			this.latestEvent = newEvent;
 			ClockHandler.setAlarm(context, latestEvent, ((int)timeToPlace + arrageTime));
-//					locationHandler.setLocationListener(this.latestEvent);
+			LocationHandler.setLocationListener(context, latestEvent);
 		}
 		
 		dbAdapter.close();		
@@ -78,12 +81,14 @@ public class AlarmsManager
 			refreshLastEvent();
 			if (latestEvent != null)
 			{
-				long timeToPlace = locationHandler.getMinTimeInterval(latestEvent.getLocation()).getDuration();
+				long timeToPlace = GoogleAdapter.getTravelTimeToEvent(latestEvent);
 				int timeToArrange = dbAdapter.getArrangeTime();
 				ClockHandler.setAlarm(context, latestEvent, (int)(timeToArrange + timeToPlace));
+				LocationHandler.setLocationListener(context, latestEvent);
 			}
 			
-			ClockHandler.cancelEventAlarm(context, event);			
+			ClockHandler.cancelEventAlarm(context, event);
+			LocationHandler.cancelLocationListener(context, event);
 		}
 	}
 	

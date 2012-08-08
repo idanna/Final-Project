@@ -141,10 +141,11 @@ public class DbAdapter
 		Event retEvent = null;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH-mm-ss");
         String currentTime = sdf.format(new Date());
-		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
-				"date > '" + currentTime + " AND " + Connection.COLUMN_ALARM + "!=" + Connection.PAST_EVENT + " order by date limit 1", null);
-		Log.d("Next SQL", "SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
-				"date > '" + currentTime + "' order by date limit 1");
+        String query = "SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " + 
+        		"date > '" + currentTime + "' order by date limit 1";
+		Cursor cursor = database.rawQuery(query , null);
+		Log.d("Next SQL", query);
+		
 		cursor.moveToFirst();
 		if (!cursor.isAfterLast())
 		{
@@ -206,15 +207,15 @@ public class DbAdapter
 		return 0;
 	}
 	
-	/**
-	 * Setting the alarm value of the event in the db to be PAST_EVET
-	 * Signing it as not releavent for alarm queries.
-	 * @param pastEvent - event to set as PAST
-	 */
-	public void setEventAsDirty(Event pastEvent) 
-	{
-		database.execSQL("UPDATE " + Connection.TABLE_EVENTS + " SET " + Connection.COLUMN_ALARM + 
-				"=" + Connection.PAST_EVENT + " WHERE id=" + pastEvent.getId());
-	}
+//	/**
+//	 * Setting the alarm value of the event in the db to be PAST_EVET
+//	 * Signing it as not releavent for alarm queries.
+//	 * @param pastEvent - event to set as PAST
+//	 */
+//	public void setEventAsDirty(Event pastEvent) 
+//	{
+//		database.execSQL("UPDATE " + Connection.TABLE_EVENTS + " SET " + Connection.COLUMN_ALARM + 
+//				"=" + Connection.PAST_EVENT + " WHERE id=" + pastEvent.getId());
+//	}
 
 }

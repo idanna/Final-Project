@@ -9,12 +9,12 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 public class ClockHandler extends BroadcastReceiver 
 {
+	private static final long TIMES_UP = 0;
+	
 	/**
 	 * Setting an alarm to the event time - extra Time (in minutes);
 	 * @param context
@@ -28,7 +28,8 @@ public class ClockHandler extends BroadcastReceiver
 		Calendar time = Calendar.getInstance();
 		Log.d("ALARM", "Set Alarm To:" + event.toString());
 		time.set(event.getYear(), event.getMonth() - 1, event.getDay(), event.getHour(), event.getMin(), 0);
-		// setting the clock backward 'extraTime' minutres.
+
+		// TODO: set the time to 1/3 if it's greater then some minimum
 		time.add(Calendar.MINUTE, -extraTime);
 		alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);
 	}
@@ -53,44 +54,35 @@ public class ClockHandler extends BroadcastReceiver
 		db.close();
 		if (nextEvent != null)
 		{
-			long travelTime = 0;
-			//long travelTime = lc.getMinTimeInterval(nextEvent.getLocation()).getDuration();
-			int arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
-			if (isAlarmIfNeeded(nextEvent, arrangeTime, travelTime))
-			{
-				//TODO: alarm that time has come !
-				Log.d("ALARM", "Time is come for: " + nextEvent.toString());
-				db.setEventAsDirty(nextEvent);
-				nextEvent = db.getNextEvent();
-				travelTime = 0;
-				//long travelTime = lc.getMinTimeInterval(nextEvent.getLocation()).getDuration();
-				arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0; 
-			}
+			long timesLeftToEvent = nextEvent.getTimesLeftToEvent();
 			
-			setNextAlarm(context, arrangeTime, travelTime, nextEvent);
+			// TODO: set TIMES_UP value
+			if (timesLeftToEvent > TIMES_UP)
+			{
+				long travelTime = GoogleAdapter.getTravelTimeToEvent(nextEvent);
+				long arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
+				long timesLeftToGoOut = timesLeftToEvent - travelTime - arrangeTime;
+				
+				// User interaction if needed
+				EventProgressHandler.handleEventProgress(nextEvent, timesLeftToGoOut);
+				
+				setNextAlarm(context, arrangeTime, travelTime, nextEvent);
+			}
+			else
+			{
+				//TODO: Event time is up
+				nextEvent = db.getNextEvent();
+			}			
 		}
 		
 	} 
 
-	/**
-	 * Return true if its time to alarm 
-	 * @param nextEvent
-	 * @param arrangeTime
-	 * @param travelTime
-	 * @return
-	 */
-	private boolean isAlarmIfNeeded(Event nextEvent, int arrangeTime, long travelTime) 
-	{
-		// TODO Auto-generated method stub
-		return true;
-	}
 
-	private void setNextAlarm(Context context,int arrangeTime, long travelTime, Event nextEvent) 
+	private void setNextAlarm(Context context,long arrangeTime, long travelTime, Event nextEvent) 
 	{
 		Log.d("ALARM", "Inside setNextAlarm:");
 		try // what if there's an internet problem when trying to set the next alarm ? (same in AlarmManager)
 		{
-			LocationHandler lc = new LocationHandler(context);
 			Log.d("ALARM", "set: " + nextEvent + "Travel/Arrage" + travelTime + "//" + arrangeTime);
 			ClockHandler.setAlarm(context, nextEvent, (int)(travelTime + arrangeTime));
 		} 
@@ -98,17 +90,13 @@ public class ClockHandler extends BroadcastReceiver
 		{
 			Log.d("ALARM", "Could'nt set cont alarm to: " + nextEvent);
 		}
-		
-		
-		
 	}
 
-	public static void cancelEventAlarm(Context context, Event latestEvent) 
+	public static void cancelEventAlarm(Context context, Event event) 
 	{
-		Log.d("ALARM", "Cancel Event:" + latestEvent.toString());
+		Log.d("ALARM", "Cancel Event:" + event.toString());
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-		PendingIntent pendingIntent = getPendingIntent(context, latestEvent);
+		PendingIntent pendingIntent = getPendingIntent(context, event);
 		alarmMgr.cancel(pendingIntent);		
 	}
-
 }
