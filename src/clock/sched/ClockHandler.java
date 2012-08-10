@@ -13,7 +13,8 @@ import android.util.Log;
 
 public class ClockHandler extends BroadcastReceiver 
 {
-	private static final long TIMES_UP = 0;
+	//TODO: change times up
+	private static final long TIMES_UP = 0l;
 	
 	/**
 	 * Setting an alarm to the event time - extra Time (in minutes);
@@ -56,17 +57,17 @@ public class ClockHandler extends BroadcastReceiver
 		{
 			long timesLeftToEvent = nextEvent.getTimesLeftToEvent();
 			
-			// TODO: set TIMES_UP value
+			// If the event time has not passed yet
 			if (timesLeftToEvent > TIMES_UP)
 			{
 				try
 				{
 					long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent, null);
 					long arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
-					long timesLeftToGoOut = timesLeftToEvent - travelTime - arrangeTime;
+					long timesLeftToGoOut = timesLeftToEvent - travelTime;
 					
 					// User interaction if needed
-					EventProgressHandler.handleEventProgress(nextEvent, timesLeftToGoOut);
+					EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
 					
 					setNextAlarm(context, arrangeTime, travelTime, nextEvent);
 				}

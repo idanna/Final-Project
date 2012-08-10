@@ -71,7 +71,7 @@ public class LocationHandler implements LocationListener
 				// TODO: set DISTANCE_UP value
 				if (distanceToEventLocation > DISTANCE_UP)
 				{
-						EventProgressHandler.handleEventProgress(nextEvent, distanceToEventLocation);
+						EventProgressHandler.handleEventProgress(current_context, nextEvent, distanceToEventLocation);
 				}
 			}
 			catch (Exception ex)
