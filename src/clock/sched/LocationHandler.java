@@ -26,7 +26,6 @@ public class LocationHandler implements LocationListener
 		current_context = context;
 		try
 		{
-//			float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(context, event);
 			Criteria criteria = new Criteria();
 			criteria.setAccuracy(Criteria.ACCURACY_FINE);
 			LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
@@ -36,7 +35,7 @@ public class LocationHandler implements LocationListener
 		}
 		catch (Exception ex)
 		{
-			//TODO: 
+			Log.e("Location handler", "Set listener has failed: " + ex.getMessage());
 		}
 	}
 	
@@ -76,7 +75,7 @@ public class LocationHandler implements LocationListener
 			}
 			catch (Exception ex)
 			{
-				//TODO:
+				Log.e("Location handler", "On location changed has failed: " + ex.getMessage());
 			}
 		}
 	}

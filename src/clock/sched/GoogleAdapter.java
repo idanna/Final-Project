@@ -4,15 +4,19 @@ import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.util.Log;
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 import clock.outsources.GoogleWeatherHandler;
+import clock.outsources.dependencies.WeatherModel;
 
 public class GoogleAdapter {
 	
 	private static GoogleTrafficHandler gTrafficHandler = new GoogleTrafficHandler();
 	private static GoogleWeatherHandler gWeatherHandler = new GoogleWeatherHandler();
+	private static ConnectivityManager connectivityManager = null;
 	
 	private static String lastOrigin;
 	private static Event lastEvent;
@@ -94,13 +98,34 @@ public class GoogleAdapter {
 
 	public static boolean isLegalAddress(String address)
 	{
-		// TODO Auto-generated method stub
-		return true;
+		boolean res = false;
+		try
+		{
+			res = gTrafficHandler.checkAddress(address);
+		}
+		catch (Exception ex)
+		{
+			Log.e("Google Adapter", "Can't get address check");
+		}
+		
+		return res;
 	}
 
-	public static boolean isInternetConnected() {
-		// TODO Auto-generated method stub
-		return true;
+	public static boolean isInternetConnected(Context context) {
+		
+		// If it's the first invocation or the last invocation results with null active network info.
+		//		then set new instance
+		connectivityManager = (connectivityManager == null || connectivityManager.getActiveNetworkInfo() == null)? 
+				(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE) : connectivityManager;
+		
+		return connectivityManager.getActiveNetworkInfo() != null && 
+			   connectivityManager.getActiveNetworkInfo().isConnectedOrConnecting();
+
+	}
+	
+	public static WeatherModel getWeatherModel(String location) throws Exception
+	{
+		return gWeatherHandler.processWeatherRequest(location);
 	}
 
 

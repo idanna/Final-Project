@@ -1,6 +1,7 @@
 package clock.sched;
 
 import android.content.Context;
+import android.util.Log;
 
 import clock.db.DbAdapter;
 import clock.db.Event;
@@ -21,8 +22,6 @@ public class AlarmsManager
 	private DbAdapter dbAdapter;
 	private Context context;
 	private Event latestEvent;
-	private LocationHandler locationHandler;;
-//	private LocationHandler locationHandler;
 	
 	public AlarmsManager(Context context, DbAdapter dbAdapter) 
 	{
@@ -40,7 +39,7 @@ public class AlarmsManager
 	 **/
 	public void newEvent(Event newEvent) throws IllegalAddressException, InternetDisconnectedException
 	{
-		if (!GoogleAdapter.isInternetConnected())
+		if (!GoogleAdapter.isInternetConnected(context))
 			throw new InternetDisconnectedException();
 		
 		if (!GoogleAdapter.isLegalAddress(newEvent.getLocation()))
@@ -70,7 +69,7 @@ public class AlarmsManager
 		}
 		catch (Exception ex)
 		{
-			//TODO:
+			Log.e("Alarm manager", "Create new event has failed");
 		}
 		finally
 		{
@@ -99,7 +98,7 @@ public class AlarmsManager
 				}
 				catch (Exception ex)
 				{
-					//TODO:
+					Log.e("Alarm manager", "Delete event has failed");
 				}
 			}
 			
