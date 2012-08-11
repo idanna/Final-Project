@@ -101,6 +101,46 @@ public class GoogleTrafficHandler
 
 		return trafficData;	
 	}
+	
+	public boolean checkAddress(String address) throws Exception
+	{
+		address = URLEncoder.encode(address, "UTF-8");
+		String query = "http://maps.googleapis.com/maps/api/geocode/xml?"
+				+ "address=" + address
+				+ "&sensor=false"; 
+		
+		googleUrl = new URL(query);
+		
+		URLConnection uc = googleUrl.openConnection();
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(uc.getInputStream()));
+		
+		String xmlStr = ""; 
+		String inputLine;
+		
+		in.readLine();
+
+        while ((inputLine = in.readLine()) != null) 
+		{
+			xmlStr = xmlStr.concat(inputLine);
+			xmlStr = xmlStr.concat("\n");
+		}
+    
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(xmlStr));
+		
+		//Check address status
+		String xPathDurationExpression = "GeocodeResponse/status";
+		NodeList statusNodeList = this.parseXml(is, xPathDurationExpression);		
+
+		return getStatusFromNodeList(statusNodeList).equalsIgnoreCase("ok")? true : false;
+				
+	}
+
+	private String getStatusFromNodeList(NodeList statusNodeList) {
+				
+		return statusNodeList.item(0).getFirstChild().getNodeValue();
+	}
 
 	private long getDurationFromNodeList(NodeList durationNodeList) {
 		String valueStr;

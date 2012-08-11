@@ -54,7 +54,7 @@ public class EventProgressHandler {
 			// Remind user to go out if needed
 			if (!isUserHasBeenNotified() && timesLeftToGoOut <= GO_OUT_REMINDER_TIME)
 			{
-				notifyUser("Time to go out in: " + GO_OUT_REMINDER_TIME + " minutes.");
+				notifyUser("Time to go out in: " + GO_OUT_REMINDER_TIME + " minutes.", event);
 				setUserHasBeenNotified(true);
 			}
 		}
@@ -119,12 +119,13 @@ public class EventProgressHandler {
 	
 	private static void alarmUser(String msg)
 	{
-		
+		//TODO: alert user with wake up alarm clock
 	}
 	
-	private static void notifyUser(String msg)
+	private static void notifyUser(String msg, Event event)
 	{
-		
+		//TODO: notify user with a reminder. with option to see:
+		//	duration, distance, weather in location, etc.
 	}
 
 
