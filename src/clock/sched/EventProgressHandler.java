@@ -23,8 +23,8 @@ public class EventProgressHandler {
 	 */
 	public static synchronized void handleEventProgress(Context context, Event event, long timesLeftToGoOut, long arrangeTime)
 	{
-		// initialization		
-		setLastEvent(getLastEvent() == null? event : getLastEvent());	// First invocation
+		// First invocation		
+		setLastEvent(getLastEvent() == null? event : getLastEvent());	
 		
 		// If event has been changed
 		if (!getLastEvent().equals(event)) 								
@@ -36,7 +36,12 @@ public class EventProgressHandler {
 			setLastDistanceToEventLocation(0);
 		}
 		
-		if (!isUserOnHisWay())
+		if (timesLeftToGoOut < 0)
+		{
+			//TODO: user is late
+		}
+		
+		else if (!isUserOnHisWay())
 		{
 			// Alarm user to wake up if needed
 			if (!isUserHasBeenWakedUp() && isItTimeToWakeUp(timesLeftToGoOut, arrangeTime))
@@ -47,14 +52,12 @@ public class EventProgressHandler {
 			
 			
 			// Remind user to go out if needed
-			if (!isUserHasBeenNotified() && timesLeftToGoOut > 0 && timesLeftToGoOut <= GO_OUT_REMINDER_TIME)
+			if (!isUserHasBeenNotified() && timesLeftToGoOut <= GO_OUT_REMINDER_TIME)
 			{
 				notifyUser("Time to go out in: " + GO_OUT_REMINDER_TIME + " minutes.");
 				setUserHasBeenNotified(true);
 			}
 		}
-		
-		//TODO: check if user is late
 		
 	}
 
@@ -63,8 +66,8 @@ public class EventProgressHandler {
 	 */
 	public static synchronized void handleEventProgress(Context context, Event event, float distanceToEventLocation)
 	{
-		// initialization		
-		setLastEvent(getLastEvent() == null? event : getLastEvent());	// First invocation
+		// First invocation	
+		setLastEvent(getLastEvent() == null? event : getLastEvent());	
 				
 		// If event has been changed
 		if (!getLastEvent().equals(event)) 								
@@ -76,7 +79,7 @@ public class EventProgressHandler {
 			setLastDistanceToEventLocation(0);
 		}
 		
-		// The movement of user is to mask notifiers to user
+		// The 'movement of user in space' check is to mask user notification and alarms
 		if (getLastDistanceToEventLocation() != 0)
 		{
 			// Check if user has moved toward the event location
