@@ -13,7 +13,6 @@ import android.util.Log;
 
 public class ClockHandler extends BroadcastReceiver 
 {
-	//TODO: change times up
 	private static final long TIMES_UP = 0l;
 	
 	/**
