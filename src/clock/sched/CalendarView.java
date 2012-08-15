@@ -456,7 +456,7 @@ public class CalendarView extends Activity implements OnClickListener
 						+ getMonthAsString(currentMonth) + " " + yy);
 				if (i == getCurrentDayOfMonth()) 
 				{
-					list.add(String.valueOf(i) + "-BLUE" + "-"
+					list.add(String.valueOf(i) + "-RED" + "-"
 							+ currentMonth + "-" + yy);
 				} 
 				else 
