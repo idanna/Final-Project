@@ -524,7 +524,7 @@ public class CalendarView extends Activity implements OnClickListener
 			if (day_color[1].equals("WHITE")) {
 				gridcell.setTextColor(Color.WHITE);
 			}
-			if (day_color[1].equals("BLUE")) {
+			if (day_color[1].equals("RED")) {
 				gridcell.setTextColor(getResources().getColor(
 						R.color.static_text_color));
 			}
