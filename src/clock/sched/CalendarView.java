@@ -48,7 +48,7 @@ public class CalendarView extends Activity implements OnClickListener
 	private Button currentMonth;
 	private ImageView prevMonth;
 	private ImageView nextMonth;
-	private Button newEventBtn;
+	private ImageView newEventBtn;
 	private GridView calendarView;
 	private GridCellAdapter dayOfMonthAdapter;
 	private Calendar _calendar;
@@ -84,7 +84,7 @@ public class CalendarView extends Activity implements OnClickListener
 				.findViewById(R.id.selected_date);
 		selectedDayMonthYearButton.setText("Selected: ");
 		
-		newEventBtn = (Button) this.findViewById(R.id.new_eve_btn);
+		newEventBtn = (ImageView) this.findViewById(R.id.new_eve_btn);
 		newEventBtn.setOnClickListener(this);
 
 		prevMonth = (ImageView) this.findViewById(R.id.prevMonth);
