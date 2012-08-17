@@ -130,10 +130,10 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 			   Toast.makeText(this, "Error with address",Toast.LENGTH_LONG).show();
 		   }	
 	   }
-	   else // date/time toggling.
+	   if(v == set_date_btn || v == set_time_btn)
 	   {
 		   boolean dateVisibility = v == set_date_btn;
-		   setDateTimeBtns(!dateVisibility, dateVisibility);		   
+		   setDateTimeBtns(dateVisibility, !dateVisibility);		   
 	   }
 	   
 	}
@@ -151,8 +151,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
    			   	time_picker.setVisibility(View.VISIBLE);   				
    			}
    			
-		   	set_date_btn.setEnabled(dateVisibility);
-		   	set_time_btn.setEnabled(timeVisibility);   		
+		   	set_date_btn.setEnabled(!dateVisibility);
+		   	set_time_btn.setEnabled(!timeVisibility);   		
 	}
    	
 	private void returnResult() 

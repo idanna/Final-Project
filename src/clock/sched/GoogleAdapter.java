@@ -128,6 +128,4 @@ public class GoogleAdapter {
 		return gWeatherHandler.processWeatherRequest(location);
 	}
 
-
-
 }
