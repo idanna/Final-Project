@@ -69,8 +69,9 @@ public final class R {
     public static final class layout {
         public static final int calendar_day_gridcell=0x7f030000;
         public static final int day_events=0x7f030001;
-        public static final int main=0x7f030002;
-        public static final int simple_calendar_view=0x7f030003;
+        public static final int event_info=0x7f030002;
+        public static final int main=0x7f030003;
+        public static final int simple_calendar_view=0x7f030004;
     }
     public static final class string {
         public static final int app_name=0x7f050001;
