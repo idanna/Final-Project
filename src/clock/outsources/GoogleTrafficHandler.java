@@ -191,5 +191,13 @@ public class GoogleTrafficHandler
 		return (NodeList) result;
 	}
 
+	/**
+	 * For debug purposes.
+	 * @return New default instance of Traffic data.
+	 */
+	public TrafficData getDummyTrafficData() {
+		return new TrafficData();		
+	}
+
 }
 

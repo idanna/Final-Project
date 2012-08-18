@@ -117,6 +117,10 @@ public class Event
 		return res;
 	}
 	
+	/**
+	 * 
+	 * @return The number of milli seconds left to the event.
+	 */
 	public long getTimesLeftToEvent()
 	{
 		Calendar currentCalendar = Calendar.getInstance();

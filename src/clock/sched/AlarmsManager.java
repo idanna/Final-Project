@@ -8,6 +8,7 @@ import clock.db.Event;
 import clock.db.Event.eComparison;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
+import clock.outsources.GoogleTrafficHandler;
 import clock.outsources.GoogleWeatherHandler;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 
@@ -47,8 +48,7 @@ public class AlarmsManager
 
 		try
 		{
-			TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
-			
+			TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);			
 			dbAdapter.open();
 			refreshLastEvent();
 			dbAdapter.insertEvent(newEvent);

@@ -128,4 +128,9 @@ public class GoogleAdapter {
 		return gWeatherHandler.processWeatherRequest(location);
 	}
 
+	public static TrafficData getDummyTrafficData() {
+		// TODO For debug purposes.
+		return gTrafficHandler.getDummyTrafficData();
+	}
+
 }

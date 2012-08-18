@@ -9,11 +9,12 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.text.format.Time;
 import android.util.Log;
 
 public class ClockHandler extends BroadcastReceiver 
 {
-	private static final long TIMES_UP = 0l;
+	private static final long TIMES_UP = (5 * 60 * 100);
 	
 	/**
 	 * Setting an alarm to the event time - extra Time (in minutes);
@@ -25,13 +26,33 @@ public class ClockHandler extends BroadcastReceiver
 	{
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
-		Calendar time = Calendar.getInstance();
-		Log.d("ALARM", "Set Alarm To:" + event.toString());
-		time.set(event.getYear(), event.getMonth() - 1, event.getDay(), event.getHour(), event.getMin(), 0);
+		long alarmMiliSecond = calNextAlarm(event, extraTime);
+		alarmMgr.set(AlarmManager.RTC_WAKEUP, alarmMiliSecond, pendingIntent);			
+	}
+	
+	private static long calNextAlarm(Event event, int extraTime) 
+	{
+		Calendar calander = Calendar.getInstance();
+		Time t = new Time();
+		t.setToNow();
+		long currentTime = t.toMillis(false);
+		calander.setTimeInMillis(currentTime);
+		Log.d("ALARM", "Current Time: " + calander.get(Calendar.YEAR) + "-" + calander.get(Calendar.MONTH) + "-" + 
+				calander.get(Calendar.DAY_OF_MONTH) + " " + calander.get(Calendar.HOUR_OF_DAY) + ":" + calander.get(Calendar.MINUTE));
 
-		// TODO: set the time to 1/3 if it's greater then some minimum
-		time.add(Calendar.MINUTE, -extraTime);
-		alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);
+		calander.set(event.getYear(), event.getMonth() - 1, event.getDay(), event.getHour(), event.getMin(), 0);
+		calander.add(Calendar.MINUTE, -extraTime);
+		Log.d("ALARM", "Time To go out: " + calander.get(Calendar.YEAR) + "-" + calander.get(Calendar.MONTH) + "-" + 
+				calander.get(Calendar.DAY_OF_MONTH) + " " + calander.get(Calendar.HOUR_OF_DAY) + ":" + calander.get(Calendar.MINUTE));
+		long miliToGetOut = calander.getTimeInMillis();
+		long miliToNextAlarm = ((miliToGetOut - currentTime) / 2) + currentTime;
+		// for debug:
+		Calendar debugCal = Calendar.getInstance();
+		debugCal.setTimeInMillis(miliToNextAlarm);
+		Log.d("ALARM", "Next Alarm: " + debugCal.get(Calendar.YEAR) + "-" + debugCal.get(Calendar.MONTH) + "-" + 
+								debugCal.get(Calendar.DAY_OF_MONTH) + " " + debugCal.get(Calendar.HOUR_OF_DAY) + ":" + debugCal.get(Calendar.MINUTE));
+		
+		return miliToNextAlarm;
 	}
 	
 	private static PendingIntent getPendingIntent(Context context, Event event)
@@ -75,15 +96,13 @@ public class ClockHandler extends BroadcastReceiver
 					
 				}
 			}
-			else
+			else // ClockHandler move to the next event.
 			{
-				//TODO: Event time is up
-				nextEvent = db.getNextEvent();
+				setAlarm(context, nextEvent, -1); // Negative extra time. next alarm 1 min after this event.
 			}			
 		}
 		
-	} 
-
+	}
 
 	private void setNextAlarm(Context context,long arrangeTime, long travelTime, Event nextEvent) 
 	{
