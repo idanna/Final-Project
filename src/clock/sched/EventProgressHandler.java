@@ -110,7 +110,6 @@ public class EventProgressHandler {
 		
 	}
 	
-
 	synchronized private static void saveDetailsToEvent(Event event) {
 		// TODO Auto-generated method stub
 		
