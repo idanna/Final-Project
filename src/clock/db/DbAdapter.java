@@ -189,19 +189,6 @@ public class DbAdapter
 		}
 		
 		return sugg;
-		
-//		List<Address> addresses = null;
-//		try
-//		{
-//			Geocoder geocoder = new Geocoder(context);
-//			addresses = geocoder.getFromLocationName(constrain, 3);
-//		}
-//		catch (Exception e)
-//		{
-//			//TODO: log error
-//		}
-//		
-//		return addresses;
 	}
 
 	/**
