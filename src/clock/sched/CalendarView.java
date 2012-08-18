@@ -43,7 +43,7 @@ import android.widget.Toast;
 
 public class CalendarView extends Activity implements OnClickListener 
 {
-	private static final String tag = "SimpleCalendarViewActivity";
+	private static final String tag = "AppDate";
 	private Button selectedDayMonthYearButton;
 	private Button currentMonth;
 	private ImageView prevMonth;

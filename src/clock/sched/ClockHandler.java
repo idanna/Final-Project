@@ -29,7 +29,7 @@ public class ClockHandler extends BroadcastReceiver
 		Log.d("ALARM", "Set Alarm To:" + event.toString());
 		time.set(event.getYear(), event.getMonth() - 1, event.getDay(), event.getHour(), event.getMin(), 0);
 
-		// TODO: set the time to 1/3 if it's greater then some minimum
+		// TODO: set the time to 1/2 if it's greater then some minimum
 		time.add(Calendar.MINUTE, -extraTime);
 		alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);
 	}

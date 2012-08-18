@@ -125,6 +125,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 			   alarmManager.newEvent(event);
 			   returnResult();
 		   } 
+		   //TODO: handle different exception
 		   catch (Exception e) 
 		   {
 			   Toast.makeText(this, "Error with address",Toast.LENGTH_LONG).show();
