@@ -26,7 +26,11 @@ public class Event
 	private String location;
 	private String details;
 	private boolean withAlarm;
+	private boolean userHasBeenNotified;
+	private boolean userHasBeenWakedUp;
 	
+	
+
 	private Event()
 	{ };
 	
@@ -48,6 +52,8 @@ public class Event
 		event.setLocation("");
    		event.setDetails("");
    		event.withAlarm = false;
+   		event.userHasBeenNotified = false;
+   		event.userHasBeenWakedUp = false;
    		return event;
 	}
 	
@@ -71,6 +77,8 @@ public class Event
 		e.details = prop[3];
 		e.id = Long.parseLong(prop[4]);
 		e.withAlarm = Boolean.parseBoolean(prop[5]);
+		e.userHasBeenNotified = Boolean.parseBoolean(prop[6]);
+		e.userHasBeenWakedUp = Boolean.parseBoolean(prop[7]);
 		
 		return e;
 	}
@@ -87,6 +95,10 @@ public class Event
 	   this.location = location.getText().toString();
 	   this.details = details.getText().toString();
 	   this.withAlarm = withAlarm;
+	   
+	   //If properties has been reset then event progress fields should be reset as well
+	   this.userHasBeenNotified = false;
+	   this.userHasBeenWakedUp = false;
 	}
 	
 	/**
@@ -203,12 +215,35 @@ public class Event
 		this.withAlarm = status;
 	}
 	
+	public boolean isUserHasBeenNotified() {
+		return userHasBeenNotified;
+	}
+
+	public void setUserHasBeenNotified(boolean userHasBeenNotified) {
+		this.userHasBeenNotified = userHasBeenNotified;
+	}
+
+	public boolean isUserHasBeenWakedUp() {
+		return userHasBeenWakedUp;
+	}
+
+	public void setUserHasBeenWakedUp(boolean userHasBeenWakedUp) {
+		this.userHasBeenWakedUp = userHasBeenWakedUp;
+	}
+	
 	/**
-	 * returning the event in format dd-MM-YY|HH:mm|location|details|id|with_alarm
+	 * returning the event in format dd-MM-YY|HH:mm|location|details|id|with_alarm|userHasBeenNotified|userHasBeenWakedUp
 	 */
 	public String encodeToString()
 	{
-		return day + "-" + month + "-" + year + "|" + hour + ":" + min + "|" + location + "|" + details + "|" + id + "|" +  withAlarm;
+		return day + "-" + month + "-" + year + 
+				"|" + hour + ":" + min + 
+				"|" + location + 
+				"|" + details + 
+				"|" + id + 
+				"|" +  withAlarm + 
+				"|" +  userHasBeenNotified +
+				"|" +  userHasBeenWakedUp;
 	}
 	
 	/**
