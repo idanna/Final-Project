@@ -65,13 +65,7 @@ public class LocationHandler implements LocationListener
 		{
 			try
 			{
-				float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(current_context, nextEvent, location);
-				
-				// TODO: set DISTANCE_UP value
-				if (distanceToEventLocation > DISTANCE_UP)
-				{
-						EventProgressHandler.handleEventProgress(current_context, nextEvent, distanceToEventLocation);
-				}
+				EventProgressHandler.handleEventProgress(current_context, nextEvent, location);
 			}
 			catch (Exception ex)
 			{
