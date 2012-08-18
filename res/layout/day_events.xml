@@ -56,17 +56,13 @@
                 android:layout_height="21dp" />
         </AbsoluteLayout>
     </LinearLayout>
-
+
     <AutoCompleteTextView
         android:id="@+id/locationText"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:completionHintView="@color/white"
-        android:dropDownAnchor="@color/white"
-        android:dropDownSelector="@color/white"
         android:ems="10"
-        android:inputType="textPostalAddress"
-        android:textColor="#000000" >
+        android:text="" >
 
         <requestFocus />
     </AutoCompleteTextView>

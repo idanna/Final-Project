@@ -1,16 +1,21 @@
 package clock.db;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Address;
+import android.location.Geocoder;
 import android.util.Log;
 
 public class DbAdapter 
@@ -30,7 +35,7 @@ public class DbAdapter
 			connection = new Connection(context);
 		} 
 		catch (IOException e){
-			Log.d("DBAdapter", "Error in constractor");
+			Log.e("DBAdapter", "Error in constructor while trying to create new Connection");
 		}
 	}
 
@@ -144,7 +149,7 @@ public class DbAdapter
         String query = "SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " + 
         		"date > '" + currentTime + "' order by date limit 1";
 		Cursor cursor = database.rawQuery(query , null);
-		Log.d("Next SQL", query);
+//		Log.d("Next SQL", query);
 		
 		cursor.moveToFirst();
 		if (!cursor.isAfterLast())
@@ -152,14 +157,14 @@ public class DbAdapter
 			cursor.moveToFirst();
 			retEvent = cursorToEvent(cursor);
 		}
-		if (retEvent != null)
-		{
-			Log.d("NEXT EVENT", retEvent.toString());
-		}
-		else
-		{
-			Log.d("NEXT EVENT", " NO EVENT");
-		}
+//		if (retEvent != null)
+//		{
+//			Log.d("NEXT EVENT", retEvent.toString());
+//		}
+//		else
+//		{
+//			Log.d("NEXT EVENT", " NO EVENT");
+//		}
 		
 		return retEvent;
 	}	
@@ -178,23 +183,32 @@ public class DbAdapter
 	public String[] getStreetSugg(String constrain) 
 	{
 		String[] sugg = new String[0];
-		if (constrain.length() > 2)
+		Cursor cursor = database.query(Connection.TABLE_ADDRESS, new String[] {Connection.COLUMN_STREET}, Connection.COLUMN_STREET + " LIKE ? limit 3",
+				new String[] {constrain + "%"}, null, null, null);
+		cursor.moveToFirst();
+		sugg = new String[cursor.getCount()];
+		int i = 0;
+		while (!cursor.isAfterLast()) 
 		{
-			Cursor cursor = database.query(Connection.TABLE_ADDRESS, new String[] {Connection.COLUMN_STREET}, Connection.COLUMN_STREET + " LIKE ? limit 3",
-					new String[] {constrain + "%"}, null, null, null);
-			cursor.moveToFirst();
-			sugg = new String[cursor.getCount()];
-			int i = 0;
-			while (!cursor.isAfterLast()) 
-			{
-				sugg[i] = cursor.getString(0);
-				cursor.moveToNext();
-				i++;
-			}
+			sugg[i] = cursor.getString(0);
+			cursor.moveToNext();
+			i++;
 		}
 		
 		return sugg;
 		
+//		List<Address> addresses = null;
+//		try
+//		{
+//			Geocoder geocoder = new Geocoder(context);
+//			addresses = geocoder.getFromLocationName(constrain, 3);
+//		}
+//		catch (Exception e)
+//		{
+//			//TODO: log error
+//		}
+//		
+//		return addresses;
 	}
 
 	/**

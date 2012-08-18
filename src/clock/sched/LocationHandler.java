@@ -111,7 +111,7 @@ public class LocationHandler implements LocationListener
 					onProviderEnabled(provider);
 					break;
 				default:
-					Log.d("LocationHandler", "Reached unknown place while provider status changed");
+					Log.e("LocationHandler", "Reached unknown place while provider status changed");
 					break;
 				}
 			}	

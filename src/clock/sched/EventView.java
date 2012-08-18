@@ -1,8 +1,12 @@
 package clock.sched;
 
+import java.util.List;
+
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.db.Event.eComparison;
+import clock.exceptions.IllegalAddressException;
+import clock.exceptions.InternetDisconnectedException;
 
 import clock.sched.R;
 
@@ -10,11 +14,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.location.Address;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -27,8 +33,9 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class EventView extends Activity implements OnClickListener, OnKeyListener, OnCheckedChangeListener 
+public class EventView extends Activity implements OnClickListener, OnKeyListener, OnCheckedChangeListener, OnFocusChangeListener 
 {	
+	private static final String ADDRESS_GUIDE_TEXT = "רחוב, מס' בית, ישוב";
 	protected Button set_date_btn;
 	protected Button set_time_btn;
 	protected Button add_event_btn;
@@ -56,7 +63,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	date_picker = (DatePicker) this.findViewById(R.id.datePicker);
 	   	time_picker = (TimePicker) this.findViewById(R.id.timePicker);
 	   	location_text = (AutoCompleteTextView) this.findViewById(R.id.locationText);
-	   	location_text.setOnKeyListener(this);
+//	   	location_text.setOnKeyListener(this);
+	   	location_text.setOnFocusChangeListener(this);
 	   	details_text = (EditText) this.findViewById(R.id.detailsText);
 	   	dbAdapter= new DbAdapter(this);
 	   	add_event_btn.setOnClickListener(this);
@@ -82,7 +90,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   		event = Event.CreateFromString(eventStr);
 	   	}
 	   	
-	   	Log.d("UI SET TO:", event.toString());
+//	   	Log.d("UI SET TO:", event.toString());
    		setPageFields();
    }
    
@@ -125,10 +133,17 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 			   alarmManager.newEvent(event);
 			   returnResult();
 		   } 
-		   //TODO: handle different exception
+		   catch (IllegalAddressException iae)
+		   {
+			   Toast.makeText(this, "Unknown address",Toast.LENGTH_LONG).show();
+		   }
+		   catch (InternetDisconnectedException ide)
+		   {
+			   Toast.makeText(this, "Internet disconnected",Toast.LENGTH_LONG).show();
+		   }
 		   catch (Exception e) 
 		   {
-			   Toast.makeText(this, "Error with address",Toast.LENGTH_LONG).show();
+			   Toast.makeText(this, "Unknown error",Toast.LENGTH_LONG).show();
 		   }	
 	   }
 	   if(v == set_date_btn || v == set_time_btn)
@@ -166,12 +181,13 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	}
 
 	@Override
-	public boolean onKey(View arg0, int arg1, KeyEvent eventCode) 
+	public boolean onKey(View v, int keyCode, KeyEvent eventCode) 
 	{
-		if(eventCode.getAction() == KeyEvent.ACTION_UP)
+		String text = location_text.getText().toString();
+		if(text.length() > 2 && eventCode.getAction() == KeyEvent.ACTION_UP)
 		{
 		   dbAdapter.open();
-		   String[] sugg = dbAdapter.getStreetSugg(location_text.getText().toString());
+		   String[] sugg = dbAdapter.getStreetSugg(text);
 		   dbAdapter.close();
 		   ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, sugg);
 		   location_text.setAdapter(adapter);		   
@@ -184,6 +200,24 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		if (buttonView == alarm_on_off)
 			alarmOnOffStatus = isChecked;
+	}
+
+	@Override
+	public void onFocusChange(View v, boolean hasFocus) {
+		if (v == location_text)
+		{
+			if (hasFocus && location_text.getText().toString().equals(ADDRESS_GUIDE_TEXT))
+			{
+				location_text.setText("");
+				location_text.setTextColor(Color.BLACK);
+			}
+			else if (!hasFocus && location_text.getText().toString().equals(""))
+			{
+				location_text.setTextColor(Color.LTGRAY);
+				location_text.setText(ADDRESS_GUIDE_TEXT);
+			}
+		}
+		
 	}
 	   
 }
