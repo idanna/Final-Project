@@ -68,7 +68,7 @@ public class ClockHandler extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent i) 
 	{
-		Log.d("ALARM", "Inside OnReceive:");
+//		Log.d("ALARM", "Inside OnReceive:");
 		DbAdapter db = new DbAdapter(context);
 		db.open();
 		Event nextEvent = db.getNextEvent();
@@ -106,21 +106,21 @@ public class ClockHandler extends BroadcastReceiver
 
 	private void setNextAlarm(Context context,long arrangeTime, long travelTime, Event nextEvent) 
 	{
-		Log.d("ALARM", "Inside setNextAlarm:");
+//		Log.d("ALARM", "Inside setNextAlarm:");
 		try // what if there's an internet problem when trying to set the next alarm ? (same in AlarmManager)
 		{
-			Log.d("ALARM", "set: " + nextEvent + "Travel/Arrage" + travelTime + "//" + arrangeTime);
+//			Log.d("ALARM", "set: " + nextEvent + "Travel/Arrage" + travelTime + "//" + arrangeTime);
 			ClockHandler.setAlarm(context, nextEvent, (int)(travelTime + arrangeTime));
 		} 
 		catch (Exception e) 
 		{
-			Log.d("ALARM", "Could'nt set cont alarm to: " + nextEvent);
+			Log.e("ALARM", "Could'nt set cont alarm to: " + nextEvent);
 		}
 	}
 
 	public static void cancelEventAlarm(Context context, Event event) 
 	{
-		Log.d("ALARM", "Cancel Event:" + event.toString());
+//		Log.d("ALARM", "Cancel Event:" + event.toString());
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		alarmMgr.cancel(pendingIntent);		

@@ -25,6 +25,10 @@ public class GoogleTrafficHandler
 		private long duration;
 		private float distance;
 		
+		/**
+		 * 
+		 * @return Duration in seconds. If error occurred or places not found then -1 is returned.
+		 */
 		public long getDuration() {
 			return duration;
 		}
@@ -32,6 +36,10 @@ public class GoogleTrafficHandler
 			this.duration = duration;
 		}
 
+		/**
+		 * 
+		 * @return Distance in meters
+		 */
 		public float getDistance() {
 			return distance;
 		}
@@ -54,7 +62,6 @@ public class GoogleTrafficHandler
 	 * Method connect to google maps with the query provided ("from", "to") and returns the duration in Seconds.
 	 * @param from - origin place (e.g. "רבנו ירוחם 2, תל אביב")
 	 * @param to - destination place with same format as origin
-	 * @return Duration in seconds. If error occurred or places not found then -1 is returned.
 	 */
 	public TrafficData calculateTrafficInfo(String from, String to) throws Exception
 	{
