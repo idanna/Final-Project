@@ -17,7 +17,6 @@ public class LocationHandler implements LocationListener
 {
 	private static final long MIN_TIME_INTERVAL = 0;		// Ignore minimum time interval - only location matters
 	private static final float MIN_DISTANCE_INTERVAL_PERCENTAGE = 0.03f;
-	private static final float DISTANCE_UP = 0f;
 	private static Context current_context;
 	
 	public static void setLocationListener(Context context, Event event, float distanceToEventLocation)
@@ -26,6 +25,8 @@ public class LocationHandler implements LocationListener
 		current_context = context;
 		try
 		{
+			
+			//TODO: this should be calculated as setAlarm in clock handler
 			Criteria criteria = new Criteria();
 			criteria.setAccuracy(Criteria.ACCURACY_FINE);
 			LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
@@ -65,13 +66,7 @@ public class LocationHandler implements LocationListener
 		{
 			try
 			{
-				float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(current_context, nextEvent, location);
-				
-				// TODO: set DISTANCE_UP value
-				if (distanceToEventLocation > DISTANCE_UP)
-				{
-						EventProgressHandler.handleEventProgress(current_context, nextEvent, distanceToEventLocation);
-				}
+				EventProgressHandler.handleEventProgress(current_context, nextEvent, location);
 			}
 			catch (Exception ex)
 			{

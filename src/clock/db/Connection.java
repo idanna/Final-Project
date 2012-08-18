@@ -32,6 +32,8 @@ public class Connection extends SQLiteOpenHelper
 	public static final String COLUMN_LOCATION = "location";
 	public static final String COLUMN_DETAILS = "details";
 	public static final String COLUMN_ALARM = "alarm";
+	public static final String COLUMN_NOTIFIED = "notified";
+	public static final String COLUMN_WAKEDUP = "wakedup";
 
 	private static final String DATABASE_NAME = "smart_clock.db";
 	private static final int DATABASE_VERSION = 1;
