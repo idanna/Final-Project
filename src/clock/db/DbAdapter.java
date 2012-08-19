@@ -33,17 +33,18 @@ public class DbAdapter
 	
 	public DbAdapter(Context context) 
 	{
-		try {
-			connection = new Connection(context);
-		} 
-		catch (IOException e){
-			Log.e("DBAdapter", "Error in constructor while trying to create new Connection");
-		}
+//		try {
+		connection = new Connection(context);
+//		} 
+//		catch (IOException e){
+//			Log.e("DBAdapter", "Error in constructor while trying to create new Connection");
+//		}
 	}
 
 	public void open() throws SQLException 
 	{
-		database = connection.openDataBase();
+//		database = connection.openDataBase();
+		database = connection.getWritableDatabase();
 	}
 
 	public void close() 
@@ -173,23 +174,23 @@ public class DbAdapter
 		return event;
 	}
 
-	public String[] getStreetSugg(String constrain) 
-	{
-		String[] sugg = new String[0];
-		Cursor cursor = database.query(Connection.TABLE_ADDRESS, new String[] {Connection.COLUMN_STREET}, Connection.COLUMN_STREET + " LIKE ? limit 3",
-				new String[] {constrain + "%"}, null, null, null);
-		cursor.moveToFirst();
-		sugg = new String[cursor.getCount()];
-		int i = 0;
-		while (!cursor.isAfterLast()) 
-		{
-			sugg[i] = cursor.getString(0);
-			cursor.moveToNext();
-			i++;
-		}
-		
-		return sugg;
-	}
+//	public String[] getStreetSugg(String constrain) 
+//	{
+//		String[] sugg = new String[0];
+//		Cursor cursor = database.query(Connection.TABLE_ADDRESS, new String[] {Connection.COLUMN_STREET}, Connection.COLUMN_STREET + " LIKE ? limit 3",
+//				new String[] {constrain + "%"}, null, null, null);
+//		cursor.moveToFirst();
+//		sugg = new String[cursor.getCount()];
+//		int i = 0;
+//		while (!cursor.isAfterLast()) 
+//		{
+//			sugg[i] = cursor.getString(0);
+//			cursor.moveToNext();
+//			i++;
+//		}
+//		
+//		return sugg;
+//	}
 
 	/**
 	 * 

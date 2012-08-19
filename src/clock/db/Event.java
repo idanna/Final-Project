@@ -59,7 +59,7 @@ public class Event
 	
 	/**
 	 * 
-	 * @param eventStr - Should be in the format dd-MM-YY|HH:mm|location|details|id
+	 * @param eventStr - Should be in the format dd-MM-YY|HH:mm|location|details|id|with_alarm|userHasBeenNotified|userHasBeenWakedUp
 	 * @return new event parsed from string
 	 */
 	public static Event CreateFromString(String eventStr) 
