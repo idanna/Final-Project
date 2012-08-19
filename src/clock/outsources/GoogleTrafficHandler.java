@@ -60,7 +60,7 @@ public class GoogleTrafficHandler
 	
 	/***
 	 * Method connect to google maps with the query provided ("from", "to") and returns the duration in Seconds.
-	 * @param from - origin place (e.g. "רבנו ירוחם 2, תל אביב")
+	 * @param from - origin place in latitude,longitude
 	 * @param to - destination place with same format as origin
 	 */
 	public TrafficData calculateTrafficInfo(String from, String to) throws Exception

@@ -1,6 +1,9 @@
 package clock.sched;
 
 import android.content.Context;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 
 import clock.db.DbAdapter;
@@ -39,7 +42,7 @@ public class AlarmsManager
 	 * @throws IllegalAddressException in case of problems with the new event address
 	 **/
 	public void newEvent(Event newEvent) throws IllegalAddressException, InternetDisconnectedException
-	{
+	{		
 		if (!GoogleAdapter.isInternetConnected(context))
 			throw new InternetDisconnectedException();
 		
