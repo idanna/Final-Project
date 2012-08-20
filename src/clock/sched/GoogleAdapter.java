@@ -102,7 +102,7 @@ public class GoogleAdapter {
 			}
 		}
 		
-		return location.getLongitude() + "," + location.getLatitude();
+		return location.getLatitude() + "," + location.getLongitude();
 	}
 
 	public static boolean isLegalAddress(String address)

@@ -55,7 +55,7 @@ public class AlarmsManager
 			dbAdapter.open();
 			refreshLastEvent();
 			dbAdapter.insertEvent(newEvent);
-			if(newEvent.getWithAlarmStatus() == true && newEvent.isAfterNow() &&
+			if(newEvent.isAfterNow() &&
 							(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
 			{
 				int arrageTime = newEvent.getWithAlarmStatus() == true ? dbAdapter.getArrangeTime() : 0;
@@ -66,13 +66,19 @@ public class AlarmsManager
 				}
 				
 				this.latestEvent = newEvent;
-				ClockHandler.setAlarm(context, latestEvent, ((int)trafficData.getDuration() + arrageTime));
+				long durationTime = trafficData.getDuration();
+				if (durationTime < 0)
+				{
+					throw new CantGetLocationException();
+				}
+				ClockHandler.setAlarm(context, latestEvent, ((int)durationTime + arrageTime));
 				LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
 			}
 		}
 		catch (Exception ex)
 		{
 			Log.e("Alarm manager", "Create new event has failed");
+			throw ex;	//Roll exception forward
 		}
 		finally
 		{
