@@ -5,6 +5,7 @@ import java.util.List;
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.db.Event.eComparison;
+import clock.exceptions.CantGetLocationException;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
 
@@ -140,6 +141,10 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 		   catch (InternetDisconnectedException ide)
 		   {
 			   Toast.makeText(this, "Internet disconnected",Toast.LENGTH_LONG).show();
+		   }
+		   catch (CantGetLocationException cgle)
+		   {
+			   Toast.makeText(this, "Can't get device location",Toast.LENGTH_LONG).show();
 		   }
 		   catch (Exception e) 
 		   {

@@ -94,14 +94,17 @@ public class GoogleTrafficHandler
 		}
     
 		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(xmlStr));
+		
 		
 		//Calculate duration
+		is.setCharacterStream(new StringReader(xmlStr));
 		String xPathDurationExpression = "DirectionsResponse/route/leg/step/duration/value";
 		NodeList durationNodeList = this.parseXml(is, xPathDurationExpression);		
 		trafficData.setDuration(this.getDurationFromNodeList(durationNodeList));
 		
+		
 		//Calculate distance
+		is.setCharacterStream(new StringReader(xmlStr));
 		String xPathDistanceExpression = "DirectionsResponse/route/leg/step/distance/value";
 		NodeList distanceNodeList = this.parseXml(is, xPathDistanceExpression);
 		trafficData.setDistance(this.getDistanceFromNodeList(distanceNodeList));

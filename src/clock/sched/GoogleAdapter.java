@@ -3,10 +3,13 @@ package clock.sched;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.os.Bundle;
 import android.util.Log;
 import clock.db.Event;
+import clock.exceptions.CantGetLocationException;
 import clock.outsources.GoogleTrafficHandler;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 import clock.outsources.GoogleWeatherHandler;
@@ -83,16 +86,22 @@ public class GoogleAdapter {
 			
 	}
 
-	private static String getOrigin(Context context, Location location) 
+	private static String getOrigin(Context context, Location location) throws CantGetLocationException 
 	{
 		if (location == null)
 		{
+			//Retry policy - we set to 1 retry to get location, if not succeeded we throw CantGetLocationException 
 			Criteria criteria = new Criteria();
 			criteria.setAccuracy(Criteria.ACCURACY_FINE);
 			LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 			String provider = lm.getBestProvider(criteria, true);
 			location = lm.getLastKnownLocation(provider);
+			if (location == null)
+			{
+				throw new CantGetLocationException();
+			}
 		}
+		
 		return location.getLongitude() + "," + location.getLatitude();
 	}
 

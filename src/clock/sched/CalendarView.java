@@ -66,6 +66,8 @@ public class CalendarView extends Activity implements OnClickListener
 	public void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
+		LocationHandler.setFirstLocationRequest(this);
+		
 		setContentView(R.layout.simple_calendar_view);
 
 		initCalander();

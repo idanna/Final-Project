@@ -114,4 +114,42 @@ public class LocationHandler implements LocationListener
 		
 	}
 
+	/**
+	 * This is a dummy location request specially when running on emulator
+	 * if there's no request before calling getLastKnownLocation then it will return null location.
+	 * @param context
+	 */
+	public static void setFirstLocationRequest(Context context) {
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
+		String provider = lm.getBestProvider(criteria, true);
+		lm.requestLocationUpdates(provider, 0, 0, new LocationListener() {
+			
+			@Override
+			public void onStatusChanged(String provider, int status, Bundle extras) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onProviderEnabled(String provider) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onProviderDisabled(String provider) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onLocationChanged(Location location) {
+				// TODO Auto-generated method stub
+				
+			}
+		});		
+	}
+
 }

@@ -9,6 +9,7 @@ import android.util.Log;
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.db.Event.eComparison;
+import clock.exceptions.CantGetLocationException;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
 import clock.outsources.GoogleTrafficHandler;
@@ -38,10 +39,9 @@ public class AlarmsManager
 	 * Informs the alarm manager about a new event.
 	 * saves the alarm in db, manage the alarm set/cancel in case needed.
 	 * @param newEvent 
-	 * @throws InternetDisconnectedException in case of problems with the internet connection
-	 * @throws IllegalAddressException in case of problems with the new event address
+	 * @throws Exception 
 	 **/
-	public void newEvent(Event newEvent) throws IllegalAddressException, InternetDisconnectedException
+	public void newEvent(Event newEvent) throws Exception
 	{		
 		if (!GoogleAdapter.isInternetConnected(context))
 			throw new InternetDisconnectedException();
