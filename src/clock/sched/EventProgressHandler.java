@@ -89,6 +89,8 @@ public class EventProgressHandler {
 		
 		//TODO: alert user with wake up alarm clock
 		userHasBeenWakedUp = true;
+		Log.d("ALARM", "User has been waked up and arrange time is: " +
+				TimeUnit.MILLISECONDS.toMinutes(arrangeTimeInMillis) + " Minutes");
 	}
 	
 	synchronized private static void notifyUser(long timesLeftInMillis, Event event)
@@ -98,6 +100,8 @@ public class EventProgressHandler {
 		//TODO: notify user with a reminder. with option to see:
 		//	duration, distance, weather in location, etc.
 		userHasBeenNotified = true;
+		Log.d("ALARM", "User has been notified that times left to go is: " + 
+				TimeUnit.MILLISECONDS.toMinutes(timesLeftInMillis) + " Minutes");
 	}
 	
 	synchronized private static void criticalMsg(Event event) {
