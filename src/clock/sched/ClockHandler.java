@@ -20,7 +20,7 @@ public class ClockHandler extends BroadcastReceiver
 	 * Setting an alarm to the event time - extra Time (in minutes);
 	 * @param context
 	 * @param event The event to schedule
-	 * @param extraTime Extra minutes to substract from the event actual time. 
+	 * @param extraTime Extra seconds to substract from the event actual time. 
 	 */
 	public static void setAlarm(Context context, Event event, int extraTime) 
 	{
@@ -41,7 +41,7 @@ public class ClockHandler extends BroadcastReceiver
 				calander.get(Calendar.DAY_OF_MONTH) + " " + calander.get(Calendar.HOUR_OF_DAY) + ":" + calander.get(Calendar.MINUTE));
 
 		calander.set(event.getYear(), event.getMonth() - 1, event.getDay(), event.getHour(), event.getMin(), 0);
-		calander.add(Calendar.MINUTE, -extraTime);
+		calander.add(Calendar.SECOND, -extraTime);
 		Log.d("ALARM", "Time To go out: " + calander.get(Calendar.YEAR) + "-" + calander.get(Calendar.MONTH) + "-" + 
 				calander.get(Calendar.DAY_OF_MONTH) + " " + calander.get(Calendar.HOUR_OF_DAY) + ":" + calander.get(Calendar.MINUTE));
 		long miliToGetOut = calander.getTimeInMillis();
