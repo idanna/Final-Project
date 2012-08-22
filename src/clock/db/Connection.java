@@ -15,12 +15,7 @@ import android.util.Log;
 public class Connection extends SQLiteOpenHelper 
 {
 	public static final String TABLE_EVENTS = "events";
-//	public static final String TABLE_ADDRESS = "address";
-	
-	// adrress attr
-//	public static final String COLUMN_STREET = "streets";
-//	public static final String COLUMN_CITY = "city";
-	
+
 	// events attr
 	public static final String COLUMN_ID = "id";
 	public static final String COLUMN_DATE = "date";

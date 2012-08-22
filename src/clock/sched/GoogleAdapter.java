@@ -34,7 +34,7 @@ public class GoogleAdapter {
 	 * @throws Exception
 	 */
 	public static TrafficData getTrafficData(Context context, Event event, Location location) throws Exception
-	{
+	{		
 		String origin = getOrigin(context, location);
 		TrafficData trafficData = gTrafficHandler.calculateTrafficInfo(origin, event.getLocation());
 		return trafficData;

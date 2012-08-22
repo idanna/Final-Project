@@ -12,6 +12,8 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import android.util.Log;
+
 public class GoogleTrafficHandler 
 {
 	public class TrafficData
@@ -119,6 +121,7 @@ public class GoogleTrafficHandler
 				+ "address=" + address
 				+ "&sensor=false"; 
 		
+		Log.d("ADDRESS", "GoogleQuery: " + query);
 		googleUrl = new URL(query);
 		
 		URLConnection uc = googleUrl.openConnection();

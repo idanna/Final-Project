@@ -1,6 +1,7 @@
 package clock.sched;
 
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 import clock.db.DbAdapter;
 import clock.db.Event;
@@ -14,7 +15,7 @@ import android.util.Log;
 
 public class ClockHandler extends BroadcastReceiver 
 {
-	private static final long TIMES_UP = (5 * 60 * 100);
+	private static final long TIMES_UP = (1 * 60 * 1000);
 	
 	/**
 	 * Setting an alarm to the event time - extra Time (in minutes);
@@ -76,7 +77,8 @@ public class ClockHandler extends BroadcastReceiver
 		if (nextEvent != null)
 		{
 			long timesLeftToEvent = nextEvent.getTimesLeftToEvent();
-			
+			Log.d("ALARM", "Times up for event:" + TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent));
+			Log.d("ALARM", "diff: " + (timesLeftToEvent - TIMES_UP));
 			// If the event time has not passed yet
 			if (timesLeftToEvent > TIMES_UP)
 			{
@@ -98,7 +100,7 @@ public class ClockHandler extends BroadcastReceiver
 			}
 			else // ClockHandler move to the next event.
 			{
-				setAlarm(context, nextEvent, -1); // Negative extra time. next alarm 1 min after this event.
+				setAlarm(context, nextEvent, -30); // Negative extra time. next alarm 1 min after this event.
 			}			
 		}
 		
@@ -120,7 +122,7 @@ public class ClockHandler extends BroadcastReceiver
 
 	public static void cancelEventAlarm(Context context, Event event) 
 	{
-//		Log.d("ALARM", "Cancel Event:" + event.toString());
+		Log.d("ALARM", "Cancel Event:" + event.toString());
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		alarmMgr.cancel(pendingIntent);		
