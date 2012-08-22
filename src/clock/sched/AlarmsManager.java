@@ -86,6 +86,14 @@ public class AlarmsManager
 		}
 	}
 
+	/**
+	 * Request the alarm manager to delete an event.
+	 * Means the event will be deleted from the database,
+	 * If alarm was schedule for the event it will be cancelled,
+	 * And a new alarm for the next event will be schedule.
+	 * @param event - the event for deletion
+	 * @throws Exception
+	 */
 	public void deleteEvent(Event event) throws Exception
 	{
 		//TODO: how many refresh and latest and new and what the hell?!?

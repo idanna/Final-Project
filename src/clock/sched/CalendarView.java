@@ -41,6 +41,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+/*
+ * Main Application activity.
+ */
 public class CalendarView extends Activity implements OnClickListener 
 {
 	private static final String tag = "AppDate";
@@ -61,7 +64,9 @@ public class CalendarView extends Activity implements OnClickListener
 	
 	private ListView currentDayEventsList;
 
-	/** Called when the activity is first created. */
+	/** 
+	 * Called when the activity is first created. 
+	 * */
 	@Override
 	public void onCreate(Bundle savedInstanceState) 
 	{
@@ -79,7 +84,10 @@ public class CalendarView extends Activity implements OnClickListener
 		dayOfMonthAdapter.notifyDataSetChanged();
 		calendarView.setAdapter(dayOfMonthAdapter);
 	}
-
+	
+	/**
+	 * Saves all UI object to data members for later refernce.
+	 */
 	private void initUI() 
 	{
 		selectedDayMonthYearButton = (Button) this
@@ -107,8 +115,6 @@ public class CalendarView extends Activity implements OnClickListener
 		_calendar = Calendar.getInstance(Locale.getDefault());
 		month = _calendar.get(Calendar.MONTH) + 1;
 		year = _calendar.get(Calendar.YEAR);
-//		Log.d(tag, "Calendar Instance:= " + "Month: " + month + " " + "Year: "
-//				+ year);
 	}
 
 	/**
@@ -117,8 +123,7 @@ public class CalendarView extends Activity implements OnClickListener
 	 * @param year
 	 */
 	private void setGridCellAdapterToDate(int month, int year) 
-	{
-		//TODO: why are we create new instance each month ? 
+	{ 
 		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
 		_calendar.set(year, month - 1, _calendar.get(Calendar.DAY_OF_MONTH));
 		currentMonth.setText(dateFormatter.format(dateTemplate,	_calendar.getTime()));
@@ -332,11 +337,6 @@ public class CalendarView extends Activity implements OnClickListener
 			printMonth(month, year);
 		}
 		
-		private void initDataMembers() {
-			// TODO Auto-generated method stub
-			
-		}
-
 		public String getSelectedDate()
 		{
 			return selectedDateString;
@@ -344,10 +344,6 @@ public class CalendarView extends Activity implements OnClickListener
 		
 		private String getMonthAsString(int i) {
 			return months[i];
-		}
-
-		private String getWeekDayAsString(int i) {
-			return weekdays[i];
 		}
 
 		private int getNumberOfDaysOfMonth(int i) {

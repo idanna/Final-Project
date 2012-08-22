@@ -18,6 +18,12 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
 
+/**
+ * Abstracts the work with the database.
+ * Handles all queries, inserts and removes operations. 
+ * @author Idan
+ *
+ */
 public class DbAdapter 
 {
 	// Database fields
@@ -40,19 +46,33 @@ public class DbAdapter
 //			Log.e("DBAdapter", "Error in constructor while trying to create new Connection");
 //		}
 	}
-
+	
+	/**
+	 * Open the db connection.
+	 * Must be called before any other function.
+	 * @throws SQLException
+	 */
 	public void open() throws SQLException 
 	{
 //		database = connection.openDataBase();
 		database = connection.getWritableDatabase();
 	}
 
+	/**
+	 * Close the db connection.
+	 * Must be called after work.
+	 */
 	public void close() 
 	{
 		database.close();
 		connection.close();
 	}
 
+	/**
+	 * Inserts an event row to the Events table.
+	 * @param event - the event to be inserted.
+	 * @return the Event inserted.
+	 */
 	public Event insertEvent(Event event) 
 	{
 		ContentValues values = new ContentValues();
@@ -73,6 +93,10 @@ public class DbAdapter
 		return newEvent;
 	}
 
+	/**
+	 * Deletes an event using the Id.
+	 * @param event - the event to be deleted.
+	 */
 	public void deleteEvent(Event event) 
 	{
 		long id = event.getId();
@@ -81,6 +105,12 @@ public class DbAdapter
 				+ " = " + id, null);
 	}
 	
+	/**
+	 * Returns a map of 'Day' => 'Events' associated with the month, year events.
+	 * @param month - requested month
+	 * @param year - requested year.
+	 * @return
+	 */
 	public HashMap<String, List<Event>> getEventsMapForMonth(int month, int year)
 	{
 		//TODO: quickly replace 31 to the const MAX_DAYS_IN_MONTH
@@ -110,24 +140,28 @@ public class DbAdapter
 		return eventsMap;
 	}
 	
-	public List<Event> getAllEvents() 
-	{
-		List<Event> events = new ArrayList<Event>();
-
-		Cursor cursor = database.query(Connection.TABLE_EVENTS,
-				allColumns, null, null, null, null, null);
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			Event event = cursorToEvent(cursor);
-			events.add(event);
-			cursor.moveToNext();
-		}
-
-		
-		// Make sure to close the cursor
-		cursor.close();
-		return events;
-	}
+	/**
+	 * Returns all the events in the database.
+	 * @return
+	 */
+//	public List<Event> getAllEvents() 
+//	{
+//		List<Event> events = new ArrayList<Event>();
+//
+//		Cursor cursor = database.query(Connection.TABLE_EVENTS,
+//				allColumns, null, null, null, null, null);
+//		cursor.moveToFirst();
+//		while (!cursor.isAfterLast()) {
+//			Event event = cursorToEvent(cursor);
+//			events.add(event);
+//			cursor.moveToNext();
+//		}
+//
+//		
+//		// Make sure to close the cursor
+//		cursor.close();
+//		return events;
+//	}
 		
 	/**
 	 * get the next event from the database (where alarm field != PAST_EVENT).
@@ -161,6 +195,11 @@ public class DbAdapter
 		return retEvent;
 	}	
 	
+	/**
+	 * returns a new event instance.
+	 * @param cursor - cursor to the row with the event.
+	 * @return
+	 */
 	private Event cursorToEvent(Cursor cursor) 
 	{
 		Event event = Event.createNewInstance();

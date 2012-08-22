@@ -8,6 +8,11 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
 
+/**
+ * Represents an event in the Calander.
+ * @author Idan
+ *
+ */
 public class Event
 {
 	public enum eComparison{
@@ -28,24 +33,33 @@ public class Event
 	private boolean withAlarm;
 	private boolean userHasBeenNotified;
 	private boolean userHasBeenWakedUp;
-	
-	
-
+		
 	private Event()
 	{ };
 	
+	/**
+	 * Return a string in the format of: HH:MM LOCATION - DETAILS.
+	 */
 	@Override
 	public String toString() 
 	{
 		return getpadedZeroStr(this.hour) + ":" + getpadedZeroStr(this.min) + " " + this.location + "- " + this.details;
 	}
 	
+	/**
+	 * Check if two events the same by compating the EventId.
+	 */
 	@Override
 	public boolean equals(Object o) 
 	{
 		Event other = (Event) o;
 		return other.id == this.id; 
 	}
+	
+	/**
+	 * Returns a new "empty" instance of event.
+	 * @return
+	 */
 	public static Event createNewInstance()
 	{
 		Event event = new Event();
@@ -82,6 +96,7 @@ public class Event
 		
 		return e;
 	}
+	
 	/**
 	 * sets events properties from UI elements.
 	 */
@@ -123,7 +138,12 @@ public class Event
 		return result;
 	}
 	
-	public Calendar toCalendar() {
+	/**
+	 * 
+	 * @return A calander sets to the event date/time.
+	 */
+	public Calendar toCalendar() 
+	{
 		Calendar res = Calendar.getInstance();
 		res.set(year, month, day, hour, min);
 		return res;
@@ -232,7 +252,8 @@ public class Event
 	}
 	
 	/**
-	 * returning the event in format dd-MM-YY|HH:mm|location|details|id|with_alarm|userHasBeenNotified|userHasBeenWakedUp
+	 * Returns the event in format dd-MM-YY|HH:mm|location|details|id|with_alarm|userHasBeenNotified|userHasBeenWakedUp
+	 * Used for passing between activities. (like Parceable)
 	 */
 	public String encodeToString()
 	{
@@ -247,7 +268,7 @@ public class Event
 	}
 	
 	/**
-	 * 
+	 * Returns the event time in ISO8601 time format.
 	 * @param event
 	 * @return String in the format of "YYYY-MM-DD HH-mm-00"
 	 */
@@ -271,6 +292,10 @@ public class Event
 		return retStr;
 	}
 
+	/**
+	 * Sets the time of the event from an ISO8601 time format.
+	 * @param sqlDateTime
+	 */
 	public void setDateFromSql(String sqlDateTime) 
 	{
 		String[] dateTime = sqlDateTime.split(" ");
@@ -283,6 +308,11 @@ public class Event
 		this.min = Integer.parseInt(time[1]);
 	}
 
+	/**
+	 * 
+	 * @param event
+	 * @return BEFORE, OVERLAPPED, AFTER
+	 */
 	private eComparison compareToNow(Event event) 
 	{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH-mm-ss");
@@ -291,7 +321,11 @@ public class Event
         currentTime.setDateFromSql(currentTimeStr);
         return compareBetweenEvents(event, currentTime);
 	}
-
+	
+	/**
+	 * 
+	 * @return True if and only if the event is after the current system time.
+	 */
 	public boolean isAfterNow() 
 	{
 		return compareToNow(this) == eComparison.AFTER;

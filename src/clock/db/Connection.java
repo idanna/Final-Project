@@ -12,6 +12,11 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+/**
+ * Creates, Open, Close db connections.
+ * @author Idan
+ *
+ */
 public class Connection extends SQLiteOpenHelper 
 {
 	public static final String TABLE_EVENTS = "events";
