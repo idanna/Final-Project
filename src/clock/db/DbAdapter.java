@@ -100,9 +100,9 @@ public class DbAdapter
 	public void deleteEvent(Event event) 
 	{
 		long id = event.getId();
-		System.out.println("Comment deleted with id: " + id);
 		database.delete(Connection.TABLE_EVENTS, Connection.COLUMN_ID
 				+ " = " + id, null);
+		Log.d("EVENT", "Event number " + id + ", Name: " + event.toString() + " has been deleted from db");
 	}
 	
 	/**

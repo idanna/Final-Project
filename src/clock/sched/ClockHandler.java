@@ -75,7 +75,7 @@ public class ClockHandler extends BroadcastReceiver
 		{
 			long timesLeftToEvent = nextEvent.getTimesLeftToEvent();
 
-			Log.d("ALARM", "Time diff: " + (timesLeftToEvent - TIMES_UP));
+			Log.d("ALARM", "Time diff: " + TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent - TIMES_UP) + " Minutes");
 			// If the event time has not passed yet
 			if (timesLeftToEvent > TIMES_UP)
 			{

@@ -132,8 +132,8 @@ public class AlarmsManager
 	{
 		if (latestEvent == null)
 		{
-			latestEvent = dbAdapter.getNextEvent();
-		}		
+			latestEvent = dbAdapter.getNextEvent();		
+		}
 	}
 
 }

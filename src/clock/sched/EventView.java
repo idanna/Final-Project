@@ -1,5 +1,6 @@
 package clock.sched;
 
+import java.util.Calendar;
 import java.util.List;
 
 import clock.db.DbAdapter;
@@ -17,6 +18,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.Address;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -101,11 +103,17 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
   		// there was a day selected at the calander.
 	   	if (event != null)
 	   	{
+	   		//Setting date in new event
 		   	String[] date = newEventInitDate.split("-");
 			event.setDay(Integer.parseInt(date[0]));
 			event.setMonth(Integer.parseInt(date[1]));
 			event.setYear(Integer.parseInt(date[2])); 
-	   	}	
+			
+			//Setting time in new event
+			Calendar cal = Calendar.getInstance();
+			event.setHour(cal.get(Calendar.HOUR));
+			event.setMin(cal.get(Calendar.MINUTE));
+	   	}
    }
 
    private void setPageFields() 

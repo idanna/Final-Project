@@ -52,6 +52,8 @@ public class Event
 	@Override
 	public boolean equals(Object o) 
 	{
+		if (!(o instanceof Event)) return false;
+		
 		Event other = (Event) o;
 		return other.id == this.id; 
 	}
