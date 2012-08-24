@@ -302,7 +302,7 @@ public class CalendarView extends Activity implements OnClickListener
 		public GridCellAdapter(Context context, ListView eventsList, int textViewResourceId,	int month, int year) 
 		{
 			super();
-			initDataMembers();
+			//TODO: initDataMembers();
 			this._context = context;
 			this.dbAdapter = new DbAdapter(context);
 			this.list = new ArrayList<String>();

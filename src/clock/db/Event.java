@@ -145,7 +145,8 @@ public class Event
 	public Calendar toCalendar() 
 	{
 		Calendar res = Calendar.getInstance();
-		res.set(year, month, day, hour, min);
+		// We use (month - 1) since calendar month count is zero based
+		res.set(year, month - 1, day, hour, min);
 		return res;
 	}
 	
