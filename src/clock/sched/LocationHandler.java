@@ -31,13 +31,21 @@ public class LocationHandler implements LocationListener
 			criteria.setAccuracy(Criteria.ACCURACY_FINE);
 			LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
 			PendingIntent pendingIntent = getPendingIntent(context, event);
-			float minDistanceInterval = distanceToEventLocation * MIN_DISTANCE_INTERVAL_PERCENTAGE;
+			float minDistanceInterval = calNextInterval(distanceToEventLocation);
 			lm.requestLocationUpdates(MIN_TIME_INTERVAL, minDistanceInterval, criteria, pendingIntent);
 		}
 		catch (Exception ex)
 		{
-			Log.e("Location handler", "Set listener has failed: " + ex.getMessage());
+			Log.e("LOCATION", "Set listener has failed: " + ex.getMessage());
 		}
+	}
+	
+	private static float calNextInterval(float distanceToEventLocation) 
+	{
+		Log.d("LOCATION", "Current ditance to event location is: " + distanceToEventLocation/1000f + " Km");
+		distanceToEventLocation = distanceToEventLocation * MIN_DISTANCE_INTERVAL_PERCENTAGE;
+		Log.d("LOCATION", "Next update when user will move: " + distanceToEventLocation/1000f + " Km");
+		return distanceToEventLocation;
 	}
 	
 	private static PendingIntent getPendingIntent(Context context, Event event)
@@ -53,6 +61,7 @@ public class LocationHandler implements LocationListener
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); 
 		lm.removeUpdates(pendingIntent);
+		Log.d("LOCATION", "Listener has been canceled for event: " + event.toString());
 	}
 
 	@Override
@@ -106,7 +115,7 @@ public class LocationHandler implements LocationListener
 					onProviderEnabled(provider);
 					break;
 				default:
-					Log.e("LocationHandler", "Reached unknown place while provider status changed");
+					Log.e("LOCATION", "Reached unknown place while provider status changed");
 					break;
 				}
 			}	

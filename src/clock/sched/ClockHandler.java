@@ -38,20 +38,17 @@ public class ClockHandler extends BroadcastReceiver
 		t.setToNow();
 		long currentTime = t.toMillis(false);
 		calander.setTimeInMillis(currentTime);
-		Log.d("ALARM", "Current Time: " + calander.get(Calendar.YEAR) + "-" + calander.get(Calendar.MONTH) + "-" + 
-				calander.get(Calendar.DAY_OF_MONTH) + " " + calander.get(Calendar.HOUR_OF_DAY) + ":" + calander.get(Calendar.MINUTE));
-
-		calander.set(event.getYear(), event.getMonth() - 1, event.getDay(), event.getHour(), event.getMin(), 0);
+		Log.d("ALARM", "Current Time: " + calander.getTime());
+		
+		calander = event.toCalendar();
 		calander.add(Calendar.SECOND, -extraTime);
-		Log.d("ALARM", "Time To go out: " + calander.get(Calendar.YEAR) + "-" + calander.get(Calendar.MONTH) + "-" + 
-				calander.get(Calendar.DAY_OF_MONTH) + " " + calander.get(Calendar.HOUR_OF_DAY) + ":" + calander.get(Calendar.MINUTE));
+		Log.d("ALARM", "Time To go out: " + calander.getTime());
 		long miliToGetOut = calander.getTimeInMillis();
 		long miliToNextAlarm = ((miliToGetOut - currentTime) / 2) + currentTime;
-		// for debug:
+
 		Calendar debugCal = Calendar.getInstance();
 		debugCal.setTimeInMillis(miliToNextAlarm);
-		Log.d("ALARM", "Next Alarm: " + debugCal.get(Calendar.YEAR) + "-" + debugCal.get(Calendar.MONTH) + "-" + 
-								debugCal.get(Calendar.DAY_OF_MONTH) + " " + debugCal.get(Calendar.HOUR_OF_DAY) + ":" + debugCal.get(Calendar.MINUTE));
+		Log.d("ALARM", "Next Alarm: " + debugCal.getTime());
 		
 		return miliToNextAlarm;
 	}
@@ -77,8 +74,8 @@ public class ClockHandler extends BroadcastReceiver
 		if (nextEvent != null)
 		{
 			long timesLeftToEvent = nextEvent.getTimesLeftToEvent();
-			Log.d("ALARM", "Times up for event:" + TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent));
-			Log.d("ALARM", "diff: " + (timesLeftToEvent - TIMES_UP));
+
+			Log.d("ALARM", "Time diff: " + TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent - TIMES_UP) + " Minutes");
 			// If the event time has not passed yet
 			if (timesLeftToEvent > TIMES_UP)
 			{
@@ -122,9 +119,9 @@ public class ClockHandler extends BroadcastReceiver
 
 	public static void cancelEventAlarm(Context context, Event event) 
 	{
-		Log.d("ALARM", "Cancel Event:" + event.toString());
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
-		alarmMgr.cancel(pendingIntent);		
+		alarmMgr.cancel(pendingIntent);	
+		Log.d("ALARM", "Reciever has been canceled for event: " + event.toString());
 	}
 }
