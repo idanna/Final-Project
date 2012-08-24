@@ -76,29 +76,30 @@ public class ClockHandler extends BroadcastReceiver
 			long timesLeftToEvent = nextEvent.getTimesLeftToEvent();
 
 			Log.d("ALARM", "Time diff: " + TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent - TIMES_UP) + " Minutes");
-			// If the event time has not passed yet
-			if (timesLeftToEvent > TIMES_UP)
+			try
 			{
-				try
+				long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent, null);
+				long arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
+				long timesLeftToGoOut = timesLeftToEvent - travelTime;
+				
+				// User interaction if needed
+				EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
+				
+				// If the event time to go out has not passed yet
+				if (timesLeftToEvent > TIMES_UP)
 				{
-					long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent, null);
-					long arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
-					long timesLeftToGoOut = timesLeftToEvent - travelTime;
-					
-					// User interaction if needed
-					EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
-					
 					setNextAlarm(context, arrangeTime, travelTime, nextEvent);
 				}
-				catch (Exception ex)
+				else // ClockHandler move to the next event.
 				{
-					
-				}
+					setAlarm(context, nextEvent, -30); // Negative extra time. next alarm 1 min after this event.
+				}	
 			}
-			else // ClockHandler move to the next event.
+			catch (Exception ex)
 			{
-				setAlarm(context, nextEvent, -30); // Negative extra time. next alarm 1 min after this event.
-			}			
+				Log.e("ALARM", "Failed to set next alarm for event: " + nextEvent.toString());
+			}
+		
 		}
 		
 	}
