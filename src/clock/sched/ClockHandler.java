@@ -28,7 +28,7 @@ public class ClockHandler extends BroadcastReceiver
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		long alarmMiliSecond = calNextAlarm(event, extraTime);
-		alarmMgr.set(AlarmManager.RTC_WAKEUP, alarmMiliSecond, pendingIntent);			
+		alarmMgr.set(AlarmManager.RTC_WAKEUP, alarmMiliSecond, pendingIntent);	
 	}
 	
 	private static long calNextAlarm(Event event, int extraTime) 
@@ -50,6 +50,12 @@ public class ClockHandler extends BroadcastReceiver
 		debugCal.setTimeInMillis(miliToNextAlarm);
 		Log.d("ALARM", "Next Alarm: " + debugCal.getTime());
 		
+		//In case user assigned event that time to go out has already passed
+		if (miliToNextAlarm < 0)
+		{
+			miliToNextAlarm = 30 * 1000; //This will cause immediately response in 30 seconds 
+		}
+
 		return miliToNextAlarm;
 	}
 	
@@ -76,29 +82,30 @@ public class ClockHandler extends BroadcastReceiver
 			long timesLeftToEvent = nextEvent.getTimesLeftToEvent();
 
 			Log.d("ALARM", "Time diff: " + TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent - TIMES_UP) + " Minutes");
-			// If the event time has not passed yet
-			if (timesLeftToEvent > TIMES_UP)
+			try
 			{
-				try
+				long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent, null);
+				long arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
+				long timesLeftToGoOut = timesLeftToEvent - travelTime;
+				
+				// User interaction if needed
+				EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
+				
+				// If the event time to go out has not passed yet
+				if (timesLeftToEvent > TIMES_UP)
 				{
-					long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent, null);
-					long arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
-					long timesLeftToGoOut = timesLeftToEvent - travelTime;
-					
-					// User interaction if needed
-					EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
-					
 					setNextAlarm(context, arrangeTime, travelTime, nextEvent);
 				}
-				catch (Exception ex)
+				else // ClockHandler move to the next event.
 				{
-					
-				}
+					setAlarm(context, nextEvent, -30); // Negative extra time. next alarm 1 min after this event.
+				}	
 			}
-			else // ClockHandler move to the next event.
+			catch (Exception ex)
 			{
-				setAlarm(context, nextEvent, -30); // Negative extra time. next alarm 1 min after this event.
-			}			
+				Log.e("ALARM", "Failed to set next alarm for event: " + nextEvent.toString());
+			}
+		
 		}
 		
 	}

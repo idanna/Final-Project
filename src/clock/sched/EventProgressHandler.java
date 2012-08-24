@@ -6,8 +6,11 @@ import java.util.concurrent.TimeUnit;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.location.Location;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 
@@ -21,18 +24,29 @@ public class EventProgressHandler {
 	/**
 	 * Should be called from clock handler, after alarm received. 
 	 */
-	synchronized public static void handleEventProgress(Context context, Event event, long timesLeftToGoOut, long arrangeTime)
+	public static void handleEventProgress(Context context, Event event, long timesLeftToGoOut, long arrangeTime)
 	{
 		loadDetailsFromEvent(event);
 
 		// Alarm user to wake up if needed
 		if (isItTimeToWakeUp(timesLeftToGoOut, arrangeTime))
-			wakeupUser(arrangeTime);		
+			wakeupUser(context, arrangeTime);		
 		
 		// Remind user to go out if needed
 		if (timesLeftToGoOut <= GO_OUT_REMINDER_TIME)
 		{
-			notifyUser(timesLeftToGoOut, event);
+			final String msg = "Time to go out in " + TimeUnit.MILLISECONDS.toMinutes(timesLeftToGoOut) +  " Minutes";
+			DialogInterface.OnClickListener notifyApprovedListener = new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					Log.d("PROGRESS", "Dialog result, button clicked: " + which);
+					userHasBeenNotified = true;
+					Log.d("PROGRESS", "User has been notified: " + msg);						
+				}
+			};
+			
+			notifyUser(context, msg, notifyApprovedListener);
 		}
 		
 		saveDetailsToEvent(event);
@@ -42,7 +56,7 @@ public class EventProgressHandler {
 	/**
 	 * Should be called from location handler, after location changed update received.
 	 */
-	synchronized public static void handleEventProgress(Context context, Event event, Location location)
+	public static void handleEventProgress(Context context, Event event, Location location)
 	{
 		loadDetailsFromEvent(event);
 		
@@ -51,18 +65,18 @@ public class EventProgressHandler {
 			TrafficData trafficData = GoogleAdapter.getTrafficData(context, event, location);
 			long diffTime = TimeUnit.SECONDS.toMillis(trafficData.getDuration()) - event.getTimesLeftToEvent();
 			
-			if (diffTime > 0)
-			{
-				criticalMsg(event);
-			}
-			else if (diffTime <= GO_OUT_REMINDER_TIME)
-			{
-				notifyUser(diffTime, event);
-			}
+//			if (diffTime > 0)
+//			{
+//				criticalMsg(context, event);
+//			}
+//			else if (diffTime <= GO_OUT_REMINDER_TIME)
+//			{
+//				notifyUser(context, diffTime, event);
+//			}
 			
 		}
 		catch (Exception e) {
-			Log.e("EventProgressHandler", "Error while trying to check if user is late: " + e.getMessage());
+			Log.e("PROGRESS", "Error while trying to check if user is late: " + e.getMessage());
 		}
 		
 		saveDetailsToEvent(event);
@@ -82,40 +96,42 @@ public class EventProgressHandler {
 		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;
 	}
 	
-	synchronized private static void wakeupUser(long arrangeTimeInMillis)
+	private static void wakeupUser(Context context, long arrangeTimeInMillis)
 	{
 		if (userHasBeenWakedUp)
 			return;
 		
 		//TODO: alert user with wake up alarm clock
 		userHasBeenWakedUp = true;
-		Log.d("ALARM", "User has been waked up and arrange time is: " +
+		Log.d("PROGRESS", "User has been waked up and arrange time is: " +
 				TimeUnit.MILLISECONDS.toMinutes(arrangeTimeInMillis) + " Minutes");
 	}
 	
-	synchronized private static void notifyUser(long timesLeftInMillis, Event event)
+	private static void notifyUser(Context context, String msg, DialogInterface.OnClickListener callBackListener)
 	{
 		if (userHasBeenNotified)
 			return;
-		//TODO: notify user with a reminder. with option to see:
-		//	duration, distance, weather in location, etc.
-		userHasBeenNotified = true;
-		Log.d("ALARM", "User has been notified that times left to go is: " + 
-				TimeUnit.MILLISECONDS.toMinutes(timesLeftInMillis) + " Minutes");
-	}
-	
-	synchronized private static void criticalMsg(Event event) {
 		
-		userHasBeenNotified = true;
+		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+		dialogBuilder.setMessage(msg)
+		.setPositiveButton("Ok", callBackListener)
+		.setCancelable(false)
+		.setNegativeButton("Snooze", callBackListener)
+		.setNeutralButton("Show Info", callBackListener);
+		
+		AlertDialog alertDialog = dialogBuilder.create();		
+		alertDialog.show();
 	}
 	
-	synchronized private static void loadDetailsFromEvent(Event event) {
-		// TODO Auto-generated method stub
+	private static void loadDetailsFromEvent(Event event) {
+		userHasBeenNotified = event.isUserHasBeenNotified();
+		userHasBeenWakedUp = event.isUserHasBeenWakedUp();
 		
 	}
 	
-	synchronized private static void saveDetailsToEvent(Event event) {
-		// TODO Auto-generated method stub
+	private static void saveDetailsToEvent(Event event) {
+		event.setUserHasBeenNotified(userHasBeenNotified);
+		event.setUserHasBeenWakedUp(userHasBeenWakedUp);
 		
 	}
 
