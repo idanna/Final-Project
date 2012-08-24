@@ -110,12 +110,14 @@ public class EventProgressHandler {
 	}
 	
 	synchronized private static void loadDetailsFromEvent(Event event) {
-		// TODO Auto-generated method stub
+		userHasBeenNotified = event.isUserHasBeenNotified();
+		userHasBeenWakedUp = event.isUserHasBeenWakedUp();
 		
 	}
 	
 	synchronized private static void saveDetailsToEvent(Event event) {
-		// TODO Auto-generated method stub
+		event.setUserHasBeenNotified(userHasBeenNotified);
+		event.setUserHasBeenWakedUp(userHasBeenWakedUp);
 		
 	}
 
