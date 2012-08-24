@@ -3,11 +3,7 @@ package clock.sched;
 import java.io.UnsupportedEncodingException;
 
 import android.content.Context;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.util.Log;
-
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.db.Event.eComparison;
@@ -15,9 +11,8 @@ import clock.exceptions.CantGetLocationException;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
 import clock.exceptions.OutOfTimeException;
-import clock.outsources.GoogleTrafficHandler;
-import clock.outsources.GoogleWeatherHandler;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
+import clock.outsources.GoogleWeatherHandler;
 import clock.outsources.dependencies.WeatherModel;
 
 /**
@@ -34,8 +29,7 @@ public class AlarmsManager
 	 *
 	 */
 	private class ArrangeTimeManager 
-	{
-		
+	{				
 		private Context context;
 		private DbAdapter db;
 			
@@ -49,9 +43,10 @@ public class AlarmsManager
 		/**
 		 * Should be called after user has left to the event.
 		 */
-		public void UserGotOut()
+		public void UserGotOut(Event event, WeatherModel weatherData)
 		{
-			
+//			eCondition condition = conditionToEnum(weatherData.getCondition());
+//			db.addRecord(event, condition);			
 		}
 		
 		/**
@@ -62,6 +57,16 @@ public class AlarmsManager
 		{
 			return 0;
 		}
+	}
+	
+	/**
+	 * Weather conditions enum
+	 * @author Idan
+	 *
+	 */
+	public enum eCondition{
+		WET,
+		DRY
 	}
 	
 	private DbAdapter dbAdapter;
@@ -94,7 +99,7 @@ public class AlarmsManager
 		try
 		{
 			TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
-			if(newEvent.timeFromNow(trafficData.getDuration()) < 0) // its not possible to get there ! 
+			if(newEvent.isAfterNow() && newEvent.timeFromNow(trafficData.getDuration()) < 0) // its not possible to get there ! 
 			{
 				throw new OutOfTimeException();
 			}

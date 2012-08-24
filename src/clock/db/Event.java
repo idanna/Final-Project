@@ -356,14 +356,14 @@ public class Event
 	
 	/**
 	 * 
-	 * @param f - travelling duration to place in minutes.
+	 * @param f - travelling duration to place in seconds.
 	 * @return time to the event in minutes minus duration. (in minutes)
 	 */
 	public int timeFromNow(float duration) 
 	{
 		Calendar c = this.toCalendar();
 		Calendar currentTime = Calendar.getInstance();
-		c.add(Calendar.MINUTE, (int)duration);
+		c.add(Calendar.MINUTE, -((int)duration / 60));
 		return (int)((c.getTimeInMillis() - currentTime.getTimeInMillis()) / (1000 * 60 * 60));
 	}
 
