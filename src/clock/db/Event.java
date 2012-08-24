@@ -3,7 +3,9 @@ package clock.db;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
+import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
@@ -332,6 +334,37 @@ public class Event
 	public boolean isAfterNow() 
 	{
 		return compareToNow(this) == eComparison.AFTER;
+	}
+
+	public int daysFromNow() 
+	{
+		Calendar thisCal = this.toCalendar();
+		Calendar nowCalendar = Calendar.getInstance();
+		long miliFromNow = thisCal.getTimeInMillis() - nowCalendar.getTimeInMillis();
+		int daysFromNow = (int) (miliFromNow / (1000 * 60 * 60 * 24));
+		Log.d("EVENT", "daysFromNow: " + daysFromNow);
+		return daysFromNow;
+		
+	}
+	
+
+	public String getDayName() 
+	{
+		Calendar c = this.toCalendar();
+		return c.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US);
+	}
+	
+	/**
+	 * 
+	 * @param f - travelling duration to place in minutes.
+	 * @return time to the event in minutes minus duration. (in minutes)
+	 */
+	public int timeFromNow(float duration) 
+	{
+		Calendar c = this.toCalendar();
+		Calendar currentTime = Calendar.getInstance();
+		c.add(Calendar.MINUTE, (int)duration);
+		return (int)((c.getTimeInMillis() - currentTime.getTimeInMillis()) / (1000 * 60 * 60));
 	}
 
 }

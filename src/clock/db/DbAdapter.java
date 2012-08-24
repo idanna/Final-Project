@@ -212,44 +212,5 @@ public class DbAdapter
 		event.setUserHasBeenWakedUp(cursor.getInt(6) == 1);
 		return event;
 	}
-
-//	public String[] getStreetSugg(String constrain) 
-//	{
-//		String[] sugg = new String[0];
-//		Cursor cursor = database.query(Connection.TABLE_ADDRESS, new String[] {Connection.COLUMN_STREET}, Connection.COLUMN_STREET + " LIKE ? limit 3",
-//				new String[] {constrain + "%"}, null, null, null);
-//		cursor.moveToFirst();
-//		sugg = new String[cursor.getCount()];
-//		int i = 0;
-//		while (!cursor.isAfterLast()) 
-//		{
-//			sugg[i] = cursor.getString(0);
-//			cursor.moveToNext();
-//			i++;
-//		}
-//		
-//		return sugg;
-//	}
-
-	/**
-	 * 
-	 * @return the time the system learned user need to arrange.
-	 */
-	public int getArrangeTime() 
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
 	
-//	/**
-//	 * Setting the alarm value of the event in the db to be PAST_EVET
-//	 * Signing it as not releavent for alarm queries.
-//	 * @param pastEvent - event to set as PAST
-//	 */
-//	public void setEventAsDirty(Event pastEvent) 
-//	{
-//		database.execSQL("UPDATE " + Connection.TABLE_EVENTS + " SET " + Connection.COLUMN_ALARM + 
-//				"=" + Connection.PAST_EVENT + " WHERE id=" + pastEvent.getId());
-//	}
-
 }

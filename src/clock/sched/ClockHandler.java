@@ -84,8 +84,9 @@ public class ClockHandler extends BroadcastReceiver
 			Log.d("ALARM", "Time diff: " + TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent - TIMES_UP) + " Minutes");
 			try
 			{
+				AlarmsManager am = new AlarmsManager(context, db);
 				long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent, null);
-				long arrangeTime = nextEvent.getWithAlarmStatus() == true ? db.getArrangeTime() : 0;
+				long arrangeTime = nextEvent.getWithAlarmStatus() == true ? am.getArrangmentTime(nextEvent) : 0;
 				long timesLeftToGoOut = timesLeftToEvent - travelTime;
 				
 				// User interaction if needed
@@ -103,6 +104,7 @@ public class ClockHandler extends BroadcastReceiver
 			}
 			catch (Exception ex)
 			{
+				ex.printStackTrace();
 				Log.e("ALARM", "Failed to set next alarm for event: " + nextEvent.toString());
 			}
 		

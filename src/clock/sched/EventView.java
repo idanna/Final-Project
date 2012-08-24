@@ -9,6 +9,7 @@ import clock.db.Event.eComparison;
 import clock.exceptions.CantGetLocationException;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
+import clock.exceptions.OutOfTimeException;
 
 import clock.sched.R;
 
@@ -153,6 +154,9 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 		   catch (CantGetLocationException cgle)
 		   {
 			   Toast.makeText(this, "Can't get device location",Toast.LENGTH_LONG).show();
+		   }
+		   catch (OutOfTimeException e) {
+			   Toast.makeText(this, "You Dont have time To get there!",Toast.LENGTH_LONG).show();
 		   }
 		   catch (Exception e) 
 		   {

@@ -1,5 +1,7 @@
 package clock.sched;
 
+import java.io.UnsupportedEncodingException;
+
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
@@ -12,9 +14,11 @@ import clock.db.Event.eComparison;
 import clock.exceptions.CantGetLocationException;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
+import clock.exceptions.OutOfTimeException;
 import clock.outsources.GoogleTrafficHandler;
 import clock.outsources.GoogleWeatherHandler;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
+import clock.outsources.dependencies.WeatherModel;
 
 /**
  * Manager All alarms service in DataBase 
@@ -24,15 +28,53 @@ import clock.outsources.GoogleTrafficHandler.TrafficData;
  */
 public class AlarmsManager 
 {
+	/**
+	 * Handles arrangment times updating and recieving.
+	 * @author Idan
+	 *
+	 */
+	private class ArrangeTimeManager 
+	{
+		
+		private Context context;
+		private DbAdapter db;
+			
+		public ArrangeTimeManager(Context context, DbAdapter db) 
+		{
+			super();
+			this.context = context;
+			this.db = db;
+		}
+
+		/**
+		 * Should be called after user has left to the event.
+		 */
+		public void UserGotOut()
+		{
+			
+		}
+		
+		/**
+		 * 
+		 * @return The arrangment time in mintues.
+		 */
+		public int GetArrangmentTime(WeatherModel weatherData, String dayOfWeek)
+		{
+			return 0;
+		}
+	}
+	
 	private DbAdapter dbAdapter;
 	private Context context;
 	private Event latestEvent;
+	private ArrangeTimeManager arrangeTimeManager;
 	
 	public AlarmsManager(Context context, DbAdapter dbAdapter) 
 	{
 		super();
 		this.dbAdapter = dbAdapter;
 		this.context = context;
+		this.arrangeTimeManager = new ArrangeTimeManager(context, dbAdapter);
 	}
 	
 	/**
@@ -51,14 +93,19 @@ public class AlarmsManager
 
 		try
 		{
-			TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);			
+			TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
+			if(newEvent.timeFromNow(trafficData.getDuration()) < 0) // its not possible to get there ! 
+			{
+				throw new OutOfTimeException();
+			}
+			
 			dbAdapter.open();
 			refreshLastEvent();
 			dbAdapter.insertEvent(newEvent);
 			if(newEvent.isAfterNow() &&
 							(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
 			{
-				int arrageTime = newEvent.getWithAlarmStatus() == true ? dbAdapter.getArrangeTime() : 0;
+				int arrageTime = getArrangmentTime(newEvent);
 				if (latestEvent != null)
 				{
 					ClockHandler.cancelEventAlarm(context, latestEvent);
@@ -86,6 +133,20 @@ public class AlarmsManager
 		}
 	}
 
+	public int getArrangmentTime(Event newEvent) throws UnsupportedEncodingException 
+	{
+		int arrangeTime = 0;
+		if(newEvent.daysFromNow() > 3 && newEvent.getWithAlarmStatus() == true) // only if event time < 3 days from now we have weather data.
+		{
+			GoogleWeatherHandler gw = new GoogleWeatherHandler();
+			WeatherModel weather = gw.processWeatherRequest(newEvent.getLocation());
+			String eventDayName = newEvent.getDayName();
+			arrangeTime = arrangeTimeManager.GetArrangmentTime(weather, eventDayName);					
+		}
+		
+		return arrangeTime;
+	}
+
 	/**
 	 * Request the alarm manager to delete an event.
 	 * Means the event will be deleted from the database,
@@ -109,7 +170,7 @@ public class AlarmsManager
 				try
 				{
 					TrafficData trafficData = GoogleAdapter.getTrafficData(context, latestEvent, null);
-					int timeToArrange = dbAdapter.getArrangeTime();
+					int timeToArrange = getArrangmentTime(latestEvent);
 					ClockHandler.setAlarm(context, latestEvent, (int)(timeToArrange + trafficData.getDuration()));
 					LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
 				}
@@ -132,10 +193,7 @@ public class AlarmsManager
 	 */
 	private void refreshLastEvent()
 	{
-		if (latestEvent == null)
-		{
-			latestEvent = dbAdapter.getNextEvent();		
-		}
+		latestEvent = dbAdapter.getNextEvent();		
 	}
 
 }

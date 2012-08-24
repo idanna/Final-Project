@@ -512,8 +512,8 @@ public class CalendarView extends Activity implements OnClickListener
 			// Set the Day GridCell
 			gridcell.setText(theday);
 			gridcell.setTag(theday + "-" + themonth + "-" + theyear);
-			Log.d(tag, "Setting GridCell " + theday + "-" + themonth + "-"
-					+ theyear);
+//			Log.d(tag, "Setting GridCell " + theday + "-" + themonth + "-"
+//					+ theyear);
 
 			if (day_color[1].equals("GREY")) {
 				gridcell.setTextColor(Color.LTGRAY);
