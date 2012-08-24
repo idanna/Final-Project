@@ -119,9 +119,9 @@ public class ClockHandler extends BroadcastReceiver
 
 	public static void cancelEventAlarm(Context context, Event event) 
 	{
-		Log.d("ALARM", "Cancel Event:" + event.toString());
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
-		alarmMgr.cancel(pendingIntent);		
+		alarmMgr.cancel(pendingIntent);	
+		Log.d("ALARM", "Reciever has been canceled for event: " + event.toString());
 	}
 }
