@@ -100,10 +100,10 @@ public class AlarmsManager
 		dbAdapter.open();
 		refreshLastEvent();
 		dbAdapter.deleteEvent(event);
-		dbAdapter.close();
 		if (latestEvent != null && latestEvent.equals(event))
 		{
-			refreshLastEvent();
+			// Pull latest event from DB after the current one has been deleted
+			latestEvent = dbAdapter.getNextEvent();
 			if (latestEvent != null)
 			{
 				try
@@ -116,12 +116,14 @@ public class AlarmsManager
 				catch (Exception ex)
 				{
 					Log.e("Alarm manager", "Delete event has failed");
+					dbAdapter.close();
 				}
 			}
 			
 			ClockHandler.cancelEventAlarm(context, event);
 			LocationHandler.cancelLocationListener(context, event);
 		}
+		dbAdapter.close();
 	}
 	
 	/**
