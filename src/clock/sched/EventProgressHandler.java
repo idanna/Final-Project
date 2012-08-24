@@ -24,7 +24,7 @@ public class EventProgressHandler {
 	/**
 	 * Should be called from clock handler, after alarm received. 
 	 */
-	synchronized public static void handleEventProgress(Context context, Event event, long timesLeftToGoOut, long arrangeTime)
+	public static void handleEventProgress(Context context, Event event, long timesLeftToGoOut, long arrangeTime)
 	{
 		loadDetailsFromEvent(event);
 
@@ -56,7 +56,7 @@ public class EventProgressHandler {
 	/**
 	 * Should be called from location handler, after location changed update received.
 	 */
-	synchronized public static void handleEventProgress(Context context, Event event, Location location)
+	public static void handleEventProgress(Context context, Event event, Location location)
 	{
 		loadDetailsFromEvent(event);
 		
@@ -96,7 +96,7 @@ public class EventProgressHandler {
 		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;
 	}
 	
-	synchronized private static void wakeupUser(Context context, long arrangeTimeInMillis)
+	private static void wakeupUser(Context context, long arrangeTimeInMillis)
 	{
 		if (userHasBeenWakedUp)
 			return;
@@ -107,7 +107,7 @@ public class EventProgressHandler {
 				TimeUnit.MILLISECONDS.toMinutes(arrangeTimeInMillis) + " Minutes");
 	}
 	
-	synchronized private static void notifyUser(Context context, String msg, DialogInterface.OnClickListener callBackListener)
+	private static void notifyUser(Context context, String msg, DialogInterface.OnClickListener callBackListener)
 	{
 		if (userHasBeenNotified)
 			return;
@@ -123,13 +123,13 @@ public class EventProgressHandler {
 		alertDialog.show();
 	}
 	
-	synchronized private static void loadDetailsFromEvent(Event event) {
+	private static void loadDetailsFromEvent(Event event) {
 		userHasBeenNotified = event.isUserHasBeenNotified();
 		userHasBeenWakedUp = event.isUserHasBeenWakedUp();
 		
 	}
 	
-	synchronized private static void saveDetailsToEvent(Event event) {
+	private static void saveDetailsToEvent(Event event) {
 		event.setUserHasBeenNotified(userHasBeenNotified);
 		event.setUserHasBeenWakedUp(userHasBeenWakedUp);
 		

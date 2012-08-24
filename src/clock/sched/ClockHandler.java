@@ -28,7 +28,7 @@ public class ClockHandler extends BroadcastReceiver
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		long alarmMiliSecond = calNextAlarm(event, extraTime);
-		alarmMgr.set(AlarmManager.RTC_WAKEUP, alarmMiliSecond, pendingIntent);			
+		alarmMgr.set(AlarmManager.RTC_WAKEUP, alarmMiliSecond, pendingIntent);	
 	}
 	
 	private static long calNextAlarm(Event event, int extraTime) 
@@ -50,6 +50,12 @@ public class ClockHandler extends BroadcastReceiver
 		debugCal.setTimeInMillis(miliToNextAlarm);
 		Log.d("ALARM", "Next Alarm: " + debugCal.getTime());
 		
+		//In case user assigned event that time to go out has already passed
+		if (miliToNextAlarm < 0)
+		{
+			miliToNextAlarm = 30 * 1000; //This will cause immediately response in 30 seconds 
+		}
+
 		return miliToNextAlarm;
 	}
 	
