@@ -72,7 +72,7 @@ public class ClockHandler extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent i) 
 	{
-//		Log.d("ALARM", "Inside OnReceive:");
+		Log.d("ALARM", "Inside OnReceive:");
 		DbAdapter db = new DbAdapter(context);
 		db.open();
 		Event nextEvent = db.getNextEvent();

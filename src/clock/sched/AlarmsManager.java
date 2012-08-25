@@ -99,10 +99,9 @@ public class AlarmsManager
 		try
 		{
 			TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
-			if(newEvent.isAfterNow() && newEvent.timeFromNow(trafficData.getDuration()) < 0) // its not possible to get there ! 
-			{
-				throw new OutOfTimeException();
-			}
+			int timeToEvent = newEvent.timeFromNow(trafficData.getDuration());
+			if(newEvent.isAfterNow() && timeToEvent < 0) // its not possible to get there ! 
+				throw new OutOfTimeException(); //DOTO: why event view dont catch this ? 
 			
 			dbAdapter.open();
 			refreshLastEvent();
