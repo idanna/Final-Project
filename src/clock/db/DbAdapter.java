@@ -79,7 +79,7 @@ public class DbAdapter
 		values.put(Connection.COLUMN_DETAILS, event.getDetails());
 		values.put(Connection.COLUMN_ALARM, event.getWithAlarmStatus() == false? 0 : 1);
 		values.put(Connection.COLUMN_NOTIFIED, event.isUserHasBeenNotified() == false? 0 : 1);
-		values.put(Connection.COLUMN_WAKEDUP, event.isUserHasBeenWakedUp() == false? 0 : 1);
+		values.put(Connection.COLUMN_WAKEDUP, event.getUserHasBeenWakedUp());
 		long insertId = database.insert(Connection.TABLE_EVENTS, null, values);
 		Cursor cursor = database.query(Connection.TABLE_EVENTS, allColumns, Connection.COLUMN_ID + " = " + insertId, null,
 										null, null, null);
@@ -175,7 +175,7 @@ public class DbAdapter
 		event.setDetails(cursor.getString(3));
 		event.setWithAlarmStatus(cursor.getInt(4) == 1);
 		event.setUserHasBeenNotified(cursor.getInt(5) == 1);
-		event.setUserHasBeenWakedUp(cursor.getInt(6) == 1);
+		event.setUserHasBeenWakedUp(cursor.getLong(6));
 		return event;
 	}
 		

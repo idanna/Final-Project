@@ -20,10 +20,12 @@ import clock.sched.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.FeatureInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.format.Time;
@@ -33,6 +35,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
+import android.view.animation.Animation;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -40,6 +43,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -127,7 +131,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 			
 			//Setting time in new event
 			Calendar cal = Calendar.getInstance();
-			event.setHour(cal.get(Calendar.HOUR));
+			event.setHour(cal.get(Calendar.HOUR_OF_DAY));
 			event.setMin(cal.get(Calendar.MINUTE));
 	   	}
    }
@@ -149,10 +153,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
    {
 	   if (v == add_event_btn)
 	   {
-		   //TODO: check if it's a legal event - if this event overlapped by duration time with other events!!!
-		   // yes ! so we can show a message that's explains and keep user on this page.
 		   event.setPropFromViews(date_picker, time_picker, location_text, details_text, alarmOnOffStatus);
-		   // if the event is before or overlapped the current time, no need to trouble the alarm manager about that.
+
 		   try 
 		   {
 			   alarmManager.newEvent(event);

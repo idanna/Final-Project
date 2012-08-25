@@ -13,12 +13,13 @@ import android.util.Log;
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
+import clock.outsources.dependencies.WeatherModel;
 
 public class EventProgressHandler{
 	
 	private static final long GO_OUT_REMINDER_TIME = 1000 * 60 * 15;	// '15 minutes to go' reminder
 	private static boolean userHasBeenNotified;
-	private static boolean userHasBeenWakedUp;
+	private static long userHasBeenWakedUp;
 	private static final int NOTIFICATION_ID = 1;
 	private static final int WAKEUP_ID = 2;
 	private static final int CRITICAL_ID = 3;
@@ -55,9 +56,19 @@ public class EventProgressHandler{
 		Log.d("PROGRESS", "Handling event progress from location handler");
 		loadDetailsFromEvent(event);
 		
-		if (userHasBeenWakedUp)	//Case that user has already been waked up and moved 100 meters atleast
+		if (userHasBeenWakedUp != 0)
 		{
-
+			try
+			{
+				String origin = GoogleAdapter.getOrigin(context, location);
+				WeatherModel weatherData = GoogleAdapter.getWeatherModel(origin);
+				AlarmsManager alarmsManager = new AlarmsManager(context, new DbAdapter(context));
+				int arrangementTime = getArrangementTime();
+				alarmsManager.UserGotOut(event, arrangementTime, weatherData);
+			}
+			catch (Exception e) {
+				Log.e("PROGRESS", "Can't update User Got Out, error: " + e.getMessage());
+			}
 		}
 		else
 		{
@@ -87,6 +98,12 @@ public class EventProgressHandler{
 		
 	}
 
+	private static int getArrangementTime() {
+		long currentTime = System.currentTimeMillis();
+		return (int)(currentTime - userHasBeenWakedUp);
+	}
+
+
 	synchronized private static boolean isItTimeToWakeUp(long timesLeftToGoOut, long arrangeTime) 
 	{
 		
@@ -101,7 +118,7 @@ public class EventProgressHandler{
 	
 	synchronized private static void wakeupUser(Context context, Event event, long arrangeTimeInMillis)
 	{
-		if (userHasBeenWakedUp)
+		if (userHasBeenWakedUp == 0)
 			return;
 		Log.d("PROGRESS", "Waking up the user");
 		
@@ -112,7 +129,7 @@ public class EventProgressHandler{
 		//TODO: can't start activity from context
 		//TODO: set location handler to notify after 100 meters movement
 		
-		userHasBeenWakedUp = true;
+		userHasBeenWakedUp = System.currentTimeMillis();
 		
 		// Reset location handler to notify after 100 meters movement
 		LocationHandler.cancelLocationListener(context, event);
@@ -132,7 +149,7 @@ public class EventProgressHandler{
 		
 		Notification notification = getBasicNotification(context, msg);
 		notification.defaults |= Notification.DEFAULT_SOUND;
-		
+
 		notificationManager.notify(NOTIFICATION_ID, notification);
 		Log.d("PROGRESS", "User has been notified");
 		
@@ -175,7 +192,7 @@ public class EventProgressHandler{
 
 	synchronized private static void loadDetailsFromEvent(Event event) {
 		userHasBeenNotified = event.isUserHasBeenNotified();
-		userHasBeenWakedUp = event.isUserHasBeenWakedUp();
+		userHasBeenWakedUp = event.getUserHasBeenWakedUp();
 		
 	}
 	
