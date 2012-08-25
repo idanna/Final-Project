@@ -180,6 +180,11 @@ public class AlarmsManager
 		return arrangeTime;
 	}
 
+	public void UserGotOut(Event event, int arrangmentTime, WeatherModel weatherData)
+	{
+		this.arrangeTimeManager.UserGotOut(event, arrangmentTime, weatherData);
+	}
+	
 	/**
 	 * Request the alarm manager to delete an event.
 	 * Means the event will be deleted from the database,
