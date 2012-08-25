@@ -93,7 +93,7 @@ public class ClockHandler extends BroadcastReceiver
 				EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
 				
 				// If the event time to go out has not passed yet
-				if (timesLeftToEvent > TIMES_UP)
+				if (timesLeftToGoOut > TIMES_UP)
 				{
 					setNextAlarm(context, arrangeTime, travelTime, nextEvent);
 				}
