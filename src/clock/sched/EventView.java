@@ -66,6 +66,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	alarm_on_off = (ToggleButton)this.findViewById(R.id.alarm_on_off);
 	   	date_picker = (DatePicker) this.findViewById(R.id.datePicker);
 	   	time_picker = (TimePicker) this.findViewById(R.id.timePicker);
+	   	time_picker.setIs24HourView(true);
 	   	location_text = (AutoCompleteTextView) this.findViewById(R.id.locationText);
 //	   	location_text.setOnKeyListener(this);
 	   	location_text.setOnFocusChangeListener(this);

@@ -129,6 +129,7 @@ public class EventProgressHandler {
 		
 		notificationManager.notify(NOTIFICATION_ID, notification);
 		Log.d("PROGRESS", "User has been notified");
+		
 		userHasBeenNotified = true;
 	}
 	
