@@ -127,7 +127,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 			
 			//Setting time in new event
 			Calendar cal = Calendar.getInstance();
-			event.setHour(cal.get(Calendar.HOUR));
+			event.setHour(cal.get(Calendar.HOUR_OF_DAY));
 			event.setMin(cal.get(Calendar.MINUTE));
 	   	}
    }
