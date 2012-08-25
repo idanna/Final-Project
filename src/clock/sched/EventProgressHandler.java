@@ -1,5 +1,6 @@
 package clock.sched;
 
+import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Notification;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.util.Log;
+import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 
@@ -41,7 +43,7 @@ public class EventProgressHandler{
 			notifyUser(context, msg);
 		}
 		
-		saveDetailsToEvent(event);
+		saveDetailsToEvent(event, context);
 	}
 
 
@@ -81,24 +83,20 @@ public class EventProgressHandler{
 			}
 		}
 		
-		saveDetailsToEvent(event);
+		saveDetailsToEvent(event, context);
 		
 	}
 
 	private static boolean isItTimeToWakeUp(long timesLeftToGoOut, long arrangeTime) 
 	{
-		Log.d("PROGRESS", "Checking if its time to wake up");
 		
-		//TODO: this is only for now!!!
-		return true;
-		
-/*		// In case no arrangement time is needed
+		// In case no arrangement time is needed
 		if (arrangeTime == 0) return false;
 		
 		Calendar currentCalendar = Calendar.getInstance();
 		long timeToWakeUp = timesLeftToGoOut - arrangeTime;
 		
-		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;*/
+		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;
 	}
 	
 	private static void wakeupUser(Context context, long arrangeTimeInMillis)
@@ -175,9 +173,19 @@ public class EventProgressHandler{
 		
 	}
 	
-	private static void saveDetailsToEvent(Event event) {
+	/**
+	 * This will save the event's userHasBeenNotified and userHasBeenWakedUp.
+	 * The event then will be updated in DB.
+	 * @param event
+	 * @param context
+	 */
+	private static void saveDetailsToEvent(Event event, Context context) {
 		event.setUserHasBeenNotified(userHasBeenNotified);
 		event.setUserHasBeenWakedUp(userHasBeenWakedUp);
-		
+		DbAdapter dbAdapter = new DbAdapter(context);
+		dbAdapter.open();
+		dbAdapter.deleteEvent(event);
+		dbAdapter.insertEvent(event);
+		dbAdapter.close();
 	}
 }
