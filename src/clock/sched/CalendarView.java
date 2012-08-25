@@ -93,19 +93,7 @@ public class CalendarView extends Activity implements OnClickListener
 		e.setDateFromSql("2012-08-25 22-22-00");
 		e.setWithAlarmStatus(true);
 		GoogleWeatherHandler gw = new GoogleWeatherHandler();
-		
-		try {
-			WeatherModel weatherData = new WeatherModel();
-			weatherData.setTemperature("29");
-			weatherData.setCondition("RAIN");
-			alarmsManager.UserGotOut(e, 20, weatherData);
-			int a = alarmsManager.getArrangmentTime(e);
-			Log.d("ARRTIME", String.valueOf(a));
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
+				
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{
 //			
