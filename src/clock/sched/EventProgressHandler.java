@@ -149,7 +149,7 @@ public class EventProgressHandler{
 		
 		Notification notification = getBasicNotification(context, msg);
 		notification.defaults |= Notification.DEFAULT_SOUND;
-		
+
 		notificationManager.notify(NOTIFICATION_ID, notification);
 		Log.d("PROGRESS", "User has been notified");
 		
