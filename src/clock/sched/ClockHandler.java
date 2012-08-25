@@ -84,7 +84,12 @@ public class ClockHandler extends BroadcastReceiver
 			{
 				AlarmsManager am = new AlarmsManager(context, db);
 				long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent, null);
-				long arrangeTime = nextEvent.getWithAlarmStatus() == true ? am.getArrangmentTime(nextEvent) : 0;
+				long arrangeTime = am.getArrangmentTime(nextEvent);
+				if(arrangeTime == -1)
+				{
+					//DOTO: there's no arrangment time in db,
+					// What should we do ?
+				}
 				long timesLeftToGoOut = timesLeftToEvent - travelTime;
 				
 				// User interaction if needed

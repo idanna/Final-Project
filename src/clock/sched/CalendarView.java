@@ -63,7 +63,7 @@ public class CalendarView extends Activity implements OnClickListener
     private static final String[] menuItems = {"Edit", "Delete"};
 	
 	private ListView currentDayEventsList;
-
+	
 	/** 
 	 * Called when the activity is first created. 
 	 * */
@@ -83,6 +83,12 @@ public class CalendarView extends Activity implements OnClickListener
 		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
 		dayOfMonthAdapter.notifyDataSetChanged();
 		calendarView.setAdapter(dayOfMonthAdapter);
+		
+//		if(!alarmsManager.hasInitArragmentTime())
+//		{
+//			
+//		}
+		
 	}
 	
 	/**

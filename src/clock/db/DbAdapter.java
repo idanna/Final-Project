@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import clock.sched.AlarmsManager.eCondition;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -39,12 +41,7 @@ public class DbAdapter
 	
 	public DbAdapter(Context context) 
 	{
-//		try {
 		connection = new Connection(context);
-//		} 
-//		catch (IOException e){
-//			Log.e("DBAdapter", "Error in constructor while trying to create new Connection");
-//		}
 	}
 	
 	/**
@@ -141,29 +138,6 @@ public class DbAdapter
 	}
 	
 	/**
-	 * Returns all the events in the database.
-	 * @return
-	 */
-//	public List<Event> getAllEvents() 
-//	{
-//		List<Event> events = new ArrayList<Event>();
-//
-//		Cursor cursor = database.query(Connection.TABLE_EVENTS,
-//				allColumns, null, null, null, null, null);
-//		cursor.moveToFirst();
-//		while (!cursor.isAfterLast()) {
-//			Event event = cursorToEvent(cursor);
-//			events.add(event);
-//			cursor.moveToNext();
-//		}
-//
-//		
-//		// Make sure to close the cursor
-//		cursor.close();
-//		return events;
-//	}
-		
-	/**
 	 * get the next event from the database (where alarm field != PAST_EVENT).
 	 * returns null if no upcoming events.
 	 */
@@ -183,14 +157,6 @@ public class DbAdapter
 			cursor.moveToFirst();
 			retEvent = cursorToEvent(cursor);
 		}
-//		if (retEvent != null)
-//		{
-//			Log.d("NEXT EVENT", retEvent.toString());
-//		}
-//		else
-//		{
-//			Log.d("NEXT EVENT", " NO EVENT");
-//		}
 		
 		return retEvent;
 	}	
@@ -211,6 +177,52 @@ public class DbAdapter
 		event.setUserHasBeenNotified(cursor.getInt(5) == 1);
 		event.setUserHasBeenWakedUp(cursor.getInt(6) == 1);
 		return event;
+	}
+		
+	/**
+	 * Insert a record to the records table.
+	 * @param event - event to be save - only day name saved for now
+	 * @param arrangementTime - time took to arrange
+	 * @param enumCondition - weather condition enum
+	 * @param tempeture 
+	 * @return the row ID of the newly inserted row, or -1 if an error occurred 
+	 */
+	public long addRecord(Event event, int arrangementTime, eCondition enumCondition, int tempeture) 
+	{
+		ContentValues values = new ContentValues(); 
+		values.put(Connection.COLUMN_ARR_TIME, arrangementTime);
+		values.put(Connection.COLUMN_DAY_OF_WEEK, event.getDayName());
+		values.put(Connection.COLUMN_WEATHER, enumCondition.toString());
+		values.put(Connection.COLUMN_TEMPETURE, String.valueOf(tempeture));
+		long insertId = database.insert(Connection.TABLE_RECORDS, null, values);
+		return insertId;
+	}
+	
+	/**
+	 * 
+	 * @param dayName
+	 * @param contidion
+	 * @param tempeture
+	 * @return arrangement time or -1 if no suggestion was found.
+	 */
+
+	public int getArrangmentTime(String dayName, eCondition contidion, int tempeture) 
+	{
+		int arrangeTime = -1;
+		String query = "SELECT (SUM(" + Connection.COLUMN_ARR_TIME + ")/COUNT(" + Connection.COLUMN_ARR_TIME + 
+				")) FROM " + Connection.TABLE_RECORDS + 
+				" WHERE " + Connection.COLUMN_WEATHER + "=" + contidion + 
+				" AND " + Connection.COLUMN_TEMPETURE + ">" + (tempeture - 5) + 
+				" AND " + Connection.COLUMN_TEMPETURE + "<" + (tempeture + 5) + 
+				" GROUP BY " + Connection.COLUMN_WEATHER + ", " + Connection.COLUMN_TEMPETURE;
+		Cursor cursor = database.rawQuery(query, null);
+	
+		cursor.moveToFirst();
+		if(!cursor.isAfterLast()) // did we get any results ? 
+		{
+			arrangeTime = cursor.getInt(0);			
+		}
+		return arrangeTime;
 	}
 	
 }

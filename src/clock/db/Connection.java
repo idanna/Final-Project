@@ -38,7 +38,7 @@ public class Connection extends SQLiteOpenHelper
 	public static final String COLUMN_DAY_OF_WEEK = "day";
 	
 	private static final String DATABASE_NAME = "smart_clock.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 
     private static final String CREATE_EVENT_TABLE = "create table "
     		+ TABLE_EVENTS + "("
@@ -52,11 +52,10 @@ public class Connection extends SQLiteOpenHelper
     
     private static final String CREATE_RECORDS_TABLE = "create table " 
 			+ TABLE_RECORDS + " ( " + COLUMN_ARR_TIME + " integer, " 
-			+ COLUMN_DAY_OF_WEEK + "text, "
+			+ COLUMN_DAY_OF_WEEK + " text, "
 			+ COLUMN_WEATHER + " text, "
-			+ COLUMN_TEMPETURE + "integer);";
-    
-    private static final String DATABASE_CREATE = CREATE_EVENT_TABLE + CREATE_RECORDS_TABLE;
+			+ COLUMN_TEMPETURE + " integer);";
+
 //    private final Context myContext;	
     /**
      * Constructor
@@ -67,21 +66,21 @@ public class Connection extends SQLiteOpenHelper
     public Connection(Context context) 
     {
     	super(context, DATABASE_NAME, null, DATABASE_VERSION);
-//        this.myContext = context;
-//        this.createDataBase();
     }	
         
 	@Override
-	public void onCreate(SQLiteDatabase database) {
-		database.execSQL(DATABASE_CREATE);
+	public void onCreate(SQLiteDatabase database) {		
+		database.execSQL(CREATE_EVENT_TABLE);
+		database.execSQL(CREATE_RECORDS_TABLE);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-//		Log.d(Connection.class.getName(),
-//				"Upgrading database from version " + oldVersion + " to "
-//				+ newVersion + ", which will destroy all old data");
+		Log.d(Connection.class.getName(),
+				"Upgrading database from version " + oldVersion + " to "
+				+ newVersion + ", which will destroy all old data");
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORDS);
 		onCreate(db);
 	}
 	

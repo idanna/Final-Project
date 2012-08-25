@@ -32,7 +32,8 @@ public class AlarmsManager
 	{				
 		private Context context;
 		private DbAdapter db;
-			
+		private String[] dryWeather = new String[]{"Clear",	"Sunny", "Partly Sunny", "Mostly Sunny", "Partly Cloudy",
+			"Mostly Cloudy", "Cloudy", 	"Mist", "Overcast", "Dust", "Fog", "Smoke", "Haze"};
 		public ArrangeTimeManager(Context context, DbAdapter db) 
 		{
 			super();
@@ -43,19 +44,37 @@ public class AlarmsManager
 		/**
 		 * Should be called after user has left to the event.
 		 */
-		public void UserGotOut(Event event, WeatherModel weatherData)
+		public void UserGotOut(Event event, int arrangmentTime, WeatherModel weatherData)
 		{
-//			eCondition condition = conditionToEnum(weatherData.getCondition());
-//			db.addRecord(event, condition);			
+			eCondition enumCondition = conditionToEnum(weatherData.getCondition());
+			db.addRecord(event, arrangmentTime, enumCondition, Integer.parseInt(weatherData.getTemperature()));			
 		}
 		
+		private eCondition conditionToEnum(String condition) 
+		{
+			eCondition enumCondition = eCondition.WET;
+			for (String constCondition : dryWeather) {
+				if(condition.equals(constCondition))
+				{
+					enumCondition = eCondition.DRY;
+					continue;
+				}
+			}
+			return enumCondition;
+		}
+
 		/**
 		 * 
 		 * @return The arrangment time in mintues.
 		 */
-		public int GetArrangmentTime(WeatherModel weatherData, String dayOfWeek)
+		public int GetArrangmentTime(Event event, WeatherModel weatherData)
 		{
-			return 0;
+			eCondition contidion = conditionToEnum(weatherData.getCondition());
+			int tempeture = Integer.parseInt(weatherData.getTemperature());
+			db.open();
+			int arrTime = db.getArrangmentTime(event.getDayName(), contidion, tempeture);
+			db.close();
+			return arrTime;
 		}
 	}
 	
@@ -110,6 +129,11 @@ public class AlarmsManager
 							(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
 			{
 				int arrageTime = getArrangmentTime(newEvent);
+				if (arrageTime == -1)
+				{
+					//DOTO: notify the user that arrangment time is missing
+				}
+				
 				if (latestEvent != null)
 				{
 					ClockHandler.cancelEventAlarm(context, latestEvent);
@@ -136,7 +160,13 @@ public class AlarmsManager
 			dbAdapter.close();
 		}
 	}
-
+	
+	/**
+	 * 
+	 * @param newEvent
+	 * @return arrangemt time: -1 if no suggestion was found.
+	 * @throws UnsupportedEncodingException
+	 */
 	public int getArrangmentTime(Event newEvent) throws UnsupportedEncodingException 
 	{
 		int arrangeTime = 0;
@@ -144,8 +174,7 @@ public class AlarmsManager
 		{
 			GoogleWeatherHandler gw = new GoogleWeatherHandler();
 			WeatherModel weather = gw.processWeatherRequest(newEvent.getLocation());
-			String eventDayName = newEvent.getDayName();
-			arrangeTime = arrangeTimeManager.GetArrangmentTime(weather, eventDayName);					
+			arrangeTime = arrangeTimeManager.GetArrangmentTime(newEvent, weather);					
 		}
 		
 		return arrangeTime;
