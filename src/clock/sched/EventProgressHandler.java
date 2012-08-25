@@ -5,21 +5,27 @@ import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
+import android.os.IBinder;
+import android.provider.AlarmClock;
+import android.sax.StartElementListener;
+import android.text.GetChars;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 
-public class EventProgressHandler {
+public class EventProgressHandler{
 	
 	private static final long GO_OUT_REMINDER_TIME = 1000 * 60 * 10;	// '10 minutes to go' reminder
 	private static boolean userHasBeenNotified;
@@ -88,13 +94,17 @@ public class EventProgressHandler {
 	private static boolean isItTimeToWakeUp(long timesLeftToGoOut, long arrangeTime) 
 	{
 		Log.d("PROGRESS", "Checking if its time to wake up");
-		// In case no arrangement time is needed
+		
+		//TODO: this is only for now!!!
+		return true;
+		
+/*		// In case no arrangement time is needed
 		if (arrangeTime == 0) return false;
 		
 		Calendar currentCalendar = Calendar.getInstance();
 		long timeToWakeUp = timesLeftToGoOut - arrangeTime;
 		
-		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;
+		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;*/
 	}
 	
 	private static void wakeupUser(Context context, long arrangeTimeInMillis)
@@ -102,10 +112,15 @@ public class EventProgressHandler {
 		if (userHasBeenWakedUp)
 			return;
 		Log.d("PROGRESS", "Waking up the user");
-		//TODO: alert user with wake up alarm clock
+		
+		String msg = "Times to wake up, Arrange time is " 
+				+ TimeUnit.MILLISECONDS.toMinutes(arrangeTimeInMillis)
+				+ " Minutes";
+		
+		//TODO: can't start activity from context
+		
 		userHasBeenWakedUp = true;
-		Log.d("PROGRESS", "User has been waked up and arrange time is: " +
-				TimeUnit.MILLISECONDS.toMinutes(arrangeTimeInMillis) + " Minutes");
+		Log.d("PROGRESS", "User has been waked up with message: " + msg);
 	}
 	
 	private static void notifyUser(Context context, String msg)
@@ -144,5 +159,4 @@ public class EventProgressHandler {
 		event.setUserHasBeenWakedUp(userHasBeenWakedUp);
 		
 	}
-
 }
