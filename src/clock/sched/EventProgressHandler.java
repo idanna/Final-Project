@@ -3,10 +3,15 @@ package clock.sched;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +24,9 @@ public class EventProgressHandler {
 	private static final long GO_OUT_REMINDER_TIME = 1000 * 60 * 10;	// '10 minutes to go' reminder
 	private static boolean userHasBeenNotified;
 	private static boolean userHasBeenWakedUp;
+	private static final int NOTIFICATION_ID = 1;
+	private static final int WAKEUP_ID = 2;
+	private static final int CRITICAL_ID = 3;
 	
 		
 	/**
@@ -26,6 +34,7 @@ public class EventProgressHandler {
 	 */
 	public static void handleEventProgress(Context context, Event event, long timesLeftToGoOut, long arrangeTime)
 	{
+		Log.d("PROGRESS", "Handling event progress from clock handler");
 		loadDetailsFromEvent(event);
 
 		// Alarm user to wake up if needed
@@ -35,18 +44,8 @@ public class EventProgressHandler {
 		// Remind user to go out if needed
 		if (timesLeftToGoOut <= GO_OUT_REMINDER_TIME)
 		{
-			final String msg = "Time to go out in " + TimeUnit.MILLISECONDS.toMinutes(timesLeftToGoOut) +  " Minutes";
-			DialogInterface.OnClickListener notifyApprovedListener = new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					Log.d("PROGRESS", "Dialog result, button clicked: " + which);
-					userHasBeenNotified = true;
-					Log.d("PROGRESS", "User has been notified: " + msg);						
-				}
-			};
-			
-			notifyUser(context, msg, notifyApprovedListener);
+			final String msg = "Time to go out in " + TimeUnit.MILLISECONDS.toMinutes(timesLeftToGoOut) +  " Minutes";			
+			notifyUser(context, msg);
 		}
 		
 		saveDetailsToEvent(event);
@@ -58,6 +57,7 @@ public class EventProgressHandler {
 	 */
 	public static void handleEventProgress(Context context, Event event, Location location)
 	{
+		Log.d("PROGRESS", "Handling event progress from location handler");
 		loadDetailsFromEvent(event);
 		
 		try
@@ -87,6 +87,7 @@ public class EventProgressHandler {
 
 	private static boolean isItTimeToWakeUp(long timesLeftToGoOut, long arrangeTime) 
 	{
+		Log.d("PROGRESS", "Checking if its time to wake up");
 		// In case no arrangement time is needed
 		if (arrangeTime == 0) return false;
 		
@@ -100,27 +101,35 @@ public class EventProgressHandler {
 	{
 		if (userHasBeenWakedUp)
 			return;
-		
+		Log.d("PROGRESS", "Waking up the user");
 		//TODO: alert user with wake up alarm clock
 		userHasBeenWakedUp = true;
 		Log.d("PROGRESS", "User has been waked up and arrange time is: " +
 				TimeUnit.MILLISECONDS.toMinutes(arrangeTimeInMillis) + " Minutes");
 	}
 	
-	private static void notifyUser(Context context, String msg, DialogInterface.OnClickListener callBackListener)
+	private static void notifyUser(Context context, String msg)
 	{
 		if (userHasBeenNotified)
 			return;
 		
-		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-		dialogBuilder.setMessage(msg)
-		.setPositiveButton("Ok", callBackListener)
-		.setCancelable(false)
-		.setNegativeButton("Snooze", callBackListener)
-		.setNeutralButton("Show Info", callBackListener);
+		Log.d("PROGRESS", "Notifying user with: " + msg);
 		
-		AlertDialog alertDialog = dialogBuilder.create();		
-		alertDialog.show();
+		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		int icon = R.drawable.icon;
+		long when = System.currentTimeMillis();		//For showing the notification now
+
+		Notification notification = new Notification(icon, msg, when);
+		notification.defaults |= Notification.DEFAULT_SOUND;
+		String title = "AppDate";
+		Intent intent = new Intent(context, EventProgressHandler.class);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+		
+		notification.setLatestEventInfo(context, title, msg, pendingIntent);
+		
+		notificationManager.notify(NOTIFICATION_ID, notification);
+		Log.d("PROGRESS", "User has been notified");
+		userHasBeenNotified = true;
 	}
 	
 	private static void loadDetailsFromEvent(Event event) {
