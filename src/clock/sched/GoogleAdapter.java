@@ -1,12 +1,12 @@
 package clock.sched;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
-import android.os.Bundle;
 import android.util.Log;
 import clock.db.Event;
 import clock.exceptions.CantGetLocationException;
@@ -105,16 +105,16 @@ public class GoogleAdapter {
 		return location.getLatitude() + "," + location.getLongitude();
 	}
 
-	public static boolean isLegalAddress(String address)
+	public static ArrayList<String> getSuggestions(String address)
 	{
-		boolean res = false;
+		ArrayList<String> res = new ArrayList<String>();
 		try
 		{
-			res = gTrafficHandler.checkAddress(address);
+			res = gTrafficHandler.getSuggestion(address);
 		}
 		catch (Exception ex)
 		{
-			Log.e("Google Adapter", "Can't get address check");
+			Log.e("Google", "Can't get address check");
 		}
 		
 		return res;

@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-
+import java.util.ArrayList;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -114,12 +114,20 @@ public class GoogleTrafficHandler
 		return trafficData;	
 	}
 	
-	public boolean checkAddress(String address) throws Exception
+	/**
+	 * Get streets suggestions.
+	 * @param address
+	 * @return List of suggestions as Strings. The List maybe empty in case of no suggestions
+	 * @throws Exception
+	 */
+	public ArrayList<String> getSuggestion(String address) throws Exception
 	{
+		ArrayList<String> res = new ArrayList<String>();
 		address = URLEncoder.encode(address, "UTF-8");
 		String query = "http://maps.googleapis.com/maps/api/geocode/xml?"
 				+ "address=" + address
-				+ "&sensor=false"; 
+				+ "&sensor=false"
+				+ "&language=iw"; 
 		
 		Log.d("ADDRESS", "GoogleQuery: " + query);
 		googleUrl = new URL(query);
@@ -146,8 +154,31 @@ public class GoogleTrafficHandler
 		String xPathDurationExpression = "GeocodeResponse/status";
 		NodeList statusNodeList = this.parseXml(is, xPathDurationExpression);		
 
-		return getStatusFromNodeList(statusNodeList).equalsIgnoreCase("ok")? true : false;
+		if (getStatusFromNodeList(statusNodeList).equalsIgnoreCase("ok"))
+		{
+			is.setCharacterStream(new StringReader(xmlStr));
+			String xPathSuggExpression = "GeocodeResponse/result/formatted_address";
+			NodeList suggNodeList = this.parseXml(is, xPathSuggExpression);	
+			res = getSuggFromNodeList(suggNodeList);
+		}
+		
+		return res;
 				
+	}
+
+	private ArrayList<String> getSuggFromNodeList(NodeList suggNodeList) {
+		ArrayList<String> res = new ArrayList<String>();
+		String nodeVal;
+		
+		for (int i=0; i < suggNodeList.getLength(); ++i)
+		{
+			nodeVal = suggNodeList.item(i).getFirstChild().getNodeValue();
+			if (nodeVal != null)
+			{
+				res.add(nodeVal);
+			}
+		}
+		return res;
 	}
 
 	private String getStatusFromNodeList(NodeList statusNodeList) {
