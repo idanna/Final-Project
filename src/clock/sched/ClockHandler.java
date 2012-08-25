@@ -80,8 +80,6 @@ public class ClockHandler extends BroadcastReceiver
 		if (nextEvent != null)
 		{
 			long timesLeftToEvent = nextEvent.getTimesLeftToEvent();
-
-			Log.d("ALARM", "Time diff: " + TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent - TIMES_UP) + " Minutes");
 			try
 			{
 				AlarmsManager am = new AlarmsManager(context, db);
@@ -93,7 +91,7 @@ public class ClockHandler extends BroadcastReceiver
 				EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
 				
 				// If the event time to go out has not passed yet
-				if (timesLeftToEvent > TIMES_UP)
+				if (timesLeftToGoOut > TIMES_UP)
 				{
 					setNextAlarm(context, arrangeTime, travelTime, nextEvent);
 				}
@@ -104,8 +102,8 @@ public class ClockHandler extends BroadcastReceiver
 			}
 			catch (Exception ex)
 			{
-				ex.printStackTrace();
-				Log.e("ALARM", "Failed to set next alarm for event: " + nextEvent.toString());
+				Log.e("ALARM", "Failed to set next alarm for event: " + nextEvent.toString()
+						 + "... With Error: " + ex.getStackTrace().toString());
 			}
 		
 		}

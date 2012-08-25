@@ -93,7 +93,7 @@ public class AlarmsManager
 		if (!GoogleAdapter.isInternetConnected(context))
 			throw new InternetDisconnectedException();
 		
-		if (!GoogleAdapter.isLegalAddress(newEvent.getLocation()))
+		if (GoogleAdapter.getSuggestions(newEvent.getLocation()).isEmpty())
 			throw new IllegalAddressException();
 
 		try

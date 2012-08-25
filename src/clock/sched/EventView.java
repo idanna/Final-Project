@@ -1,5 +1,6 @@
 package clock.sched;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -14,9 +15,11 @@ import clock.exceptions.OutOfTimeException;
 import clock.sched.R;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -66,8 +69,10 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	alarm_on_off = (ToggleButton)this.findViewById(R.id.alarm_on_off);
 	   	date_picker = (DatePicker) this.findViewById(R.id.datePicker);
 	   	time_picker = (TimePicker) this.findViewById(R.id.timePicker);
+	   	time_picker.setIs24HourView(true);
 	   	location_text = (AutoCompleteTextView) this.findViewById(R.id.locationText);
-//	   	location_text.setOnKeyListener(this);
+	   	location_text.setDropDownBackgroundResource(R.drawable.bg);
+	   	location_text.setOnKeyListener(this);
 	   	location_text.setOnFocusChangeListener(this);
 	   	details_text = (EditText) this.findViewById(R.id.detailsText);
 	   	dbAdapter= new DbAdapter(this);
@@ -200,15 +205,32 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent eventCode) 
 	{
-//		String text = location_text.getText().toString();
-//		if(text.length() > 2 && eventCode.getAction() == KeyEvent.ACTION_UP)
-//		{
-//		   dbAdapter.open();
-//		   String[] sugg = dbAdapter.getStreetSugg(text);
-//		   dbAdapter.close();
-//		   ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, sugg);
-//		   location_text.setAdapter(adapter);		   
-//		}
+		final String text = location_text.getText().toString();
+		if(text.length() > 2 && eventCode.getAction() == KeyEvent.ACTION_UP)
+		{
+			final Context context = this;
+			new Runnable() {
+			
+				@Override
+				public void run() {
+					 ArrayList<String> sugg = GoogleAdapter.getSuggestions(text);
+					 if (!sugg.isEmpty())
+					 {
+						 ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, sugg);
+						 location_text.setAdapter(adapter);
+						 location_text.showDropDown();
+					 }
+					
+				}
+		   }.run();	
+//			ArrayList<String> sugg = GoogleAdapter.getSuggestions(text);
+//			 if (!sugg.isEmpty())
+//			 {
+//				 ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, sugg);
+//				 location_text.setAdapter(adapter);
+//				 location_text.showDropDown();
+//			 }
+		}
 		
 		return false;
 	}
