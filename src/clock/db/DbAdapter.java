@@ -211,8 +211,8 @@ public class DbAdapter
 		int arrangeTime = -1;
 		String query = "SELECT (SUM(" + Connection.COLUMN_ARR_TIME + ")/COUNT(" + Connection.COLUMN_ARR_TIME + 
 				")) FROM " + Connection.TABLE_RECORDS + 
-				" WHERE " + Connection.COLUMN_WEATHER + "=" + contidion + 
-				" AND " + Connection.COLUMN_TEMPETURE + ">" + (tempeture - 5) + 
+				" WHERE " + Connection.COLUMN_WEATHER + "='" + contidion + 
+				"' AND " + Connection.COLUMN_TEMPETURE + ">" + (tempeture - 5) + 
 				" AND " + Connection.COLUMN_TEMPETURE + "<" + (tempeture + 5) + 
 				" GROUP BY " + Connection.COLUMN_WEATHER + ", " + Connection.COLUMN_TEMPETURE;
 		Cursor cursor = database.rawQuery(query, null);

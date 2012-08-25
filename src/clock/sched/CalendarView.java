@@ -1,5 +1,6 @@
 package clock.sched;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import java.util.Locale;
 import clock.db.DbAdapter;
 import clock.db.Event;
 
+import clock.outsources.GoogleWeatherHandler;
+import clock.outsources.dependencies.WeatherModel;
 import clock.sched.R;
 
 
@@ -83,6 +86,25 @@ public class CalendarView extends Activity implements OnClickListener
 		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
 		dayOfMonthAdapter.notifyDataSetChanged();
 		calendarView.setAdapter(dayOfMonthAdapter);
+		
+		Event e = Event.createNewInstance();
+		e.setDay(1);
+		e.setLocation("קהילת ציון 24 הרצליה ישראל");
+		e.setDateFromSql("2012-08-25 22-22-00");
+		e.setWithAlarmStatus(true);
+		GoogleWeatherHandler gw = new GoogleWeatherHandler();
+		
+		try {
+			WeatherModel weatherData = new WeatherModel();
+			weatherData.setTemperature("29");
+			weatherData.setCondition("RAIN");
+			alarmsManager.UserGotOut(e, 20, weatherData);
+			int a = alarmsManager.getArrangmentTime(e);
+			Log.d("ARRTIME", String.valueOf(a));
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{

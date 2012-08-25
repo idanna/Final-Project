@@ -38,7 +38,7 @@ public class Connection extends SQLiteOpenHelper
 	public static final String COLUMN_DAY_OF_WEEK = "day";
 	
 	private static final String DATABASE_NAME = "smart_clock.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
     private static final String CREATE_EVENT_TABLE = "create table "
     		+ TABLE_EVENTS + "("

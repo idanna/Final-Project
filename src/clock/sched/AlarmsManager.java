@@ -47,7 +47,9 @@ public class AlarmsManager
 		public void UserGotOut(Event event, int arrangmentTime, WeatherModel weatherData)
 		{
 			eCondition enumCondition = conditionToEnum(weatherData.getCondition());
-			db.addRecord(event, arrangmentTime, enumCondition, Integer.parseInt(weatherData.getTemperature()));			
+			db.open();
+			db.addRecord(event, arrangmentTime, enumCondition, Integer.parseInt(weatherData.getTemperature()));
+			db.close();
 		}
 		
 		private eCondition conditionToEnum(String condition) 
@@ -170,7 +172,8 @@ public class AlarmsManager
 	public int getArrangmentTime(Event newEvent) throws UnsupportedEncodingException 
 	{
 		int arrangeTime = 0;
-		if(newEvent.daysFromNow() > 3 && newEvent.getWithAlarmStatus() == true) // only if event time < 3 days from now we have weather data.
+		int daysFromNow = newEvent.daysFromNow();
+		if(daysFromNow < 3 && newEvent.getWithAlarmStatus() == true) // only if event time < 3 days from now we have weather data.
 		{
 			GoogleWeatherHandler gw = new GoogleWeatherHandler();
 			WeatherModel weather = gw.processWeatherRequest(newEvent.getLocation());
@@ -233,5 +236,6 @@ public class AlarmsManager
 	{
 		latestEvent = dbAdapter.getNextEvent();		
 	}
+
 
 }
