@@ -114,50 +114,39 @@ public class AlarmsManager
 		
 		if (GoogleAdapter.getSuggestions(newEvent.getLocation()).isEmpty())
 			throw new IllegalAddressException();
+		
+		TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
+		int timeToGoOut = newEvent.timeFromNow(trafficData.getDuration());
+		if(newEvent.isAfterNow() && timeToGoOut < 0) // its not possible to get there ! 
+			throw new OutOfTimeException(); //DOTO: why event view dont catch this ? 
 
-		try
+		dbAdapter.open();
+		refreshLastEvent();
+		dbAdapter.insertEvent(newEvent);
+		dbAdapter.close();
+		if(newEvent.isAfterNow() &&
+						(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
 		{
-			TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
-			int timeToEvent = newEvent.timeFromNow(trafficData.getDuration());
-			if(newEvent.isAfterNow() && timeToEvent < 0) // its not possible to get there ! 
-				throw new OutOfTimeException(); //DOTO: why event view dont catch this ? 
-			
-			dbAdapter.open();
-			refreshLastEvent();
-			dbAdapter.insertEvent(newEvent);
-			if(newEvent.isAfterNow() &&
-							(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
+			int arrageTime = getArrangmentTime(newEvent);
+			if (arrageTime == -1)
 			{
-				int arrageTime = getArrangmentTime(newEvent);
-				if (arrageTime == -1)
-				{
-					//DOTO: notify the user that arrangment time is missing
-				}
-				
-				if (latestEvent != null)
-				{
-					ClockHandler.cancelEventAlarm(context, latestEvent);
-					LocationHandler.cancelLocationListener(context, latestEvent);
-				}
-				
-				this.latestEvent = newEvent;
-				long durationTime = trafficData.getDuration();
-				if (durationTime < 0)
-				{
-					throw new CantGetLocationException();
-				}
-				ClockHandler.setAlarm(context, latestEvent, ((int)durationTime + arrageTime));
-				LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
+				//DOTO: notify the user that arrangment time is missing
 			}
-		}
-		catch (Exception ex)
-		{
-			Log.e("Alarm manager", "Create new event has failed");
-			throw ex;	//Roll exception forward
-		}
-		finally
-		{
-			dbAdapter.close();
+			
+			if (latestEvent != null)
+			{
+				ClockHandler.cancelEventAlarm(context, latestEvent);
+				LocationHandler.cancelLocationListener(context, latestEvent);
+			}
+			
+			this.latestEvent = newEvent;
+			long durationTime = trafficData.getDuration();
+			if (durationTime < 0)
+			{
+				throw new CantGetLocationException();
+			}
+			ClockHandler.setAlarm(context, latestEvent, ((int)durationTime + arrageTime));
+			LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
 		}
 	}
 	
