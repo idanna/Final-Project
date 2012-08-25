@@ -34,7 +34,7 @@ public class EventProgressHandler{
 
 		// Alarm user to wake up if needed
 		if (isItTimeToWakeUp(timesLeftToGoOut, arrangeTime))
-			wakeupUser(context, arrangeTime);		
+			wakeupUser(context, event, arrangeTime);		
 		
 		// Remind user to go out if needed
 		if (timesLeftToGoOut <= GO_OUT_REMINDER_TIME)
@@ -57,7 +57,7 @@ public class EventProgressHandler{
 		
 		if (userHasBeenWakedUp)	//Case that user has already been waked up and moved 100 meters atleast
 		{
-			//TODO: notify the learning machine.
+
 		}
 		else
 		{
@@ -99,7 +99,7 @@ public class EventProgressHandler{
 		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;
 	}
 	
-	synchronized private static void wakeupUser(Context context, long arrangeTimeInMillis)
+	synchronized private static void wakeupUser(Context context, Event event, long arrangeTimeInMillis)
 	{
 		if (userHasBeenWakedUp)
 			return;
@@ -113,6 +113,11 @@ public class EventProgressHandler{
 		//TODO: set location handler to notify after 100 meters movement
 		
 		userHasBeenWakedUp = true;
+		
+		// Reset location handler to notify after 100 meters movement
+		LocationHandler.cancelLocationListener(context, event);
+		LocationHandler.setLocationListener(context, event, 1000);	//1000 since update is set to 10% of distance
+		
 		Log.d("PROGRESS", "User has been waked up with message: " + msg);
 	}
 	
