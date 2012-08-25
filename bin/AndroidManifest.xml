@@ -17,7 +17,7 @@
                 </intent-filter>
         </activity>
         <activity android:name="clock.sched.EventView"></activity>
-        
+        <activity android:name="clock.sched.EventInfo"></activity>
 		<receiver  android:process=":remote" android:name=".ClockHandler"></receiver>
 	
     </application>

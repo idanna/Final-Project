@@ -126,8 +126,7 @@ public class EventProgressHandler{
 				+ TimeUnit.MILLISECONDS.toMinutes(arrangeTimeInMillis)
 				+ " Minutes";
 		
-		//TODO: can't start activity from context
-		//TODO: set location handler to notify after 100 meters movement
+		//TODO: can't start activity from context - need alarm clock
 		
 		userHasBeenWakedUp = System.currentTimeMillis();
 		

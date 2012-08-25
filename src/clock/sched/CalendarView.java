@@ -62,8 +62,10 @@ public class CalendarView extends Activity implements OnClickListener
 	private AlarmsManager alarmsManager;
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";
-    //TODO: move this to resources
-    private static final String[] menuItems = {"Edit", "Delete"};
+	private static final String EDIT = "Edit";
+    private static final String DELETE = "Delete";
+    private static final String INFO = "Show Info";
+    private static final String[] menuItems = {EDIT, DELETE, INFO};
 	
 	private ListView currentDayEventsList;
 	
@@ -92,7 +94,6 @@ public class CalendarView extends Activity implements OnClickListener
 		e.setLocation("קהילת ציון 24 הרצליה ישראל");
 		e.setDateFromSql("2012-08-25 22-22-00");
 		e.setWithAlarmStatus(true);
-		GoogleWeatherHandler gw = new GoogleWeatherHandler();
 				
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{
@@ -190,11 +191,20 @@ public class CalendarView extends Activity implements OnClickListener
 		  int menuItemIndex = item.getItemId();
 		  String menuItemName = menuItems[menuItemIndex];
 		  Event pressedEvent = (Event) currentDayEventsList.getAdapter().getItem(info.position);
-		  // acting like event is deleted on both options.
-		  deleteEvent(pressedEvent);
-		  if (menuItemName == "Edit")
+
+		  if (menuItemName.equals(EDIT))
 		  {
-	   			changeToEventView("editEvent", pressedEvent.encodeToString());
+			  // acting like event is deleted if need to edit
+			  deleteEvent(pressedEvent);
+			  changeToEventView("editEvent", pressedEvent.encodeToString());
+		  }
+		  else if (menuItemName.equals(DELETE))
+		  {
+			  deleteEvent(pressedEvent);
+		  }
+		  else if (menuItemName.equals(INFO))
+		  {
+			  changeToEventInfo("event", pressedEvent.encodeToString());
 		  }
 		  
 		  return true;
@@ -254,6 +264,12 @@ public class CalendarView extends Activity implements OnClickListener
 		startActivityForResult(intent, 0);		
 	}
 
+	private void changeToEventInfo(String extraDataKey, String extraData) {
+		Intent intent = new Intent(this, EventInfo.class);	
+		intent.putExtra(extraDataKey, extraData);
+		startActivityForResult(intent, 0);	
+	}
+	
 	private void forwardMonth() 
 	{
 		if (month > 11)

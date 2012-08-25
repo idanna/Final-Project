@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
+import clock.outsources.dependencies.WeatherModel;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,7 +17,6 @@ import android.widget.TextView;
 
 public class EventInfo extends Activity implements OnClickListener{
 	
-	private DbAdapter dbAdapter;
 	private Button googleMapsBtn;
 	private TextView timesLeftTextView;
 	private TextView durationTextView;
@@ -29,8 +29,7 @@ public class EventInfo extends Activity implements OnClickListener{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		dbAdapter = new DbAdapter(this);
-		
+		setContentView(R.layout.event_info);
 		googleMapsBtn = (Button)this.findViewById(R.id.googleMapsBtn);
 		timesLeftTextView = (TextView)this.findViewById(R.id.timesLeftTextView);
 		durationTextView = (TextView)this.findViewById(R.id.durationTextView);
@@ -39,20 +38,26 @@ public class EventInfo extends Activity implements OnClickListener{
 		temperatureTextView = (TextView)this.findViewById(R.id.temperatureTextView);
 		humidityTextView = (TextView)this.findViewById(R.id.humidityTextView);
 		windTextView = (TextView)this.findViewById(R.id.windTextView);
+
+	}
+	
+	@Override
+   protected void onStart()
+   {
+	   	super.onStart();
+	   	Bundle b = getIntent().getExtras();
 		
-		dbAdapter.open();
-		Event nextEvent = dbAdapter.getNextEvent();
-		dbAdapter.close();
-		
-		if (nextEvent != null)
+		if (b.containsKey("event"))
 		{
-			setFields(nextEvent);
+			Event event = Event.CreateFromString(b.getString("event"));
+			setFields(event);
 		}
 		else
 		{
-			Log.e("EventInfo", "Next event is null when opening event information");
+			Log.e("Info","Can't get event details");
+			setAllFieldsToNone();
 		}
-	}
+   }
 
 
 
@@ -60,29 +65,74 @@ public class EventInfo extends Activity implements OnClickListener{
 		
 		// Calculate times left to display in hours and minutes
 		long timesLeftToEvent = event.getTimesLeftToEvent();
-		String timeLeftStr = String.format("%d hrs, %d min", 
-			    TimeUnit.MILLISECONDS.toHours(timesLeftToEvent),
-			    TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent) - 
-			    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(timesLeftToEvent)));
-		timesLeftTextView.setText(timeLeftStr);
-		
+		if (timesLeftToEvent > 0)
+		{
+			String timeLeftStr = String.format("%d hrs, %d min", 
+				    TimeUnit.MILLISECONDS.toHours(timesLeftToEvent),
+				    TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent) - 
+				    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(timesLeftToEvent)));
+			timesLeftTextView.setText(timeLeftStr);
+		}
+		else
+		{
+			timesLeftTextView.setText("Event has passed");
+		}
 		try
 		{
-			TrafficData trafficData = GoogleAdapter.getTrafficData(this, event, null);
-			long duration = trafficData.getDuration();
-			String durationStr = String.format("%d hrs, %d min", 
-				    TimeUnit.SECONDS.toHours(duration),
-				    TimeUnit.SECONDS.toMinutes(duration) - 
-				    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration)));
-			durationTextView.setText("Duration - " + durationStr);
-			
-			float distance = trafficData.getDistance();
-			distance = distance / 1000f;
-			distanceTextView.setText("Distance - " + distance + " km");
+			setTrafficInfo(event);
+			setWeatherInfo(event);
 		}
 		catch (Exception e) {
 			Log.e("EventInfo", "While trying to set fields: " + e.getMessage());
+			setAllFieldsToNone();
 		}
+	}
+
+
+
+	private void setAllFieldsToNone() {
+		durationTextView.setText("Duration - No Info");
+		distanceTextView.setText("Distance - No Info");
+		conditionTextView.setText("Condition - No Info");
+		temperatureTextView.setText("Temperature - No Info");
+		humidityTextView.setText("Humidity - No Info");
+		windTextView.setText("Wind - No Info");	
+	}
+
+
+
+	private void setWeatherInfo(Event event) throws Exception {
+		WeatherModel weatherModel = GoogleAdapter.getWeatherModel(event.getLocation());
+		conditionTextView.setText("Condition - " + weatherModel.getCondition());
+		temperatureTextView.setText("Temperature - " + weatherModel.getTemperature());
+		humidityTextView.setText("Humidity - " + weatherModel.getHumidity() + "%");
+		windTextView.setText("Wind Direction - " + weatherModel.getWind());
+	}
+
+
+
+	private void setTrafficInfo(Event event) throws Exception {
+		TrafficData trafficData = GoogleAdapter.getTrafficData(this, event, null);
+		long duration = trafficData.getDuration();
+		String durationStr;
+		String distanceStr;
+		if (duration >= 0)
+		{
+			durationStr = String.format("%d hrs, %d min", 
+				    TimeUnit.SECONDS.toHours(duration),
+				    TimeUnit.SECONDS.toMinutes(duration) - 
+				    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration)));
+			float distance = trafficData.getDistance();
+			distance = distance / 1000f;
+			distanceStr = (distance + " Km");
+		}
+		else
+		{
+			durationStr = distanceStr = "NONE";
+		}
+		durationTextView.setText("Duration - " + durationStr);
+		distanceTextView.setText("Distance - " + distanceStr);
+		
 	}
 
 
@@ -91,7 +141,8 @@ public class EventInfo extends Activity implements OnClickListener{
 	public void onClick(View v) {
 		if (v == googleMapsBtn)
 		{
-			//TODO: open google maps with driving mode to location
+			//TODO:
+			finish();	
 		}
 		
 	}
