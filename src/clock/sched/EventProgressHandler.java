@@ -16,7 +16,7 @@ import clock.outsources.GoogleTrafficHandler.TrafficData;
 
 public class EventProgressHandler{
 	
-	private static final long GO_OUT_REMINDER_TIME = 1000 * 60 * 10;	// '10 minutes to go' reminder
+	private static final long GO_OUT_REMINDER_TIME = 1000 * 60 * 15;	// '15 minutes to go' reminder
 	private static boolean userHasBeenNotified;
 	private static boolean userHasBeenWakedUp;
 	private static final int NOTIFICATION_ID = 1;
@@ -27,7 +27,7 @@ public class EventProgressHandler{
 	/**
 	 * Should be called from clock handler, after alarm received. 
 	 */
-	public static void handleEventProgress(Context context, Event event, long timesLeftToGoOut, long arrangeTime)
+	synchronized public static void handleEventProgress(Context context, Event event, long timesLeftToGoOut, long arrangeTime)
 	{
 		Log.d("PROGRESS", "Handling event progress from clock handler");
 		loadDetailsFromEvent(event);
@@ -50,7 +50,7 @@ public class EventProgressHandler{
 	/**
 	 * Should be called from location handler, after location changed update received.
 	 */
-	public static void handleEventProgress(Context context, Event event, Location location)
+	synchronized public static void handleEventProgress(Context context, Event event, Location location)
 	{
 		Log.d("PROGRESS", "Handling event progress from location handler");
 		loadDetailsFromEvent(event);
@@ -87,7 +87,7 @@ public class EventProgressHandler{
 		
 	}
 
-	private static boolean isItTimeToWakeUp(long timesLeftToGoOut, long arrangeTime) 
+	synchronized private static boolean isItTimeToWakeUp(long timesLeftToGoOut, long arrangeTime) 
 	{
 		
 		// In case no arrangement time is needed
@@ -99,7 +99,7 @@ public class EventProgressHandler{
 		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;
 	}
 	
-	private static void wakeupUser(Context context, long arrangeTimeInMillis)
+	synchronized private static void wakeupUser(Context context, long arrangeTimeInMillis)
 	{
 		if (userHasBeenWakedUp)
 			return;
@@ -116,7 +116,7 @@ public class EventProgressHandler{
 		Log.d("PROGRESS", "User has been waked up with message: " + msg);
 	}
 	
-	private static void notifyUser(Context context, String msg)
+	synchronized private static void notifyUser(Context context, String msg)
 	{
 		if (userHasBeenNotified)
 			return;
@@ -135,7 +135,7 @@ public class EventProgressHandler{
 	}
 
 
-	private static void criticalMsg(Context context, String msg) 
+	synchronized private static void criticalMsg(Context context, String msg) 
 	{
 		if (userHasBeenNotified)
 			return;
@@ -154,7 +154,8 @@ public class EventProgressHandler{
 		userHasBeenNotified = true;		
 	}
 	
-	private static Notification getBasicNotification(Context context, String msg) {
+	synchronized private static Notification getBasicNotification(Context context, String msg) 
+	{
 		int icon = R.drawable.icon;
 		long when = System.currentTimeMillis();		//For showing the notification now
 		Notification notification = new Notification(icon, msg, when);
@@ -167,7 +168,7 @@ public class EventProgressHandler{
 		return notification;
 	}
 
-	private static void loadDetailsFromEvent(Event event) {
+	synchronized private static void loadDetailsFromEvent(Event event) {
 		userHasBeenNotified = event.isUserHasBeenNotified();
 		userHasBeenWakedUp = event.isUserHasBeenWakedUp();
 		
@@ -179,7 +180,7 @@ public class EventProgressHandler{
 	 * @param event
 	 * @param context
 	 */
-	private static void saveDetailsToEvent(Event event, Context context) {
+	synchronized private static void saveDetailsToEvent(Event event, Context context) {
 		event.setUserHasBeenNotified(userHasBeenNotified);
 		event.setUserHasBeenWakedUp(userHasBeenWakedUp);
 		DbAdapter dbAdapter = new DbAdapter(context);
