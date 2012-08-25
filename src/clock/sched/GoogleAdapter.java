@@ -86,7 +86,7 @@ public class GoogleAdapter {
 			
 	}
 
-	private static String getOrigin(Context context, Location location) throws CantGetLocationException 
+	public static String getOrigin(Context context, Location location) throws CantGetLocationException 
 	{
 		if (location == null)
 		{

@@ -34,7 +34,7 @@ public class Event
 	private String details;
 	private boolean withAlarm;
 	private boolean userHasBeenNotified;
-	private boolean userHasBeenWakedUp;
+	private long userHasBeenWakedUp;
 		
 	private Event()
 	{ };
@@ -71,7 +71,7 @@ public class Event
    		event.setDetails("");
    		event.withAlarm = false;
    		event.userHasBeenNotified = false;
-   		event.userHasBeenWakedUp = false;
+   		event.userHasBeenWakedUp = 0;
    		return event;
 	}
 	
@@ -96,8 +96,7 @@ public class Event
 		e.id = Long.parseLong(prop[4]);
 		e.withAlarm = Boolean.parseBoolean(prop[5]);
 		e.userHasBeenNotified = Boolean.parseBoolean(prop[6]);
-		e.userHasBeenWakedUp = Boolean.parseBoolean(prop[7]);
-		
+		e.userHasBeenWakedUp = Long.parseLong(prop[7]);		
 		return e;
 	}
 	
@@ -117,7 +116,7 @@ public class Event
 	   
 	   //If properties has been reset then event progress fields should be reset as well
 	   this.userHasBeenNotified = false;
-	   this.userHasBeenWakedUp = false;
+	   this.userHasBeenWakedUp = 0;
 	}
 	
 	/**
@@ -248,11 +247,11 @@ public class Event
 		this.userHasBeenNotified = userHasBeenNotified;
 	}
 
-	public boolean isUserHasBeenWakedUp() {
+	public long getUserHasBeenWakedUp() {
 		return userHasBeenWakedUp;
 	}
 
-	public void setUserHasBeenWakedUp(boolean userHasBeenWakedUp) {
+	public void setUserHasBeenWakedUp(long userHasBeenWakedUp) {
 		this.userHasBeenWakedUp = userHasBeenWakedUp;
 	}
 	
