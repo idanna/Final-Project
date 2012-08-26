@@ -173,7 +173,7 @@ public class GoogleTrafficHandler
 		for (int i=0; i < suggNodeList.getLength(); ++i)
 		{
 			nodeVal = suggNodeList.item(i).getFirstChild().getNodeValue();
-			if (nodeVal != null)
+			if (nodeVal != null && nodeVal.contains("ישראל"))
 			{
 				res.add(nodeVal);
 			}
