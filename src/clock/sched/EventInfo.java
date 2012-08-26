@@ -25,6 +25,7 @@ public class EventInfo extends Activity implements OnClickListener{
 	private TextView temperatureTextView;
 	private TextView humidityTextView;
 	private TextView windTextView;
+	private static final String NO_INFO = "No Info";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +56,7 @@ public class EventInfo extends Activity implements OnClickListener{
 		else
 		{
 			Log.e("Info","Can't get event details");
-			setAllFieldsToNone();
+			setTrafficFieldsToNone();
 		}
    }
 
@@ -80,33 +81,52 @@ public class EventInfo extends Activity implements OnClickListener{
 		try
 		{
 			setTrafficInfo(event);
-			setWeatherInfo(event);
 		}
 		catch (Exception e) {
-			Log.e("EventInfo", "While trying to set fields: " + e.getMessage());
-			setAllFieldsToNone();
+			Log.e("EventInfo", "While trying to set traffic fields: " + e.getMessage());
+			setTrafficFieldsToNone();
+		}
+		
+		try
+		{
+			setWeatherInfo(event);
+		}
+		catch (Exception e)
+		{
+			Log.e("EventInfo", "While trying to set weather fields: " + e.getMessage());
+			setWeatherFieldsToNone();
 		}
 	}
 
 
 
-	private void setAllFieldsToNone() {
-		durationTextView.setText("Duration - No Info");
-		distanceTextView.setText("Distance - No Info");
-		conditionTextView.setText("Condition - No Info");
-		temperatureTextView.setText("Temperature - No Info");
-		humidityTextView.setText("Humidity - No Info");
-		windTextView.setText("Wind - No Info");	
+	private void setTrafficFieldsToNone() {
+		durationTextView.setText("Duration - " + NO_INFO);
+		distanceTextView.setText("Distance - " + NO_INFO);
+	}
+	
+	private void setWeatherFieldsToNone() {
+		conditionTextView.setText("Condition - " + NO_INFO);
+		temperatureTextView.setText("Temperature - " + NO_INFO);
+		humidityTextView.setText("Humidity - " + NO_INFO);
+		windTextView.setText("Wind - " + NO_INFO);	
 	}
 
 
 
 	private void setWeatherInfo(Event event) throws Exception {
 		WeatherModel weatherModel = GoogleAdapter.getWeatherModel(event.getLocation());
-		conditionTextView.setText("Condition - " + weatherModel.getCondition());
-		temperatureTextView.setText("Temperature - " + weatherModel.getTemperature());
-		humidityTextView.setText("Humidity - " + weatherModel.getHumidity() + "%");
-		windTextView.setText("Wind Direction - " + weatherModel.getWind());
+		conditionTextView.setText("Condition - " 
+				+ weatherModel.getCondition() == null?  NO_INFO : weatherModel.getCondition());
+		
+		temperatureTextView.setText("Temperature - " 
+				+ weatherModel.getTemperature() == null?  NO_INFO : weatherModel.getTemperature());
+		
+		humidityTextView.setText("Humidity - " 
+				+ weatherModel.getHumidity()  == null?  NO_INFO : weatherModel.getHumidity() + "%");
+		
+		windTextView.setText("Wind Direction - " 
+				+ weatherModel.getWind() == null?  NO_INFO : weatherModel.getWind());
 	}
 
 
@@ -128,7 +148,7 @@ public class EventInfo extends Activity implements OnClickListener{
 		}
 		else
 		{
-			durationStr = distanceStr = "NONE";
+			durationStr = distanceStr = NO_INFO;
 		}
 		durationTextView.setText("Duration - " + durationStr);
 		distanceTextView.setText("Distance - " + distanceStr);
