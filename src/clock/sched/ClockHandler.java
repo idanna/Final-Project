@@ -15,7 +15,8 @@ import android.util.Log;
 
 public class ClockHandler extends BroadcastReceiver 
 {
-	private static final long TIMES_UP = (1 * 60 * 1000);
+	// Stop when event is 2 minutes ahead
+	private static final long TIMES_UP = (2 * 60 * 1000);
 	
 	/**
 	 * Setting an alarm to the event time - extra Time (in minutes);
