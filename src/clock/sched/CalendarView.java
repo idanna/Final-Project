@@ -88,13 +88,7 @@ public class CalendarView extends Activity implements OnClickListener
 		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
 		dayOfMonthAdapter.notifyDataSetChanged();
 		calendarView.setAdapter(dayOfMonthAdapter);
-		
-		Event e = Event.createNewInstance();
-		e.setDay(1);
-		e.setLocation("קהילת ציון 24 הרצליה ישראל");
-		e.setDateFromSql("2012-08-25 22-22-00");
-		e.setWithAlarmStatus(true);
-				
+
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{
 //			

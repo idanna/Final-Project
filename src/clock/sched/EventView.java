@@ -26,6 +26,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.opengl.Visibility;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.format.Time;
@@ -50,6 +51,33 @@ import android.widget.ToggleButton;
 
 public class EventView extends Activity implements OnClickListener, OnKeyListener, OnCheckedChangeListener, OnFocusChangeListener 
 {	
+	private class AutoCompleteHelper extends AsyncTask<String, Void, ArrayList<String>> {
+		
+	    /** The system calls this to perform work in a worker thread and
+	      * delivers it the parameters given to AsyncTask.execute() */
+		@Override
+	    protected ArrayList<String> doInBackground(String... address) {
+			Log.d("AC-Helper", "Timer has start running");
+			String text = location_text.getText().toString();
+			return GoogleAdapter.getSuggestions(text);
+		}
+	    
+	    /** The system calls this to perform work in the UI thread and delivers
+	      * the result from doInBackground() */
+		@Override
+	    protected void onPostExecute(ArrayList<String> sugg) {
+			Log.d("AC-Helper", "onPostExecute");
+			if(sugg != null && !sugg.isEmpty())
+			{
+		    	ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, sugg);
+		    	location_text.setAdapter(adapter);
+		    	location_text.showDropDown();				
+			}
+	    }
+	    
+	}
+
+	
 	private static final String ADDRESS_GUIDE_TEXT = "רחוב, מס' בית, ישוב";
 	protected Button set_date_btn;
 	protected Button set_time_btn;
@@ -63,8 +91,10 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	protected AlarmsManager alarmManager;
 	protected DbAdapter dbAdapter;
 	protected boolean alarmOnOffStatus;
-//	protected Timer autoCompleteTimer;
-//	protected Context context;
+	
+	protected AsyncTask<String, Void, ArrayList<String>> autoCompleteHelper;
+	protected Timer autoCompleteTimer;
+	protected Context context = this;
 	
    /** Called when the activity is first created. */
    @Override
@@ -82,7 +112,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	time_picker.setIs24HourView(true);
 	   	location_text = (AutoCompleteTextView) this.findViewById(R.id.locationText);
 	   	location_text.setDropDownBackgroundResource(R.drawable.bg);
-//	   	location_text.setOnKeyListener(this);
+	   	location_text.setOnKeyListener(this);
 	   	location_text.setFocusable(true);
 	   	location_text.setOnFocusChangeListener(this);
 	   	details_text = (EditText) this.findViewById(R.id.detailsText);
@@ -93,7 +123,9 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	alarm_on_off.setOnCheckedChangeListener(this);
 	   	alarmOnOffStatus = false;
 	   	alarmManager = new AlarmsManager(this, dbAdapter);
-//	   	autoCompleteTimer = new Timer();
+	   	
+	   	autoCompleteTimer = new Timer();
+	   	autoCompleteHelper = new AutoCompleteHelper();
 	   	
    	}
    
@@ -214,44 +246,45 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   finish();		
 	}
 	
-//	 private void setAutoCompleteTimer() 
-//	 {
-//		 try
-//		 {
-//			 context = this;
-//			 autoCompleteTimer = new Timer();
-//			 autoCompleteTimer.schedule(new TimerTask() {
-//				
-//				@Override
-//				public void run() {
-//					Log.d("EVENT", "Timer has start running");
-//					String text = location_text.getText().toString();
-//					ArrayList<String> sugg = GoogleAdapter.getSuggestions(text);
-//					if (!sugg.isEmpty())
-//					{
-//						Looper.prepare();
-//						ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, sugg);
-//						location_text.setAdapter(adapter);
-//						location_text.showDropDown();
-//					}
-//					
-//				}
-//			}, 1000);
-//		 }
-//		 catch (Exception e) {
-//			Log.e("EVENT", "Can't create auto complete thread - " + e.getMessage());
-//		}
-//	  }
+	 private void setAutoCompleteTimer() 
+	 {
+		 try
+		 {
+			 context = this;		 
+			 autoCompleteTimer = new Timer();
+			 autoCompleteTimer.schedule(new TimerTask() {				
+				@Override
+				public void run() {
+					Log.d("EVENT", "Timer has start running");
+					String text = location_text.getText().toString();
+					ArrayList<String> sugg = GoogleAdapter.getSuggestions(text);
+					if (!sugg.isEmpty())
+					{
+						Looper.prepare();
+						ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, sugg);
+						location_text.setAdapter(adapter);
+						location_text.showDropDown();
+					}
+					
+				}
+			}, 5000);
+		 }
+		 catch (Exception e) {
+			Log.e("EVENT", "Can't create auto complete thread - " + e.getMessage());
+		}
+	  }
 
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent eventCode) 
 	{
 		String text = location_text.getText().toString();
-//		if(text.length() > 2 && eventCode.getAction() == KeyEvent.ACTION_UP)
-//		{
-//			autoCompleteTimer.cancel();		//Stop previous timer
-//			setAutoCompleteTimer();			//Set new timer with new text
-//		}
+		location_text.dismissDropDown();
+		if(text.length() > 2 && eventCode.getAction() == KeyEvent.ACTION_UP)
+		{
+			autoCompleteHelper.cancel(true);
+			this.autoCompleteHelper = new AutoCompleteHelper();
+		    this.autoCompleteHelper.execute(text);
+		}
 		
 		return false;
 	}
