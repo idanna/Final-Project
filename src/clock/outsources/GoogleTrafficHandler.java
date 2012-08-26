@@ -53,6 +53,7 @@ public class GoogleTrafficHandler
 	private URL googleUrl;
 	private XPathFactory xpf;
 	private XPath xpath;
+	private static final int SUGG_LIMIT = 3;
 	
 	public GoogleTrafficHandler()
 	{
@@ -126,6 +127,7 @@ public class GoogleTrafficHandler
 		address = URLEncoder.encode(address, "UTF-8");
 		String query = "http://maps.googleapis.com/maps/api/geocode/xml?"
 				+ "address=" + address
+				+ "&components=country:IL"
 				+ "&sensor=false"
 				+ "&language=iw"; 
 		
@@ -169,14 +171,18 @@ public class GoogleTrafficHandler
 	private ArrayList<String> getSuggFromNodeList(NodeList suggNodeList) {
 		ArrayList<String> res = new ArrayList<String>();
 		String nodeVal;
+		int numOfSugg = 0;
+		int i=0;
 		
-		for (int i=0; i < suggNodeList.getLength(); ++i)
+		while (i < suggNodeList.getLength() && numOfSugg < SUGG_LIMIT)
 		{
 			nodeVal = suggNodeList.item(i).getFirstChild().getNodeValue();
-			if (nodeVal != null && nodeVal.contains("ישראל"))
+			if (nodeVal != null)
 			{
 				res.add(nodeVal);
+				numOfSugg++;
 			}
+			i++;
 		}
 		return res;
 	}
