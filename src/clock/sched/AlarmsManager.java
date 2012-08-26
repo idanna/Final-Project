@@ -8,6 +8,7 @@ import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.db.Event.eComparison;
 import clock.exceptions.CantGetLocationException;
+import clock.exceptions.EventsCollideException;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
 import clock.exceptions.OutOfTimeException;
@@ -121,7 +122,7 @@ public class AlarmsManager
 		int timeToGoOut = newEvent.timeFromNow(trafficData.getDuration());
 		if(newEvent.isAfterNow() && timeToGoOut < 0) // its not possible to get there ! 
 			throw new OutOfTimeException(); //DOTO: why event view dont catch this ? 
-
+		checkIfEventsColide(newEvent, timeToGoOut);
 		dbAdapter.open();
 		refreshLastEvent();
 		dbAdapter.insertEvent(newEvent);
@@ -152,6 +153,29 @@ public class AlarmsManager
 		}
 	}
 	
+	/**
+	 * Check if there's an event which collides with the new event.
+	 * @param newEvent
+	 * @param timeToGoOut 
+	 * @throws EventsCollideException - if there's an event colidion throws an exception
+	 */
+	private void checkIfEventsColide(Event newEvent, int timeToGoOut) throws EventsCollideException 
+	{
+		Event oneBefore = dbAdapter.getOneBefore(Event.getSqlTimeRepresent(newEvent));
+		//TODO: we should get the travel duration from oneBefore to newEvet,
+		// Then we should do: if (durationTime - (newEvent Time  - oneBefore Time)) 
+//		if(oneBefore != null)
+//		{
+//			int timeToGoOneBefore = oneBefore.timeFromNow(0);
+//			if (timeToGoOut < timeToGoOneBefore)
+//			{
+//				throw new EventsCollideException(oneBefore);
+//			}
+//			
+//		}
+		
+	}
+
 	/**
 	 * 
 	 * @param newEvent
