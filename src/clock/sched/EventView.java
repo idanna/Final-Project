@@ -1,4 +1,4 @@
-	package clock.sched;
+package clock.sched;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -52,8 +52,14 @@ import android.widget.ToggleButton;
 public class EventView extends Activity implements OnClickListener, OnKeyListener, OnCheckedChangeListener, OnFocusChangeListener 
 {	
 	private class AutoCompleteHelper extends AsyncTask<String, Void, ArrayList<String>> {
-		
-	    /** The system calls this to perform work in a worker thread and
+			
+	    @Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			addressProgressBar.setVisibility(View.VISIBLE);
+		}
+
+		/** The system calls this to perform work in a worker thread and
 	      * delivers it the parameters given to AsyncTask.execute() */
 		@Override
 	    protected ArrayList<String> doInBackground(String... address) {
@@ -67,6 +73,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 		@Override
 	    protected void onPostExecute(ArrayList<String> sugg) {
 			Log.d("AC-Helper", "onPostExecute");
+			addressProgressBar.setVisibility(View.INVISIBLE);
 			if(sugg != null && !sugg.isEmpty())
 			{
 		    	ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, sugg);
@@ -91,6 +98,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	protected AlarmsManager alarmManager;
 	protected DbAdapter dbAdapter;
 	protected boolean alarmOnOffStatus;
+	protected ProgressBar addressProgressBar;
 	
 	protected AsyncTask<String, Void, ArrayList<String>> autoCompleteHelper;
 	protected Timer autoCompleteTimer;
@@ -123,7 +131,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	alarm_on_off.setOnCheckedChangeListener(this);
 	   	alarmOnOffStatus = false;
 	   	alarmManager = new AlarmsManager(this, dbAdapter);
-	   	
+	   	addressProgressBar = (ProgressBar) this.findViewById(R.id.addressProgressBar);
+	   	addressProgressBar.setVisibility(View.INVISIBLE);
 	   	autoCompleteTimer = new Timer();
 	   	autoCompleteHelper = new AutoCompleteHelper();
 	   	

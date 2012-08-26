@@ -20,6 +20,8 @@ import clock.sched.R;
 
 
 import android.app.Activity;
+import android.content.ClipData.Item;
+import android.content.ClipData.Item;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;

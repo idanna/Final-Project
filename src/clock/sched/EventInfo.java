@@ -15,9 +15,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class EventInfo extends Activity implements OnClickListener{
+public class EventInfo extends Activity{
 	
-	private Button googleMapsBtn;
+	private TextView detailsTextView;
 	private TextView timesLeftTextView;
 	private TextView durationTextView;
 	private TextView distanceTextView;
@@ -31,7 +31,7 @@ public class EventInfo extends Activity implements OnClickListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.event_info);
-		googleMapsBtn = (Button)this.findViewById(R.id.googleMapsBtn);
+		detailsTextView = (Button)this.findViewById(R.id.detailsTextView);
 		timesLeftTextView = (TextView)this.findViewById(R.id.timesLeftTextView);
 		durationTextView = (TextView)this.findViewById(R.id.durationTextView);
 		distanceTextView = (TextView)this.findViewById(R.id.distanceTextView);
@@ -63,6 +63,8 @@ public class EventInfo extends Activity implements OnClickListener{
 
 
 	private void setFields(Event event) {
+		//Set details from event
+		detailsTextView.setText(event.getDetails());
 		
 		// Calculate times left to display in hours and minutes
 		long timesLeftToEvent = event.getTimesLeftToEvent();
@@ -152,18 +154,6 @@ public class EventInfo extends Activity implements OnClickListener{
 		}
 		durationTextView.setText("Duration - " + durationStr);
 		distanceTextView.setText("Distance - " + distanceStr);
-		
-	}
-
-
-
-	@Override
-	public void onClick(View v) {
-		if (v == googleMapsBtn)
-		{
-			//TODO:
-			finish();	
-		}
 		
 	}
 

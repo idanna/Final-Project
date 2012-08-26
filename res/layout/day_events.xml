@@ -56,17 +56,28 @@
                 android:layout_height="21dp" />
         </AbsoluteLayout>
     </LinearLayout>
-
-    <AutoCompleteTextView
-        android:id="@+id/locationText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:text="" >
 
-        <requestFocus />
-    </AutoCompleteTextView>
+    <AbsoluteLayout
+        android:id="@+id/Addressing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <AutoCompleteTextView
+            android:id="@+id/locationText"
+            android:layout_width="308dp"
+            android:layout_height="wrap_content"
+            android:layout_x="5dp"
+            android:ems="10" />
 
+        <ProgressBar
+            android:id="@+id/addressProgressBar"
+            android:layout_width="31dp"
+            android:layout_height="31dp"
+            android:layout_x="12dp"
+            android:layout_y="7dp" />
+
+    </AbsoluteLayout>
+
     <EditText
         android:id="@+id/detailsText"
         android:layout_width="match_parent"
@@ -75,32 +86,51 @@
         android:ems="10"
         android:gravity="top"
         android:inputType="textMultiLine" />
-
+
     <GridLayout
         android:id="@+id/set_buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
-
+
         <Button
             android:id="@+id/add_event_btn"
             android:layout_width="58dp"
             android:layout_height="match_parent"
+            android:layout_column="0"
+            android:layout_row="0"
             android:text="OK" />
-
+
         <TextView
             android:id="@+id/textView1"
             android:layout_width="200dp"
             android:layout_height="match_parent"
+            android:layout_column="1"
+            android:layout_columnSpan="2"
             android:layout_gravity="center_vertical"
+            android:layout_row="0"
             android:text="                  Wakeup Alert:"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
+
         <ToggleButton
             android:id="@+id/alarm_on_off"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_column="3"
             android:layout_gravity="center_vertical"
+            android:layout_row="0"
             android:text="ToggleButton" />
+
+        <Space
+            android:layout_width="44dp"
+            android:layout_height="1dp"
+            android:layout_column="1"
+            android:layout_row="0" />
+
+        <Space
+            android:layout_width="156dp"
+            android:layout_height="15dp"
+            android:layout_column="2"
+            android:layout_row="0" />
 
     </GridLayout>
 
