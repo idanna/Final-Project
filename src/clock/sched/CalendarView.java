@@ -474,10 +474,11 @@ public class CalendarView extends Activity implements OnClickListener
 			}
 
 			// Current Month Days
+			Calendar currDayCal = Calendar.getInstance();
 			for (int i = 1; i <= daysInMonth; i++) {
 //				Log.d(currentMonthName, String.valueOf(i) + " "
 //						+ getMonthAsString(currentMonth) + " " + yy);
-				if (i == getCurrentDayOfMonth()) 
+				if (i == getCurrentDayOfMonth() && currDayCal.get(Calendar.MONTH) == currentMonth) 
 				{
 					list.add(String.valueOf(i) + "-RED" + "-"
 							+ currentMonth + "-" + yy);
