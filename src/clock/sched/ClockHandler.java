@@ -36,7 +36,8 @@ public class ClockHandler extends BroadcastReceiver
 	{
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
-		long alarmMiliSecond = setAfterEvent == true ? event.getTimesLeftToEvent() + ONE_MINUTE : calNextAlarm(event, extraTime);
+		long alarmMiliSecond = setAfterEvent == true ? event.toCalendar().getTimeInMillis() + ONE_MINUTE : 
+														calNextAlarm(event, extraTime);
 		// for debug
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(alarmMiliSecond);
