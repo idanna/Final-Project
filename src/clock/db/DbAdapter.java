@@ -225,8 +225,29 @@ public class DbAdapter
 		return arrangeTime;
 	}
 
-	public Event getOneBefore(String sqlTimeRepresent) 
+	public Event getOneBefore(String sqlTimeRepresent)
 	{
+		return getOneBeforeOrAfter(sqlTimeRepresent, true);
+	}
+
+	public Event getOneAfter(String sqlTimeRepresent)
+	{
+		return getOneBeforeOrAfter(sqlTimeRepresent, false);
+	}
+		
+	private Event getOneBeforeOrAfter(String sqlTimeRepresent, boolean isOneBefore) 
+	{
+		String compareSign, order;
+		if(isOneBefore)
+		{
+			compareSign = " < ";
+			order = " DESC ";
+		}
+		else
+		{
+			compareSign = " > ";
+			order = ""; // empty mean ascending.
+		}
 		String query = "SELECT * FROM " + Connection.TABLE_EVENTS + 
 						" WHERE " + Connection.COLUMN_DATE + " < " + sqlTimeRepresent +
 						" ORDER BY " + Connection.COLUMN_DATE + " DESC LIMIT 1";
