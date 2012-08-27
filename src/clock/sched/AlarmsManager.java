@@ -122,7 +122,7 @@ public class AlarmsManager
 		int timeToGoOut = newEvent.timeFromNow(trafficData.getDuration());
 		if(newEvent.isAfterNow() && timeToGoOut < 0) // its not possible to get there ! 
 			throw new OutOfTimeException(); //DOTO: why event view dont catch this ? 
-		checkIfEventsColide(newEvent, timeToGoOut);
+//		checkIfEventsColide(newEvent, timeToGoOut);
 		dbAdapter.open();
 		refreshLastEvent();
 		dbAdapter.insertEvent(newEvent);

@@ -129,7 +129,6 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	
    	}
    
-
    @Override
    protected void onStart()
    {

@@ -16,20 +16,38 @@ import android.util.Log;
 public class ClockHandler extends BroadcastReceiver 
 {
 	// Stop when event is 2 minutes ahead
-	private static final long TIMES_UP = (2 * 60 * 1000);
+	private static final long ONE_MINUTE = (60 * 1000);
+	private static final long TIMES_UP = (4 * ONE_MINUTE);
+
+	public static void setAlarm(Context context, Event event, int extraTime)
+	{
+		setAlarm(context, event, extraTime, false);
+	}	
 	
 	/**
 	 * Setting an alarm to the event time - extra Time (in minutes);
 	 * @param context
 	 * @param event The event to schedule
-	 * @param extraTime Extra seconds to substract from the event actual time. 
+	 * @param extraTime Extra minutes to substract from the event actual time. 
+	 * @param setAfterEvent - if true, then the next alarm will be set to 1 min after the event -
+	 * should be used after the time to the event is after TIMES_UP.
 	 */
-	public static void setAlarm(Context context, Event event, int extraTime) 
+	private static void setAlarm(Context context, Event event, int extraTime, boolean setAfterEvent) 
 	{
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
-		long alarmMiliSecond = calNextAlarm(event, extraTime);
+		long alarmMiliSecond = setAfterEvent == true ? event.getTimesLeftToEvent() + ONE_MINUTE : calNextAlarm(event, extraTime);
+		// for debug
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(alarmMiliSecond);
+		Log.d("ALARM", "setAlarm: " + c.getTime());
 		alarmMgr.set(AlarmManager.RTC_WAKEUP, alarmMiliSecond, pendingIntent);	
+	}
+		
+	private static void setAfterEventAlarm(Context context, Event event) 
+	{
+		Log.d("ALARM", "Inside setAfterAlarm");
+		setAlarm(context, event, 0, true);
 	}
 	
 	private static long calNextAlarm(Event event, int extraTime) 
@@ -97,13 +115,15 @@ public class ClockHandler extends BroadcastReceiver
 				EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
 				
 				// If the event time to go out has not passed yet
+				Log.d("ALARM", String.valueOf(timesLeftToGoOut));
 				if (timesLeftToGoOut > TIMES_UP)
 				{
-					setNextAlarm(context, arrangeTime, travelTime, nextEvent);
+					setAlarm(context, nextEvent, (int)(travelTime + arrangeTime));
 				}
 				else // ClockHandler move to the next event.
 				{
-					setAlarm(context, nextEvent, -30); // Negative extra time. next alarm 1 min after this event.
+					Log.d("ALARM", "TIMES IS UP!");
+					setAfterEventAlarm(context, nextEvent); // Negative extra time. next alarm 1 min after this event.
 				}	
 			}
 			catch (Exception ex)
@@ -114,20 +134,6 @@ public class ClockHandler extends BroadcastReceiver
 		
 		}
 		
-	}
-
-	private void setNextAlarm(Context context,long arrangeTime, long travelTime, Event nextEvent) 
-	{
-//		Log.d("ALARM", "Inside setNextAlarm:");
-		try // what if there's an internet problem when trying to set the next alarm ? (same in AlarmManager)
-		{
-//			Log.d("ALARM", "set: " + nextEvent + "Travel/Arrage" + travelTime + "//" + arrangeTime);
-			ClockHandler.setAlarm(context, nextEvent, (int)(travelTime + arrangeTime));
-		} 
-		catch (Exception e) 
-		{
-			Log.e("ALARM", "Could'nt set cont alarm to: " + nextEvent);
-		}
 	}
 
 	public static void cancelEventAlarm(Context context, Event event) 
