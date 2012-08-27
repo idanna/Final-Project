@@ -109,8 +109,8 @@ public class ClockHandler extends BroadcastReceiver
 					//DOTO: there's no arrangment time in db,
 					// What should we do ?
 				}
-				long timesLeftToGoOut = timesLeftToEvent - travelTime;
 				
+				long timesLeftToGoOut = timesLeftToEvent - TimeUnit.SECONDS.toMillis(travelTime);				
 				// User interaction if needed
 				EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
 				

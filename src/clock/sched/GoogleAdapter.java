@@ -45,7 +45,7 @@ public class GoogleAdapter {
 	 * @param context
 	 * @param event
 	 * @param location - if set to null then consider last known location from OS service
-	 * @return
+	 * @return Time in seconds.
 	 * @throws Exception
 	 */
 	public static long getTravelTimeToEvent(Context context, Event event, Location location) throws Exception
