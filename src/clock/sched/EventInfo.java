@@ -31,7 +31,7 @@ public class EventInfo extends Activity{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.event_info);
-		detailsTextView = (Button)this.findViewById(R.id.detailsTextView);
+		detailsTextView = (TextView)this.findViewById(R.id.detailsTextView);
 		timesLeftTextView = (TextView)this.findViewById(R.id.timesLeftTextView);
 		durationTextView = (TextView)this.findViewById(R.id.durationTextView);
 		distanceTextView = (TextView)this.findViewById(R.id.distanceTextView);
