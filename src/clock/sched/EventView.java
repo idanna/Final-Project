@@ -125,8 +125,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	addressProgressBar = (ProgressBar) this.findViewById(R.id.addressProgressBar);
 	   	addressProgressBar.setVisibility(View.INVISIBLE);
 	   	autoCompleteTimer = new Timer();
-	   	autoCompleteHelper = new AutoCompleteHelper();
-	   	
+	   	autoCompleteHelper = new AutoCompleteHelper();	   	
    	}
    
    @Override
