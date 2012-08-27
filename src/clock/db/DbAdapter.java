@@ -224,5 +224,21 @@ public class DbAdapter
 		}
 		return arrangeTime;
 	}
+
+	public Event getOneBefore(String sqlTimeRepresent) 
+	{
+		String query = "SELECT * FROM " + Connection.TABLE_EVENTS + 
+						" WHERE " + Connection.COLUMN_DATE + " < " + sqlTimeRepresent +
+						" ORDER BY " + Connection.COLUMN_DATE + " DESC LIMIT 1";
+		Log.d("SQL", query);
+		Cursor cursor = database.rawQuery(query, null);
+		Event oneBefore = null;
+		if(!cursor.isAfterLast())
+		{
+			oneBefore = cursorToEvent(cursor);
+		}
+		
+		return oneBefore;
+	}
 	
 }

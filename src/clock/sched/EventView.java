@@ -2,15 +2,14 @@ package clock.sched;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 
 import clock.db.DbAdapter;
 import clock.db.Event;
-import clock.db.Event.eComparison;
 import clock.exceptions.CantGetLocationException;
+import clock.exceptions.EventsCollideException;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
 import clock.exceptions.OutOfTimeException;
@@ -20,23 +19,16 @@ import clock.sched.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.FeatureInfo;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
-import android.view.animation.Animation;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -44,7 +36,6 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -83,7 +74,6 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	    }
 	    
 	}
-
 	
 	private static final String ADDRESS_GUIDE_TEXT = "רחוב, מס' בית, ישוב";
 	protected Button set_date_btn;
@@ -216,6 +206,10 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 		   catch (OutOfTimeException e) {
 			   Toast.makeText(this, "You Dont have time To get there!",Toast.LENGTH_LONG).show();
 		   }
+		   catch (EventsCollideException e) {
+			   Toast.makeText(this, "You Dont have time To get there!",Toast.LENGTH_LONG).show();
+		   }
+
 		   catch (Exception e) 
 		   {
 			   Toast.makeText(this, "Unknown error",Toast.LENGTH_LONG).show();
