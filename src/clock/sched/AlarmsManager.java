@@ -211,7 +211,6 @@ public class AlarmsManager
 	 */
 	public void deleteEvent(Event event) throws Exception
 	{
-		//TODO: how many refresh and latest and new and what the hell?!?
 		dbAdapter.open();
 		refreshLastEvent();
 		dbAdapter.deleteEvent(event);

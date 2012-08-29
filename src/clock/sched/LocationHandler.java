@@ -15,8 +15,9 @@ import android.util.Log;
 
 public class LocationHandler implements LocationListener 
 {
-	private static final long MIN_TIME_INTERVAL = 0;		// Ignore minimum time interval - only location matters
+	private static final long MIN_TIME_INTERVAL = 0;						// Ignore minimum time interval - only location matters
 	private static final float MIN_DISTANCE_INTERVAL_PERCENTAGE = 0.03f;
+	private static final float IN_DESTINATION_AREA = 10;					// User arrived when he's 10 meters away
 	private static Context current_context;
 	
 	public static void setLocationListener(Context context, Event event, float distanceToEventLocation)
@@ -67,6 +68,7 @@ public class LocationHandler implements LocationListener
 	@Override
 	public void onLocationChanged(Location location) 
 	{
+		Log.d("LOCATION", "Inside Listener");
 		DbAdapter db = new DbAdapter(current_context);
 		db.open();
 		Event nextEvent = db.getNextEvent();
@@ -76,6 +78,9 @@ public class LocationHandler implements LocationListener
 			try
 			{
 				EventProgressHandler.handleEventProgress(current_context, nextEvent, location);
+				float distanceToEventLocation = GoogleAdapter.getDistanceToEventLocation(current_context, nextEvent, location);
+				Log.d("LOCATION", "Location has been changed setting new listener, currently " + distanceToEventLocation/1000f + " Km away");
+				setLocationListener(current_context, nextEvent, distanceToEventLocation);
 			}
 			catch (Exception ex)
 			{
