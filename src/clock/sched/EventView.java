@@ -19,7 +19,6 @@ import clock.sched.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
@@ -27,8 +26,9 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -41,7 +41,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class EventView extends Activity implements OnClickListener, OnKeyListener, OnCheckedChangeListener, OnFocusChangeListener 
+public class EventView extends Activity implements OnClickListener, OnKeyListener, OnCheckedChangeListener, OnItemClickListener
 {	
 	private class AutoCompleteHelper extends AsyncTask<String, Void, ArrayList<String>> {
 			
@@ -76,7 +76,6 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	    
 	}
 	
-	private static final String ADDRESS_GUIDE_TEXT = "רחוב, מס' בית, ישוב";
 	protected Button set_date_btn;
 	protected Button set_time_btn;
 	protected Button add_event_btn;
@@ -94,6 +93,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	protected AsyncTask<String, Void, ArrayList<String>> autoCompleteHelper;
 	protected Timer autoCompleteTimer;
 	protected Context context = this;
+	protected boolean isItemSelectedFromList;
 	
    /** Called when the activity is first created. */
    @Override
@@ -113,9 +113,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	location_text.setDropDownBackgroundResource(R.drawable.bg);
 	   	location_text.setOnKeyListener(this);
 	   	location_text.setFocusable(true);
-	   	location_text.setOnFocusChangeListener(this);
-	   	// Create location text as it is not focused
-	   	onFocusChange(location_text, false);
+	   	location_text.setOnItemClickListener(this);
 	   	details_text = (EditText) this.findViewById(R.id.detailsText);
 	   	dbAdapter= new DbAdapter(this);
 	   	add_event_btn.setOnClickListener(this);
@@ -127,7 +125,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	addressProgressBar = (ProgressBar) this.findViewById(R.id.addressProgressBar);
 	   	addressProgressBar.setVisibility(View.INVISIBLE);
 	   	autoCompleteTimer = new Timer();
-	   	autoCompleteHelper = new AutoCompleteHelper();	   	
+	   	autoCompleteHelper = new AutoCompleteHelper();	 
+	   	isItemSelectedFromList = false;
    	}
    
    @Override
@@ -189,7 +188,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 
 		   try 
 		   {
-			   alarmManager.newEvent(event);
+			   alarmManager.newEvent(event, isItemSelectedFromList);
 			   returnResult();
 		   } 
 		   catch (IllegalAddressException iae)
@@ -281,6 +280,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent eventCode) 
 	{
+		isItemSelectedFromList = false;
 		String text = location_text.getText().toString();
 		location_text.dismissDropDown();
 		if(text.length() > 2 && eventCode.getAction() == KeyEvent.ACTION_UP)
@@ -300,26 +300,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	}
 
 	@Override
-	public void onFocusChange(View v, boolean hasFocus) {
-		if (v == location_text)
-		{
-			if (hasFocus && location_text.getText().toString().equals(ADDRESS_GUIDE_TEXT))
-			{
-				location_text.setText("");
-				location_text.setTextColor(Color.BLACK);
-			}
-			else if (!hasFocus && location_text.getText().toString().equals(""))
-			{
-				location_text.setTextColor(Color.LTGRAY);
-				location_text.setText(ADDRESS_GUIDE_TEXT);
-			}
-			
-			// Stop address auto complete helper when not on focus
-			if (!hasFocus)
-			{
-				autoCompleteHelper.cancel(true);
-			}
-		}
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		isItemSelectedFromList = true;
 		
 	}
 	   

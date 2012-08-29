@@ -110,12 +110,12 @@ public class AlarmsManager
 	 * @param newEvent 
 	 * @throws Exception 
 	 **/
-	public void newEvent(Event newEvent) throws Exception
+	public void newEvent(Event newEvent, boolean isItemSelectedFromList) throws Exception
 	{		
 		if (!GoogleAdapter.isInternetConnected(context))
 			throw new InternetDisconnectedException();
 		
-		if (GoogleAdapter.getSuggestions(newEvent.getLocation()).isEmpty())
+		if (!isItemSelectedFromList && GoogleAdapter.getSuggestions(newEvent.getLocation()).isEmpty())
 			throw new IllegalAddressException();
 		
 		TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
@@ -231,7 +231,9 @@ public class AlarmsManager
 				catch (Exception ex)
 				{
 					Log.e("Alarm manager", "Delete event has failed");
+					dbAdapter.insertEvent(event);
 					dbAdapter.close();
+					throw ex;
 				}
 			}
 			

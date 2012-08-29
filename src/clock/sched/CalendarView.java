@@ -211,18 +211,17 @@ public class CalendarView extends Activity implements OnClickListener
 	  	try 
 	  	{
 			alarmsManager.deleteEvent(pressedEvent);
+			dayOfMonthAdapter.removeEventFromMonth(pressedEvent);
+			// removing from the day events list.
+			ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) currentDayEventsList.getAdapter();
+			eventsAdapter.remove(pressedEvent);
+			eventsAdapter.notifyDataSetChanged();
+			dayOfMonthAdapter.notifyDataSetChanged();
 		} 
 	  	catch(Exception e) 
 	  	{
 	  		Toast.makeText(this, "Error schedual next event", Toast.LENGTH_LONG).show();
 		}
-	  	
-		dayOfMonthAdapter.removeEventFromMonth(pressedEvent);
-		// removing from the day events list.
-		ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) currentDayEventsList.getAdapter();
-		eventsAdapter.remove(pressedEvent);
-		eventsAdapter.notifyDataSetChanged();
-		dayOfMonthAdapter.notifyDataSetChanged();
 	}
 
 	@Override
