@@ -126,7 +126,12 @@ public class EventProgressHandler{
 				+ TimeUnit.MILLISECONDS.toMinutes(arrangeTimeInMillis)
 				+ " Minutes";
 		
-		//TODO: can't start activity from context - need alarm clock
+		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		
+		Notification notification = getBasicNotification(context, msg);
+		notification.flags |= Notification.FLAG_INSISTENT;		//This will cause annoying notification
+		
+		notificationManager.notify(WAKEUP_ID, notification);
 		
 		userHasBeenWakedUp = System.currentTimeMillis();
 		
@@ -167,7 +172,6 @@ public class EventProgressHandler{
 		
 		Notification notification = getBasicNotification(context, msg);
 		notification.defaults |= Notification.DEFAULT_SOUND;
-		notification.flags |= Notification.FLAG_INSISTENT;		//This will cause annoying notification
 				
 		notificationManager.notify(CRITICAL_ID, notification);
 		Log.d("PROGRESS", "User has been critical messaged");
@@ -209,5 +213,19 @@ public class EventProgressHandler{
 		dbAdapter.deleteEvent(event);
 		dbAdapter.insertEvent(event);
 		dbAdapter.close();
+	}
+
+
+	synchronized public static void goOutNotification(Context context, String msg) 
+	{
+		Log.d("PROGRESS", "Go out notification: " + msg);
+		
+		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		
+		Notification notification = getBasicNotification(context, msg);
+		notification.defaults |= Notification.DEFAULT_SOUND;
+
+		notificationManager.notify(NOTIFICATION_ID, notification);
+		Log.d("PROGRESS", "User has been notified to go out");
 	}
 }

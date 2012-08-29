@@ -16,8 +16,7 @@ import android.util.Log;
 public class ClockHandler extends BroadcastReceiver 
 {
 	// Stop when event is 2 minutes ahead
-	private static final long ONE_MINUTE = (60 * 1000);
-	private static final long TIMES_UP = (4 * ONE_MINUTE);
+	private static final long TIMES_UP = (60 * 1000);
 
 	public static void setAlarm(Context context, Event event, int extraTime)
 	{
@@ -36,7 +35,7 @@ public class ClockHandler extends BroadcastReceiver
 	{
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
-		long alarmMiliSecond = setAfterEvent == true ? event.toCalendar().getTimeInMillis() + ONE_MINUTE : 
+		long alarmMiliSecond = setAfterEvent == true ? event.toCalendar().getTimeInMillis() + TIMES_UP : 
 														calNextAlarm(event, extraTime);
 		// for debug
 		Calendar c = Calendar.getInstance();
@@ -123,8 +122,9 @@ public class ClockHandler extends BroadcastReceiver
 				}
 				else // ClockHandler move to the next event.
 				{
+					EventProgressHandler.goOutNotification(context, "It is time to go out, Drive safely");
 					Log.d("ALARM", "TIMES IS UP!");
-					setAfterEventAlarm(context, nextEvent); // Negative extra time. next alarm 1 min after this event.
+					setAfterEventAlarm(context, nextEvent);
 				}	
 			}
 			catch (Exception ex)

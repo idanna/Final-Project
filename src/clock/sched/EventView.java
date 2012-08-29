@@ -66,7 +66,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	    protected void onPostExecute(ArrayList<String> sugg) {
 			Log.d("AC-Helper", "onPostExecute");
 			addressProgressBar.setVisibility(View.INVISIBLE);
-			if(sugg != null && !sugg.isEmpty())
+			if(!isCancelled() && sugg != null && !sugg.isEmpty())
 			{
 		    	ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, sugg);
 		    	location_text.setAdapter(adapter);
@@ -114,6 +114,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	location_text.setOnKeyListener(this);
 	   	location_text.setFocusable(true);
 	   	location_text.setOnFocusChangeListener(this);
+	   	// Create location text as it is not focused
+	   	onFocusChange(location_text, false);
 	   	details_text = (EditText) this.findViewById(R.id.detailsText);
 	   	dbAdapter= new DbAdapter(this);
 	   	add_event_btn.setOnClickListener(this);
@@ -310,6 +312,12 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 			{
 				location_text.setTextColor(Color.LTGRAY);
 				location_text.setText(ADDRESS_GUIDE_TEXT);
+			}
+			
+			// Stop address auto complete helper when not on focus
+			if (!hasFocus)
+			{
+				autoCompleteHelper.cancel(true);
 			}
 		}
 		
