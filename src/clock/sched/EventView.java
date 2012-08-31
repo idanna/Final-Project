@@ -6,6 +6,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
+import clock.Parse.ParseHandler;
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.exceptions.CantGetLocationException;
@@ -96,6 +97,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	protected Context context = this;
 	protected boolean isItemSelectedFromList;
 	protected boolean isInEditMode;
+	private Button sendBtn;
 	
    /** Called when the activity is first created. */
    @Override
@@ -118,6 +120,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	location_text.setOnItemClickListener(this);
 	   	details_text = (EditText) this.findViewById(R.id.detailsText);
 	   	dbAdapter= new DbAdapter(this);
+	   	sendBtn = (Button) this.findViewById(R.id.send_btn);
+	   	sendBtn.setOnClickListener(this);
 	   	add_event_btn.setOnClickListener(this);
 	   	set_date_btn.setOnClickListener(this);
 	   	set_time_btn.setOnClickListener(this);
@@ -232,6 +236,15 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   {
 		   boolean dateVisibility = v == set_date_btn;
 		   setDateTimeBtns(dateVisibility, !dateVisibility);		   
+	   }
+	   if(v == sendBtn)
+	   {
+		   try {
+			   ParseHandler.sendMsg(details_text.getText().toString());
+		} catch (Exception e) {
+				e.printStackTrace();
+				Toast.makeText(this, "Error with Parse", Toast.LENGTH_LONG).show();
+		}
 	   }
 	   
 	}

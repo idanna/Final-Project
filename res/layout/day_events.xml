@@ -86,7 +86,7 @@
         android:ems="10"
         android:gravity="top"
         android:inputType="textMultiLine" />
-
+
     <GridLayout
         android:id="@+id/set_buttons"
         android:layout_width="wrap_content"
@@ -99,6 +99,14 @@
             android:layout_column="0"
             android:layout_row="0"
             android:text="OK" />
+
+        <Button
+            android:id="@+id/send_btn"
+            android:layout_column="1"
+            android:layout_columnSpan="2"
+            android:layout_gravity="left"
+            android:layout_row="0"
+            android:text="Send" />
 
         <TextView
             android:id="@+id/textView1"
@@ -125,13 +133,12 @@
             android:layout_height="1dp"
             android:layout_column="1"
             android:layout_row="0" />
-
+
         <Space
             android:layout_width="156dp"
             android:layout_height="15dp"
             android:layout_column="2"
             android:layout_row="0" />
-
     </GridLayout>
 
 </LinearLayout>
