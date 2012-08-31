@@ -9,6 +9,7 @@ import clock.db.Event;
 import clock.db.Event.eComparison;
 import clock.exceptions.CantGetLocationException;
 import clock.exceptions.EventsCollideException;
+import clock.exceptions.GoogleWeatherException;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
 import clock.exceptions.OutOfTimeException;
@@ -119,7 +120,10 @@ public class AlarmsManager
 			throw new IllegalAddressException();
 		
 		TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
-		int timeToGoOut = newEvent.timeFromNow(trafficData.getDuration());
+		int arrageTime = getArrangmentTime(newEvent);
+		Log.d("ALARM", "Arrange time in sec is: " + arrageTime);
+		int timeToGoOut = newEvent.timeFromNow(trafficData.getDuration() + arrageTime);
+		
 		if(newEvent.isAfterNow() && timeToGoOut < 0) // its not possible to get there ! 
 			throw new OutOfTimeException(); //DOTO: why event view dont catch this ? 
 //		checkIfEventsColide(newEvent, timeToGoOut);
@@ -130,12 +134,6 @@ public class AlarmsManager
 		if(newEvent.isAfterNow() &&
 						(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
 		{
-			int arrageTime = getArrangmentTime(newEvent);
-			if (arrageTime == -1)
-			{
-				//DOTO: notify the user that arrangment time is missing
-			}
-			
 			if (latestEvent != null)
 			{
 				ClockHandler.cancelEventAlarm(context, latestEvent);
@@ -179,21 +177,31 @@ public class AlarmsManager
 	/**
 	 * 
 	 * @param newEvent
-	 * @return arrangemt time: -1 if no suggestion was found.
+	 * @return arrangemt time in seconds: -1 if no suggestion was found.
 	 * @throws UnsupportedEncodingException
+	 * @throws GoogleWeatherException 
 	 */
-	public int getArrangmentTime(Event newEvent) throws UnsupportedEncodingException 
+	public int getArrangmentTime(Event newEvent) throws GoogleWeatherException 
 	{
 		int arrangeTime = 0;
 		int daysFromNow = newEvent.daysFromNow();
 		if(daysFromNow < 3 && newEvent.getWithAlarmStatus() == true) // only if event time < 3 days from now we have weather data.
 		{
 			GoogleWeatherHandler gw = new GoogleWeatherHandler();
-			WeatherModel weather = gw.processWeatherRequest(newEvent.getLocation());
-			arrangeTime = arrangeTimeManager.GetArrangmentTime(newEvent, weather);					
+			try {
+				//$$ Problem here.
+				//WeatherModel weather = gw.processWeatherRequest(newEvent.getLocation());
+				WeatherModel weather = gw.getWeatherModel();
+				weather.setCondition("Clear");
+				weather.setTemperature("28");
+				arrangeTime = arrangeTimeManager.GetArrangmentTime(newEvent, weather);
+			} catch (Exception e) {
+				throw new GoogleWeatherException();
+			}
+					
 		}
 		
-		return arrangeTime;
+		return arrangeTime / 1000;
 	}
 
 	public void UserGotOut(Event event, int arrangmentTime, WeatherModel weatherData)

@@ -10,6 +10,7 @@ import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.exceptions.CantGetLocationException;
 import clock.exceptions.EventsCollideException;
+import clock.exceptions.GoogleWeatherException;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
 import clock.exceptions.OutOfTimeException;
@@ -209,7 +210,9 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 		   catch (EventsCollideException e) {
 			   Toast.makeText(this, "You Dont have time To get there!",Toast.LENGTH_LONG).show();
 		   }
-
+		   catch (GoogleWeatherException e) {
+			   Toast.makeText(this, "Error with Google Weather",Toast.LENGTH_LONG).show();
+		   }
 		   catch (Exception e) 
 		   {
 			   Toast.makeText(this, "Unknown error",Toast.LENGTH_LONG).show();

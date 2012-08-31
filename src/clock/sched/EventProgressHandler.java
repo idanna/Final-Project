@@ -97,7 +97,11 @@ public class EventProgressHandler{
 		saveDetailsToEvent(event, context);
 		
 	}
-
+	
+	/**
+	 * 
+	 * @return Time in mili.
+	 */
 	private static int getArrangementTime() {
 		long currentTime = System.currentTimeMillis();
 		return (int)(currentTime - userHasBeenWakedUp);
@@ -111,7 +115,7 @@ public class EventProgressHandler{
 		if (arrangeTime == 0) return false;
 		
 		Calendar currentCalendar = Calendar.getInstance();
-		long timeToWakeUp = timesLeftToGoOut - arrangeTime;
+		long timeToWakeUp = timesLeftToGoOut - TimeUnit.SECONDS.toMillis(arrangeTime);
 		
 		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;
 	}

@@ -27,7 +27,7 @@ public class ClockHandler extends BroadcastReceiver
 	 * Setting an alarm to the event time - extra Time (in minutes);
 	 * @param context
 	 * @param event The event to schedule
-	 * @param extraTime Extra minutes to substract from the event actual time. 
+	 * @param extraTime Extra secnods to substract from the event actual time. 
 	 * @param setAfterEvent - if true, then the next alarm will be set to 1 min after the event -
 	 * should be used after the time to the event is after TIMES_UP.
 	 */
@@ -116,7 +116,7 @@ public class ClockHandler extends BroadcastReceiver
 				
 				// If the event time to go out has not passed yet
 				Log.d("ALARM", String.valueOf(timesLeftToGoOut));
-				if (timesLeftToGoOut > TIMES_UP)
+				if (timesLeftToGoOut - arrangeTime > TIMES_UP)
 				{
 					setAlarm(context, nextEvent, (int)(travelTime + arrangeTime));
 				}

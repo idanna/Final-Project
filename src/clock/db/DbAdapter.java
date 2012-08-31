@@ -97,8 +97,10 @@ public class DbAdapter
 	public void deleteEvent(Event event) 
 	{
 		long id = event.getId();
-		database.delete(Connection.TABLE_EVENTS, Connection.COLUMN_ID
-				+ " = " + id, null);
+		database.rawQuery("DELETE FROM EVENTS WHERE " + Connection.COLUMN_ID + " = " + event.getId(), null);
+//		database.delete(Connection.TABLE_EVENTS, Connection.COLUMN_ID
+//				+ " = " + id, null);
+		Log.d("EVENT", "DELETE FROM EVENTS WHERE " + Connection.COLUMN_ID + " = " + event.getId());
 		Log.d("EVENT", "Event number " + id + ", Name: " + event.toString() + " has been deleted from db");
 	}
 	
@@ -215,6 +217,7 @@ public class DbAdapter
 				"' AND " + Connection.COLUMN_TEMPETURE + ">" + (tempeture - 5) + 
 				" AND " + Connection.COLUMN_TEMPETURE + "<" + (tempeture + 5) + 
 				" GROUP BY " + Connection.COLUMN_WEATHER + ", " + Connection.COLUMN_TEMPETURE;
+		Log.d("ARRANGE", query);
 		Cursor cursor = database.rawQuery(query, null);
 	
 		cursor.moveToFirst();
@@ -222,6 +225,16 @@ public class DbAdapter
 		{
 			arrangeTime = cursor.getInt(0);			
 		}
+		else // no results, getting agg from all db.
+		{
+			query = "SELECT (SUM(" + Connection.COLUMN_ARR_TIME + ")/COUNT(" + Connection.COLUMN_ARR_TIME + 
+					")) FROM " + Connection.TABLE_RECORDS;
+			Log.d("ARRANGE", "Fall Back" + query);
+			cursor = database.rawQuery(query, null);
+			cursor.moveToFirst();
+			arrangeTime = cursor.getInt(0);
+		}
+		
 		return arrangeTime;
 	}
 
