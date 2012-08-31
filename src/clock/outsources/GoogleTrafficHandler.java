@@ -4,6 +4,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -29,11 +31,13 @@ public class GoogleTrafficHandler
 		
 		/**
 		 * 
-		 * @return Duration in seconds. If error occurred or places not found then -1 is returned.
+		 * @return Duration in milli. If error occurred or places not found then -1 is returned.
 		 */
 		public long getDuration() {
-			return duration;
+			return duration == -1 ? -1 : TimeUnit.SECONDS.toMillis(duration);
 		}
+		
+		
 		public void setDuration(long duration) {
 			this.duration = duration;
 		}
@@ -62,7 +66,7 @@ public class GoogleTrafficHandler
 	}
 	
 	/***
-	 * Method connect to google maps with the query provided ("from", "to") and returns the duration in Seconds.
+	 * Method connect to google maps with the query provided ("from", "to") and returns the duration in milli.
 	 * @param from - origin place in latitude,longitude
 	 * @param to - destination place with same format as origin
 	 */

@@ -151,7 +151,7 @@ public class DbAdapter
         String query = "SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " + 
         		"date > '" + currentTime + "' order by date limit 1";
 		Cursor cursor = database.rawQuery(query , null);
-//		Log.d("Next SQL", query);
+		Log.d("SQL", "NEXT EVENT SQL"  + query);
 		
 		cursor.moveToFirst();
 		if (!cursor.isAfterLast())
@@ -160,6 +160,7 @@ public class DbAdapter
 			retEvent = cursorToEvent(cursor);
 		}
 		
+		Log.d("DB", "Next event Id: " + (retEvent == null ? "NONE" : retEvent.getId()));
 		return retEvent;
 	}	
 	
@@ -247,6 +248,23 @@ public class DbAdapter
 	{
 		return getOneBeforeOrAfter(sqlTimeRepresent, false);
 	}
+	
+	/**
+	 * Update all changed fields of the event in the DB.
+	 * @param event - event to be updated in db.
+	 */
+	public void updateEvent(Event event)
+	{
+		ContentValues valuesMap = new ContentValues();
+		valuesMap.put(Connection.COLUMN_DATE, Event.getSqlTimeRepresent(event));
+		valuesMap.put(Connection.COLUMN_LOCATION, event.getLocation());
+		valuesMap.put(Connection.COLUMN_DETAILS, event.getDetails());
+		valuesMap.put(Connection.COLUMN_ALARM, event.getWithAlarmStatus() == true ? 1 : 0);
+		valuesMap.put(Connection.COLUMN_NOTIFIED, event.getNotified() == true ? 1 : 0);
+		valuesMap.put(Connection.COLUMN_WAKEDUP, event.getWakedUp());
+
+		database.updateWithOnConflict(Connection.TABLE_EVENTS, valuesMap, Connection.COLUMN_ID + " = ?", new String[] { String.valueOf(event.getId()) }, SQLiteDatabase.CONFLICT_REPLACE);
+	}
 		
 	private Event getOneBeforeOrAfter(String sqlTimeRepresent, boolean isOneBefore) 
 	{
@@ -262,8 +280,8 @@ public class DbAdapter
 			order = ""; // empty mean ascending.
 		}
 		String query = "SELECT * FROM " + Connection.TABLE_EVENTS + 
-						" WHERE " + Connection.COLUMN_DATE + " < " + sqlTimeRepresent +
-						" ORDER BY " + Connection.COLUMN_DATE + " DESC LIMIT 1";
+						" WHERE " + Connection.COLUMN_DATE + compareSign + sqlTimeRepresent +
+						" ORDER BY " + Connection.COLUMN_DATE + " " + order + " LIMIT 1";
 		Log.d("SQL", query);
 		Cursor cursor = database.rawQuery(query, null);
 		Event oneBefore = null;
@@ -273,6 +291,14 @@ public class DbAdapter
 		}
 		
 		return oneBefore;
+	}
+
+	
+	public Event getEventById(int eventId) 
+	{
+		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " + Connection.COLUMN_ID + " = " + eventId, null);
+		cursor.moveToFirst();
+		return cursorToEvent(cursor);
 	}
 	
 }

@@ -115,7 +115,7 @@ public class EventProgressHandler{
 		if (arrangeTime == 0) return false;
 		
 		Calendar currentCalendar = Calendar.getInstance();
-		long timeToWakeUp = timesLeftToGoOut - TimeUnit.SECONDS.toMillis(arrangeTime);
+		long timeToWakeUp = timesLeftToGoOut - arrangeTime;
 		
 		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;
 	}
@@ -214,8 +214,7 @@ public class EventProgressHandler{
 		event.setUserHasBeenWakedUp(userHasBeenWakedUp);
 		DbAdapter dbAdapter = new DbAdapter(context);
 		dbAdapter.open();
-		dbAdapter.deleteEvent(event);
-		dbAdapter.insertEvent(event);
+		dbAdapter.updateEvent(event);
 		dbAdapter.close();
 	}
 

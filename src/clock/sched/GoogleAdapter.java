@@ -45,21 +45,6 @@ public class GoogleAdapter {
 	 * @param context
 	 * @param event
 	 * @param location - if set to null then consider last known location from OS service
-	 * @return Time in seconds.
-	 * @throws Exception
-	 */
-	public static long getTravelTimeToEvent(Context context, Event event, Location location) throws Exception
-	{
-		String origin = getOrigin(context, location);
-		TrafficData trafficData = gTrafficHandler.calculateTrafficInfo(origin, event.getLocation());
-		return trafficData.getDuration();
-	}
-
-	/**
-	 * 
-	 * @param context
-	 * @param event
-	 * @param location - if set to null then consider last known location from OS service
 	 * @return
 	 * @throws Exception
 	 */

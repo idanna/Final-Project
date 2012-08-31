@@ -5,6 +5,8 @@ import java.util.concurrent.TimeUnit;
 
 import clock.db.DbAdapter;
 import clock.db.Event;
+import clock.outsources.GoogleTrafficHandler.TrafficData;
+import clock.outsources.GoogleWeatherHandler;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -60,7 +62,7 @@ public class ClockHandler extends BroadcastReceiver
 		Log.d("ALARM", "Current Time: " + calander.getTime());
 		
 		calander = event.toCalendar();
-		calander.add(Calendar.SECOND, -extraTime);
+		calander.add(Calendar.MILLISECOND, -extraTime);
 		Log.d("ALARM", "Time To go out: " + calander.getTime());
 		long miliToGetOut = calander.getTimeInMillis();
 		long miliToNextAlarm = ((miliToGetOut - currentTime) / 2) + currentTime;
@@ -102,22 +104,20 @@ public class ClockHandler extends BroadcastReceiver
 			try
 			{
 				AlarmsManager am = new AlarmsManager(context, db);
-				long travelTime = GoogleAdapter.getTravelTimeToEvent(context, nextEvent, null);
-				long arrangeTime = am.getArrangmentTime(nextEvent);
-				if(arrangeTime == -1)
-				{
-					//DOTO: there's no arrangment time in db,
-					// What should we do ?
+				TrafficData traficHandler = GoogleAdapter.getTrafficData(context, nextEvent, null);
+				long travelTime = traficHandler.getDuration();
+				if(travelTime == -1){
+					Log.d("ALARM", "travel time is -1 !!!"); 
 				}
-				
-				long timesLeftToGoOut = timesLeftToEvent - TimeUnit.SECONDS.toMillis(travelTime);				
+
+				long arrangeTime = am.getArrangmentTime(nextEvent);				
+				long timesLeftToGoOut = timesLeftToEvent - travelTime;				
 				// User interaction if needed
 				EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
 				
 				// If the event time to go out has not passed yet
 				Log.d("ALARM", String.valueOf(timesLeftToGoOut));
-				if (timesLeftToGoOut - arrangeTime > TIMES_UP)
-				{
+				if (timesLeftToGoOut - arrangeTime > TIMES_UP){
 					setAlarm(context, nextEvent, (int)(travelTime + arrangeTime));
 				}
 				else // ClockHandler move to the next event.
@@ -142,6 +142,6 @@ public class ClockHandler extends BroadcastReceiver
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		alarmMgr.cancel(pendingIntent);	
-		Log.d("ALARM", "Reciever has been canceled for event: " + event.toString());
+		Log.d("ALARM", "ALARM has been canceled for event: " + event.toString());
 	}
 }

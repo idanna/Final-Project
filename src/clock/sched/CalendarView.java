@@ -51,6 +51,16 @@ import android.widget.Toast;
  */
 public class CalendarView extends Activity implements OnClickListener 
 {
+	private enum eMenuItems {
+		EDIT,
+		DELETE,
+		INFO;
+
+		public static eMenuItems getById(int index) {
+			return values()[index];
+		}
+	}
+	
 	private static final String tag = "AppDate";
 	private Button selectedDayMonthYearButton;
 	private Button currentMonth;
@@ -64,10 +74,10 @@ public class CalendarView extends Activity implements OnClickListener
 	private AlarmsManager alarmsManager;
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";
-	private static final String EDIT = "Edit";
-    private static final String DELETE = "Delete";
-    private static final String INFO = "Show Info";
-    private static final String[] menuItems = {EDIT, DELETE, INFO};
+//	private static final String EDIT = "Edit";
+//    private static final String DELETE = "Delete";
+//    private static final String INFO = "Show Info";
+//    private static final String[] menuItems = {EDIT, DELETE, INFO};
 	
 	private ListView currentDayEventsList;
 	
@@ -89,8 +99,8 @@ public class CalendarView extends Activity implements OnClickListener
 		alarmsManager = new AlarmsManager(this, new DbAdapter(this));
 		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
 		dayOfMonthAdapter.notifyDataSetChanged();
-		calendarView.setAdapter(dayOfMonthAdapter);
-
+		calendarView.setAdapter(dayOfMonthAdapter);			
+		
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{
 //			
@@ -172,10 +182,11 @@ public class CalendarView extends Activity implements OnClickListener
 			    AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
 			    Event pressedEvent = (Event) currentDayEventsList.getAdapter().getItem(info.position);
 			    menu.setHeaderTitle(pressedEvent.toString());
-			    for (int i = 0; i < menuItems.length; i++) 
-			    {
-			      menu.add(Menu.NONE, i, i, menuItems[i]);
-			    }    
+			    int i = 0;
+			    for (eMenuItems menuItem : eMenuItems.values()) {
+					menu.add(Menu.NONE, i, i, menuItem.toString());
+					i++;
+				}
 		  }
 	  
 	}
@@ -185,23 +196,27 @@ public class CalendarView extends Activity implements OnClickListener
 	{
 		  AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		  int menuItemIndex = item.getItemId();
-		  String menuItemName = menuItems[menuItemIndex];
+		  eMenuItems menuItemName = eMenuItems.getById(menuItemIndex);
 		  Event pressedEvent = (Event) currentDayEventsList.getAdapter().getItem(info.position);
 
-		  if (menuItemName.equals(EDIT))
-		  {
-			  // acting like event is deleted if need to edit
-			  deleteEvent(pressedEvent);
-			  changeToEventView("editEvent", pressedEvent.encodeToString());
-		  }
-		  else if (menuItemName.equals(DELETE))
-		  {
-			  deleteEvent(pressedEvent);
-		  }
-		  else if (menuItemName.equals(INFO))
-		  {
-			  changeToEventInfo("event", pressedEvent.encodeToString());
-		  }
+		  switch (menuItemName) {
+			case DELETE:
+				deleteEvent(pressedEvent);
+				break;
+			case EDIT:
+					try {
+						alarmsManager.updateStart(pressedEvent);
+						changeToEventView("editEvent", pressedEvent.encodeToString());
+					} catch (Exception e) {
+						e.printStackTrace();
+				  		Toast.makeText(this, "Error with edit event", Toast.LENGTH_LONG).show();
+					}
+				break;
+			case INFO:
+				changeToEventInfo("event", pressedEvent.encodeToString());
+			default:
+				Toast.makeText(this, "Error with menu", Toast.LENGTH_LONG).show();
+			}
 		  
 		  return true;
 	}	

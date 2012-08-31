@@ -2,6 +2,8 @@ package clock.sched;
 
 import java.io.UnsupportedEncodingException;
 
+import javax.xml.datatype.Duration;
+
 import android.content.Context;
 import android.util.Log;
 import clock.db.DbAdapter;
@@ -109,27 +111,39 @@ public class AlarmsManager
 	 * Informs the alarm manager about a new event.
 	 * saves the alarm in db, manage the alarm set/cancel in case needed.
 	 * @param newEvent 
+	 * @param addToDB - if true the event will also be added to the DB,
+	 * 					else only alarm logic will imply (called after updated event saved)
 	 * @throws Exception 
 	 **/
-	public void newEvent(Event newEvent, boolean isItemSelectedFromList) throws Exception
+	private void newEvent(Event newEvent, boolean isItemSelectedFromList, boolean addToDB) throws Exception
 	{		
-		if (!GoogleAdapter.isInternetConnected(context))
+		if (!GoogleAdapter.isInternetConnected(context)) {
 			throw new InternetDisconnectedException();
+		}
 		
-		if (!isItemSelectedFromList && GoogleAdapter.getSuggestions(newEvent.getLocation()).isEmpty())
+		if (!isItemSelectedFromList && GoogleAdapter.getSuggestions(newEvent.getLocation()).isEmpty()) {
 			throw new IllegalAddressException();
+		}
 		
 		TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
-		int arrageTime = getArrangmentTime(newEvent);
-		Log.d("ALARM", "Arrange time in sec is: " + arrageTime);
-		int timeToGoOut = newEvent.timeFromNow(trafficData.getDuration() + arrageTime);
+		long durationTime = trafficData.getDuration();
+		if (durationTime < 0) {
+			throw new CantGetLocationException();
+		}
 		
-		if(newEvent.isAfterNow() && timeToGoOut < 0) // its not possible to get there ! 
-			throw new OutOfTimeException(); //DOTO: why event view dont catch this ? 
+		int arrageTime = getArrangmentTime(newEvent);
+		Log.d("ALARM", "Arrange time in mili is: " + arrageTime);
+		int timeToGoOut = newEvent.timeFromNow(durationTime + arrageTime);
+		if(newEvent.isAfterNow() && timeToGoOut < 0) { // its not possible to get there ! 
+			throw new OutOfTimeException();
+		}  
 //		checkIfEventsColide(newEvent, timeToGoOut);
 		dbAdapter.open();
-		refreshLastEvent();
-		dbAdapter.insertEvent(newEvent);
+		latestEvent = dbAdapter.getNextEvent();
+		if(addToDB){
+			dbAdapter.insertEvent(newEvent);	
+		}
+		
 		dbAdapter.close();
 		if(newEvent.isAfterNow() &&
 						(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
@@ -141,11 +155,6 @@ public class AlarmsManager
 			}
 			
 			this.latestEvent = newEvent;
-			long durationTime = trafficData.getDuration();
-			if (durationTime < 0)
-			{
-				throw new CantGetLocationException();
-			}
 			ClockHandler.setAlarm(context, latestEvent, ((int)durationTime + arrageTime));
 			LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
 		}
@@ -177,7 +186,7 @@ public class AlarmsManager
 	/**
 	 * 
 	 * @param newEvent
-	 * @return arrangemt time in seconds: -1 if no suggestion was found.
+	 * @return arrangemt time in milli: -1 if no suggestion was found.
 	 * @throws UnsupportedEncodingException
 	 * @throws GoogleWeatherException 
 	 */
@@ -201,7 +210,7 @@ public class AlarmsManager
 					
 		}
 		
-		return arrangeTime / 1000;
+		return arrangeTime;
 	}
 
 	public void UserGotOut(Event event, int arrangmentTime, WeatherModel weatherData)
@@ -215,30 +224,35 @@ public class AlarmsManager
 	 * If alarm was schedule for the event it will be cancelled,
 	 * And a new alarm for the next event will be schedule.
 	 * @param event - the event for deletion
+	 * @param alsoFromDB - if true the event will be deleted from the DB,
+	 * 						if false, only alarm logic imply. 
 	 * @throws Exception
 	 */
-	public void deleteEvent(Event event) throws Exception
+	private void deleteEvent(Event event, boolean alsoFromDB) throws Exception
 	{
 		dbAdapter.open();
-		refreshLastEvent();
-		dbAdapter.deleteEvent(event);
+		latestEvent = dbAdapter.getNextEvent();	
 		if (latestEvent != null && latestEvent.equals(event))
 		{
 			// Pull latest event from DB after the current one has been deleted
-			latestEvent = dbAdapter.getNextEvent();
+			latestEvent = dbAdapter.getOneAfter(Event.getSqlTimeRepresent(event));
 			if (latestEvent != null)
 			{
 				try
 				{
 					TrafficData trafficData = GoogleAdapter.getTrafficData(context, latestEvent, null);
 					int timeToArrange = getArrangmentTime(latestEvent);
+					long duration = trafficData.getDuration();
+					if(duration < -1) {
+						Log.e("Alarm manager", "Can't get location");
+						throw new CantGetLocationException();
+					}
+					
 					ClockHandler.setAlarm(context, latestEvent, (int)(timeToArrange + trafficData.getDuration()));
 					LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
 				}
-				catch (Exception ex)
-				{
+				catch (Exception ex) {
 					Log.e("Alarm manager", "Delete event has failed");
-					dbAdapter.insertEvent(event);
 					dbAdapter.close();
 					throw ex;
 				}
@@ -246,18 +260,34 @@ public class AlarmsManager
 			
 			ClockHandler.cancelEventAlarm(context, event);
 			LocationHandler.cancelLocationListener(context, event);
+			if(alsoFromDB){
+				dbAdapter.deleteEvent(event);
+			}
 		}
 		dbAdapter.close();
 	}
 	
-	/**
-	 * Updating data member (if needed) 'lastestEvent' from the database.
-	 * Should be called with open db connection.
-	 */
-	private void refreshLastEvent()
+	public void newEvent(Event newEvent, boolean isItemSelectedFromList) throws Exception
 	{
-		latestEvent = dbAdapter.getNextEvent();		
+		this.newEvent(newEvent, isItemSelectedFromList, true);
 	}
-
-
+	
+	public void deleteEvent(Event event) throws Exception
+	{
+		this.deleteEvent(event, true);
+	}
+	
+	public void updateStart(Event event) throws Exception
+	{
+		Log.d("ALARM", "on UpdateStart");
+		this.deleteEvent(event, false);
+	}
+	
+	public void updateFinish(Event event, boolean isItemSelectFromList) throws Exception 
+	{
+		Log.d("ALARM", "on UpdateFinish");
+		dbAdapter.updateEvent(event);
+		this.newEvent(event, isItemSelectFromList, false);
+	}
+	
 }

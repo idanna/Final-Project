@@ -60,8 +60,6 @@ public class EventInfo extends Activity{
 		}
    }
 
-
-
 	private void setFields(Event event) {
 		//Set details from event
 		detailsTextView.setText(event.getDetails());
@@ -100,8 +98,6 @@ public class EventInfo extends Activity{
 		}
 	}
 
-
-
 	private void setTrafficFieldsToNone() {
 		durationTextView.setText("Duration - " + NO_INFO);
 		distanceTextView.setText("Distance - " + NO_INFO);
@@ -113,8 +109,6 @@ public class EventInfo extends Activity{
 		humidityTextView.setText("Humidity - " + NO_INFO);
 		windTextView.setText("Wind - " + NO_INFO);	
 	}
-
-
 
 	private void setWeatherInfo(Event event) throws Exception {
 		WeatherModel weatherModel = GoogleAdapter.getWeatherModel(event.getLocation());
@@ -130,8 +124,6 @@ public class EventInfo extends Activity{
 		windTextView.setText("Wind Direction - " 
 				+ weatherModel.getWind() == null?  NO_INFO : weatherModel.getWind());
 	}
-
-
 
 	private void setTrafficInfo(Event event) throws Exception {
 		TrafficData trafficData = GoogleAdapter.getTrafficData(this, event, null);

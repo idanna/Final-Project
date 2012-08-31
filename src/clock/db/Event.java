@@ -356,17 +356,25 @@ public class Event
 	/**
 	 * 
 	 * @param f - travelling duration to place in seconds.
-	 * @return time to the event in seconds minus duration. (in seconds)
+	 * @return time to the event in milli minus duration. (in seconds)
 	 */
 	public int timeFromNow(float duration) 
 	{
 		Calendar c = this.toCalendar();
 		Calendar currentTime = Calendar.getInstance();
-		c.add(Calendar.SECOND, -((int)duration));
+		c.add(Calendar.MILLISECOND, -((int)duration));
 		Log.d("EVENT", c.getTime() + " - " + currentTime.getTime());
 		int timeLeft = (int)(c.getTimeInMillis() - currentTime.getTimeInMillis());
 		Log.d("EVENT", String.valueOf(timeLeft));
 		return timeLeft;
+	}
+
+	public boolean getNotified() {
+		return userHasBeenNotified;
+	}
+
+	public long getWakedUp() {
+		return userHasBeenWakedUp;
 	}
 
 }

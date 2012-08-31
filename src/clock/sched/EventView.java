@@ -95,6 +95,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	protected Timer autoCompleteTimer;
 	protected Context context = this;
 	protected boolean isItemSelectedFromList;
+	protected boolean isInEditMode;
 	
    /** Called when the activity is first created. */
    @Override
@@ -128,12 +129,14 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	autoCompleteTimer = new Timer();
 	   	autoCompleteHelper = new AutoCompleteHelper();	 
 	   	isItemSelectedFromList = false;
+	   	isInEditMode = false;
    	}
    
    @Override
    protected void onStart()
    {
 	   	super.onStart();
+	   	isInEditMode = false;
 	   	Bundle b = getIntent().getExtras();
 	   	if(b.containsKey("selectedDate")) // new event.
 	   	{
@@ -142,10 +145,10 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	else // edit event
 	   	{
 	   		String eventStr = b.get("editEvent").toString();
+	   		isInEditMode = true;
 	   		event = Event.CreateFromString(eventStr);
 	   	}
-	   	
-//	   	Log.d("UI SET TO:", event.toString());
+	   	   	
    		setPageFields();
    }
    
@@ -189,7 +192,13 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 
 		   try 
 		   {
-			   alarmManager.newEvent(event, isItemSelectedFromList);
+			   if(isInEditMode) {
+				   alarmManager.updateFinish(event, isItemSelectedFromList);
+			   }
+			   else {
+				   alarmManager.newEvent(event, isItemSelectedFromList);				   
+			   }
+
 			   returnResult();
 		   } 
 		   catch (IllegalAddressException iae)
@@ -215,6 +224,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 		   }
 		   catch (Exception e) 
 		   {
+			   e.printStackTrace();
 			   Toast.makeText(this, "Unknown error",Toast.LENGTH_LONG).show();
 		   }	
 	   }
