@@ -1,6 +1,8 @@
 package clock.sched;
+import com.parse.Parse;
+import com.parse.ParseObject;
+import com.parse.PushService;
 
-import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,20 +16,15 @@ import java.util.Locale;
 import clock.db.DbAdapter;
 import clock.db.Event;
 
-import clock.outsources.GoogleWeatherHandler;
-import clock.outsources.dependencies.WeatherModel;
 import clock.sched.R;
 
 
 import android.app.Activity;
-import android.content.ClipData.Item;
-import android.content.ClipData.Item;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -73,12 +70,7 @@ public class CalendarView extends Activity implements OnClickListener
 	private int month, year;
 	private AlarmsManager alarmsManager;
 	private final DateFormat dateFormatter = new DateFormat();
-	private static final String dateTemplate = "MMMM yyyy";
-//	private static final String EDIT = "Edit";
-//    private static final String DELETE = "Delete";
-//    private static final String INFO = "Show Info";
-//    private static final String[] menuItems = {EDIT, DELETE, INFO};
-	
+	private static final String dateTemplate = "MMMM yyyy";	
 	private ListView currentDayEventsList;
 	
 	/** 
@@ -89,7 +81,6 @@ public class CalendarView extends Activity implements OnClickListener
 	{
 		super.onCreate(savedInstanceState);
 		LocationHandler.setFirstLocationRequest(this);
-		
 		setContentView(R.layout.simple_calendar_view);
 
 		initCalander();
@@ -100,6 +91,8 @@ public class CalendarView extends Activity implements OnClickListener
 		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
 		dayOfMonthAdapter.notifyDataSetChanged();
 		calendarView.setAdapter(dayOfMonthAdapter);			
+		Parse.initialize(this, "2jo7e9GelT811A2KsuJDJsP6sV7eeDYg2Jskyy4v", "5siGRhsEIOCimLy18zV9dv4ashRfJ9WPit2Y3Dmx"); 
+		PushService.subscribe(this, "", CalendarView.class);
 		
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{
@@ -124,13 +117,14 @@ public class CalendarView extends Activity implements OnClickListener
 		prevMonth.setOnClickListener(this);
 
 		currentMonth = (Button) this.findViewById(R.id.currentMonth);
-		currentMonth.setText(dateFormatter.format(dateTemplate,	_calendar.getTime()));
-
+		currentMonth.setText(dateFormatter.format(dateTemplate,	_calendar.getTime()));		
 		nextMonth = (ImageView) this.findViewById(R.id.nextMonth);
 		nextMonth.setOnClickListener(this);
 
 		calendarView = (GridView) this.findViewById(R.id.calendar);
 		currentDayEventsList = (ListView) this.findViewById(R.id.eventsList);
+		
+		
 	}
 
 	private void initCalander() 
