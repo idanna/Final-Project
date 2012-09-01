@@ -24,6 +24,7 @@ import android.widget.Toast;
 import clock.db.Connection;
 import clock.db.DbAdapter;
 import clock.db.Event;
+import clock.db.InvitedEvent;
 
 import com.parse.ParseObject;
 import com.parse.signpost.http.HttpResponse;
@@ -48,6 +49,7 @@ public class ParseHandler extends BroadcastReceiver {
 				String sender = dataParsed[1];
 				if(pushType.equals(CONFIRM))
 				{
+					int confirmEventId = Integer.parseInt(dataParsed[2]);
 					//TODO: for now only notifing
 				} else if (pushType.equals(INVITE))
 				{
@@ -94,6 +96,37 @@ public class ParseHandler extends BroadcastReceiver {
 	    } catch (IOException e) {
 	        // TODO Auto-generated catch block
 	    }
+	}
+
+	public static void confirmEvent(InvitedEvent invitedEvent, String userName) {
+	    HttpClient httpclient = new DefaultHttpClient();
+	    HttpPost httppost = new HttpPost("http://guarded-hamlet-8595.herokuapp.com/main/confirm");
+
+	    try {
+	        // Add your data
+	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+	        nameValuePairs.add(new BasicNameValuePair("usconer_name", userName));
+	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+	        nameValuePairs.add(new BasicNameValuePair("channel", invitedEvent.getChannel()));
+	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+	        nameValuePairs.add(new BasicNameValuePair("id", String.valueOf(invitedEvent.getId())));
+	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));	        
+	        	        
+	        // Execute HTTP Post Request
+	        //TODO: fix response headers.
+	        org.apache.http.HttpResponse response = httpclient.execute(httppost);
+	        for (int i = 0; i < response.getAllHeaders().length; i++) {
+	        	Log.d("HEADERS", response.getAllHeaders()[i].toString());
+			}
+	        
+	    } catch (ClientProtocolException e) {
+	        // TODO Auto-generated catch block
+	    } catch (IOException e) {
+	        // TODO Auto-generated catch block
+	    }
+		
 	}
 
 }

@@ -33,6 +33,7 @@ public class Connection extends SQLiteOpenHelper
 	public static final String COLUMN_WAKEDUP = "wakedup";
 	
 	public static final String COLUMN_INVITER_CHANNEL = "channel";
+	public static final String COLUMN_ORIGINAL_ID = "orig_id";
 
 	// DURATION
 	public static final String COLUMN_ARR_TIME = "arrange_time";
@@ -56,6 +57,7 @@ public class Connection extends SQLiteOpenHelper
     private static final String CREATE_INVITED_EVENT_TABLE = "create table "
     		+ TABLE_INVITED + "("
     		+ COLUMN_ID + " integer primary key autoincrement, "
+    		+ COLUMN_ORIGINAL_ID + " integer, " 
     		+ COLUMN_DATE + " text not null,"
     		+ COLUMN_LOCATION + " text not null,"
     		+ COLUMN_DETAILS + " text,"

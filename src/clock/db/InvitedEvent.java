@@ -9,6 +9,7 @@ public class InvitedEvent extends Event {
 	}
 
 	private String channel;
+	private long originalId;
 	
 	private InvitedEvent() { }
 
@@ -30,6 +31,14 @@ public class InvitedEvent extends Event {
 
 	public void setChannel(String channel) {
 		this.channel = channel;
+	}
+
+	public long getOriginalId() {
+		return originalId;
+	}
+
+	public void setOriginalId(long originalId) {
+		this.originalId = originalId;
 	}
 	
 	

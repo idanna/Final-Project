@@ -109,7 +109,7 @@ public class CalendarView extends Activity implements OnClickListener
 		calendarView.setAdapter(dayOfMonthAdapter);			
 		Parse.initialize(this, "2jo7e9GelT811A2KsuJDJsP6sV7eeDYg2Jskyy4v", "5siGRhsEIOCimLy18zV9dv4ashRfJ9WPit2Y3Dmx"); 
 		PushService.subscribe(this, "", CalendarView.class);
-		PushService.subscribe(this, "idan", CalendarView.class);		
+		PushService.subscribe(this, userName, CalendarView.class);		
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{
 //			
@@ -201,14 +201,20 @@ public class CalendarView extends Activity implements OnClickListener
 			Bundle b = data.getExtras();
 			String eventStr = b.getString("newEvent");
 			Event newEvent = Event.CreateFromString(eventStr);
-			// adding event to eventsPerMonth map
-			dayOfMonthAdapter.addEventToMonth(newEvent);
-			// adding to the view
-			ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) currentDayEventsList.getAdapter();
-			eventsAdapter.add(newEvent);
-			eventsAdapter.notifyDataSetChanged();
-			dayOfMonthAdapter.notifyDataSetChanged();
+			updateUIforNewEvent(newEvent);
 		}
+	}
+	
+	private void updateUIforNewEvent(Event newEvent)
+	{
+		// adding event to eventsPerMonth map
+		dayOfMonthAdapter.addEventToMonth(newEvent);
+		// adding to the view
+		ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) currentDayEventsList.getAdapter();
+		eventsAdapter.add(newEvent);
+		eventsAdapter.notifyDataSetChanged();
+		dayOfMonthAdapter.notifyDataSetChanged();
+		
 	}
 	
 	@Override
@@ -319,6 +325,18 @@ public class CalendarView extends Activity implements OnClickListener
 			builder.setItems(waintingInvatationList, new DialogInterface.OnClickListener() {
 			    public void onClick(DialogInterface dialog, int item) {
 			        Log.d("INVI", waintingInvatationList[item]);
+			        try {
+			        	InvitedEvent confirmedEvent = waintingInvatation[item];
+						alarmsManager.newEvent(confirmedEvent, true);
+						dbAdapter.open();
+						dbAdapter.deleteInvitedEvent(confirmedEvent);
+						dbAdapter.close();
+						updateUIforNewEvent(confirmedEvent);
+				        ParseHandler.confirmEvent(waintingInvatation[item], userName);
+					} catch (Exception e) {
+				        Log.d("INVI", "ERROR");
+						e.printStackTrace();
+					}
 			    }
 			});
 			AlertDialog alert = builder.create();
