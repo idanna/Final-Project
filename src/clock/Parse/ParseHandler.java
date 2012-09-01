@@ -55,9 +55,7 @@ public class ParseHandler extends BroadcastReceiver {
 				{
 					Event invitedEvent = Event.CreateFromString(dataParsed[2]);
 					DbAdapter db = new DbAdapter(context);
-					db.open();
 					db.insertInvitedEvent(invitedEvent, sender);
-					db.close();
 					Log.d(TAG, "received action " + action + " on channel " + channel + " with extras:");
 					Log.d(TAG, "Event is:" + invitedEvent.toString());									
 					
@@ -105,7 +103,7 @@ public class ParseHandler extends BroadcastReceiver {
 	    try {
 	        // Add your data
 	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-	        nameValuePairs.add(new BasicNameValuePair("usconer_name", userName));
+	        nameValuePairs.add(new BasicNameValuePair("user_name", userName));
 	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
 	        nameValuePairs.add(new BasicNameValuePair("channel", invitedEvent.getChannel()));

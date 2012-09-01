@@ -51,9 +51,9 @@ public class AlarmsManager
 		public void UserGotOut(Event event, int arrangmentTime, WeatherModel weatherData)
 		{
 			eCondition enumCondition = conditionToEnum(weatherData.getCondition());
-			db.open();
+//			db.open();
 			db.addRecord(event, arrangmentTime, enumCondition, Integer.parseInt(weatherData.getTemperature()));
-			db.close();
+//			db.close();
 		}
 		
 		private eCondition conditionToEnum(String condition) 
@@ -77,9 +77,9 @@ public class AlarmsManager
 		{
 			eCondition contidion = conditionToEnum(weatherData.getCondition());
 			int tempeture = Integer.parseInt(weatherData.getTemperature());
-			db.open();
+//			db.open();
 			int arrTime = db.getArrangmentTime(event.getDayName(), contidion, tempeture);
-			db.close();
+//			db.close();
 			return arrTime;
 		}
 	}
@@ -138,13 +138,13 @@ public class AlarmsManager
 			throw new OutOfTimeException();
 		}  
 //		checkIfEventsColide(newEvent, timeToGoOut);
-		dbAdapter.open();
+//		dbAdapter.open();
 		latestEvent = dbAdapter.getNextEvent();
 		if(addToDB){
 			dbAdapter.insertEvent(newEvent);	
 		}
 		
-		dbAdapter.close();
+//		dbAdapter.close();
 		if(newEvent.isAfterNow() &&
 						(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
 		{
@@ -230,7 +230,7 @@ public class AlarmsManager
 	 */
 	private void deleteEvent(Event event, boolean alsoFromDB) throws Exception
 	{
-		dbAdapter.open();
+//		dbAdapter.open();
 		latestEvent = dbAdapter.getNextEvent();	
 		if (latestEvent != null && latestEvent.equals(event))
 		{
@@ -253,7 +253,7 @@ public class AlarmsManager
 				}
 				catch (Exception ex) {
 					Log.e("Alarm manager", "Delete event has failed");
-					dbAdapter.close();
+//					dbAdapter.close();
 					throw ex;
 				}
 			}
@@ -265,7 +265,7 @@ public class AlarmsManager
 		if(alsoFromDB){
 			dbAdapter.deleteEvent(event);
 		}
-		dbAdapter.close();
+//		dbAdapter.close();
 	}
 	
 	public void newEvent(Event newEvent, boolean isItemSelectedFromList) throws Exception

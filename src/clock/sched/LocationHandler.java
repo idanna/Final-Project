@@ -70,9 +70,9 @@ public class LocationHandler implements LocationListener
 	{
 		Log.d("LOCATION", "Inside Listener");
 		DbAdapter db = new DbAdapter(current_context);
-		db.open();
+//		db.open();
 		Event nextEvent = db.getNextEvent();
-		db.close();
+//		db.close();
 		if (nextEvent != null)
 		{
 			try
@@ -105,9 +105,9 @@ public class LocationHandler implements LocationListener
 		if (current_context != null)
 		{
 			DbAdapter db = new DbAdapter(current_context);
-			db.open();
+//			db.open();
 			Event nextEvent = db.getNextEvent();
-			db.close();
+//			db.close();
 			if (nextEvent != null)
 			{
 				switch (status) {

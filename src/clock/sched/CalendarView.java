@@ -121,9 +121,7 @@ public class CalendarView extends Activity implements OnClickListener
 	protected void onResume() 
 	{
 		super.onResume();
-		dbAdapter.open();
 		waintingInvatation = dbAdapter.getWaitingInvitation();
-		dbAdapter.close();
 		if(waintingInvatation != null)
 		{
 			waintingInvatationList = new String[waintingInvatation.length];
@@ -328,9 +326,7 @@ public class CalendarView extends Activity implements OnClickListener
 			        try {
 			        	InvitedEvent confirmedEvent = waintingInvatation[item];
 						alarmsManager.newEvent(confirmedEvent, true);
-						dbAdapter.open();
-						dbAdapter.deleteInvitedEvent(confirmedEvent);
-						dbAdapter.close();
+						dbAdapter.deleteEvent(confirmedEvent);
 						updateUIforNewEvent(confirmedEvent);
 				        ParseHandler.confirmEvent(waintingInvatation[item], userName);
 					} catch (Exception e) {
@@ -456,11 +452,9 @@ public class CalendarView extends Activity implements OnClickListener
 								+ (calendar.get(Calendar.MONTH) + 1) + "-"
 								+ calendar.get(Calendar.YEAR);
 			selectedDayMonthYearButton.setText("Selected: " + selectedDateString);
-			// Print Month
-			dbAdapter.open();									
+			// Print Month									
 			//TODO: make it efficient by adding buffer to the prev and next monthes ? 
 			eventsPerMonthMap = dbAdapter.getEventsMapForMonth(month, year);
-			dbAdapter.close();
 			ArrayAdapter<Event> eventsListAdapter = new ArrayAdapter<Event>(context, android.R.layout.simple_list_item_1);
 			if(eventsPerMonthMap.containsKey(String.valueOf(currentDayOfMonth)))
 			{
