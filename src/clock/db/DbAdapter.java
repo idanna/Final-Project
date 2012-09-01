@@ -97,10 +97,8 @@ public class DbAdapter
 	public void deleteEvent(Event event) 
 	{
 		long id = event.getId();
-		database.rawQuery("DELETE FROM EVENTS WHERE " + Connection.COLUMN_ID + " = " + event.getId(), null);
-//		database.delete(Connection.TABLE_EVENTS, Connection.COLUMN_ID
-//				+ " = " + id, null);
-		Log.d("EVENT", "DELETE FROM EVENTS WHERE " + Connection.COLUMN_ID + " = " + event.getId());
+		database.delete(Connection.TABLE_EVENTS, Connection.COLUMN_ID
+				+ " = ?", new String[] { String.valueOf(event.getId()) });
 		Log.d("EVENT", "Event number " + id + ", Name: " + event.toString() + " has been deleted from db");
 	}
 	
@@ -246,6 +244,8 @@ public class DbAdapter
 
 	public Event getOneAfter(String sqlTimeRepresent)
 	{
+		Event oneAfter = getOneBeforeOrAfter(sqlTimeRepresent, false);
+		Log.d("EVENT", "one after is: " + oneAfter.getId());
 		return getOneBeforeOrAfter(sqlTimeRepresent, false);
 	}
 	

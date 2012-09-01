@@ -260,9 +260,10 @@ public class AlarmsManager
 			
 			ClockHandler.cancelEventAlarm(context, event);
 			LocationHandler.cancelLocationListener(context, event);
-			if(alsoFromDB){
-				dbAdapter.deleteEvent(event);
-			}
+		}
+		
+		if(alsoFromDB){
+			dbAdapter.deleteEvent(event);
 		}
 		dbAdapter.close();
 	}

@@ -369,12 +369,12 @@ public class Event
 		return timeLeft;
 	}
 
-	public boolean getNotified() {
-		return userHasBeenNotified;
-	}
-
 	public long getWakedUp() {
 		return userHasBeenWakedUp;
+	}
+
+	public boolean getNotified() {
+		return userHasBeenNotified;
 	}
 
 }
