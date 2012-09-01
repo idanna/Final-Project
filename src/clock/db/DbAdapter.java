@@ -1,13 +1,10 @@
 package clock.db;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import clock.sched.AlarmsManager.eCondition;
 
@@ -16,8 +13,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Address;
-import android.location.Geocoder;
 import android.util.Log;
 
 /**
@@ -179,7 +174,18 @@ public class DbAdapter
 		event.setUserHasBeenWakedUp(cursor.getLong(6));
 		return event;
 	}
-		
+
+	private InvitedEvent cursorToInvitedEvent(Cursor cursor) 
+	{
+		InvitedEvent event = InvitedEvent.createNewInstance();
+		event.setId(cursor.getLong(0));
+		event.setDateFromSql(cursor.getString(1));
+		event.setLocation(cursor.getString(2));
+		event.setDetails(cursor.getString(3));
+		event.setChannel(cursor.getString(4));
+		return event;
+	}
+	
 	/**
 	 * Insert a record to the records table.
 	 * @param event - event to be save - only day name saved for now
@@ -292,13 +298,50 @@ public class DbAdapter
 		
 		return oneBefore;
 	}
-
 	
 	public Event getEventById(int eventId) 
 	{
 		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " + Connection.COLUMN_ID + " = " + eventId, null);
 		cursor.moveToFirst();
 		return cursorToEvent(cursor);
+	}
+
+	public void insertInvitedEvent(Event invitedEvent, String inviterChannel) {
+		ContentValues values = new ContentValues(); 
+		values.put(Connection.COLUMN_DATE, Event.getSqlTimeRepresent(invitedEvent));
+		values.put(Connection.COLUMN_LOCATION, invitedEvent.getLocation());
+		values.put(Connection.COLUMN_DETAILS, invitedEvent.getDetails());
+		values.put(Connection.COLUMN_INVITER_CHANNEL, inviterChannel);
+		
+		database.insert(Connection.TABLE_INVITED, null, values);
+	}
+	
+	/**
+	 * returns the waiting invitation from the table, if none return null
+	 * @return
+	 */
+	public InvitedEvent[] getWaitingInvitation() {
+		InvitedEvent[] retList = null;
+		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_INVITED, null);
+		Cursor inviNumCur = database.rawQuery("SELECT COUNT(*) FROM " + Connection.TABLE_INVITED, null);
+		inviNumCur.moveToFirst();
+		int inviNum = inviNumCur.getInt(0);
+		if(inviNum > 0)
+		{
+			retList = new InvitedEvent[inviNum];
+			cursor.moveToFirst();
+			int i = 0;
+			while (!cursor.isAfterLast())
+			{
+				InvitedEvent invitedEvent = cursorToInvitedEvent(cursor);
+				retList[i] = invitedEvent;
+				cursor.moveToNext();
+				i++;
+			}
+			
+		}
+		
+		return retList;
 	}
 	
 }

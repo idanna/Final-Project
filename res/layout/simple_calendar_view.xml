@@ -3,14 +3,8 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@drawable/bg"
-    android:orientation="vertical" >
-
-    <LinearLayout
-        android:id="@+id/top_menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal" >        <ImageView            android:id="@+id/new_eve_btn"            android:layout_width="wrap_content"            android:layout_height="wrap_content"            android:src="@drawable/plus_btn" />        <Button            android:id="@+id/selected_date"            android:layout_width="258dp"            android:layout_height="wrap_content"            android:background="@drawable/calendar_centralheader"            android:textAppearance="?android:attr/textAppearanceMedium"            android:textColor="#FFFFFF" />
+    android:orientation="vertical" >
+    <LinearLayout        android:id="@+id/top_menu"        android:layout_width="wrap_content"        android:layout_height="wrap_content"        android:gravity="center_vertical"        android:orientation="horizontal" >        <ImageView            android:id="@+id/new_eve_btn"            android:layout_width="wrap_content"            android:layout_height="wrap_content"            android:src="@drawable/plus_btn" />        <Button            android:id="@+id/selected_date"            android:layout_width="wrap_content"            android:layout_height="wrap_content"            android:background="@drawable/calendar_centralheader"            android:textAppearance="?android:attr/textAppearanceMedium"            android:textColor="#FFFFFF" />        <ImageView            android:id="@+id/invitations_list_btn"            android:layout_width="wrap_content"            android:layout_height="wrap_content"            android:src="@drawable/plus_btn" />
         <Space
             android:layout_width="267dp"
             android:layout_height="15dp" />

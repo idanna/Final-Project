@@ -120,8 +120,6 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	location_text.setOnItemClickListener(this);
 	   	details_text = (EditText) this.findViewById(R.id.detailsText);
 	   	dbAdapter= new DbAdapter(this);
-	   	sendBtn = (Button) this.findViewById(R.id.send_btn);
-	   	sendBtn.setOnClickListener(this);
 	   	add_event_btn.setOnClickListener(this);
 	   	set_date_btn.setOnClickListener(this);
 	   	set_time_btn.setOnClickListener(this);
@@ -240,7 +238,7 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   if(v == sendBtn)
 	   {
 		   try {
-			   ParseHandler.sendMsg(details_text.getText().toString());
+			   //ParseHandler.sendMsg(details_text.getText().toString());
 		} catch (Exception e) {
 				e.printStackTrace();
 				Toast.makeText(this, "Error with Parse", Toast.LENGTH_LONG).show();

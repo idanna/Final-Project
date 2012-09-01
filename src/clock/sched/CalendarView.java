@@ -13,18 +13,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.http.impl.conn.tsccm.WaitingThread;
+
+import clock.Parse.ParseHandler;
 import clock.db.DbAdapter;
 import clock.db.Event;
+import clock.db.InvitedEvent;
 
 import clock.sched.R;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -51,7 +59,8 @@ public class CalendarView extends Activity implements OnClickListener
 	private enum eMenuItems {
 		EDIT,
 		DELETE,
-		INFO;
+		INFO,
+		INVITE;
 
 		public static eMenuItems getById(int index) {
 			return values()[index];
@@ -72,6 +81,12 @@ public class CalendarView extends Activity implements OnClickListener
 	private final DateFormat dateFormatter = new DateFormat();
 	private static final String dateTemplate = "MMMM yyyy";	
 	private ListView currentDayEventsList;
+	private DbAdapter dbAdapter;
+	
+	private String userName = "idan";
+	private ImageView inivationBtn;
+	private InvitedEvent[] waintingInvatation;
+	private String[] waintingInvatationList;
 	
 	/** 
 	 * Called when the activity is first created. 
@@ -87,13 +102,14 @@ public class CalendarView extends Activity implements OnClickListener
 		initUI();
 		
 		registerForContextMenu(currentDayEventsList);
-		alarmsManager = new AlarmsManager(this, new DbAdapter(this));
+		dbAdapter = new DbAdapter(this);
+		alarmsManager = new AlarmsManager(this, dbAdapter);
 		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
 		dayOfMonthAdapter.notifyDataSetChanged();
 		calendarView.setAdapter(dayOfMonthAdapter);			
 		Parse.initialize(this, "2jo7e9GelT811A2KsuJDJsP6sV7eeDYg2Jskyy4v", "5siGRhsEIOCimLy18zV9dv4ashRfJ9WPit2Y3Dmx"); 
 		PushService.subscribe(this, "", CalendarView.class);
-		
+		PushService.subscribe(this, "idan", CalendarView.class);		
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{
 //			
@@ -101,6 +117,30 @@ public class CalendarView extends Activity implements OnClickListener
 		
 	}
 	
+	@Override
+	protected void onResume() 
+	{
+		super.onResume();
+		dbAdapter.open();
+		waintingInvatation = dbAdapter.getWaitingInvitation();
+		dbAdapter.close();
+		if(waintingInvatation != null)
+		{
+			waintingInvatationList = new String[waintingInvatation.length];
+			for (int i = 0; i < waintingInvatation.length; i++) {
+				waintingInvatationList[i] = waintingInvatation[i].toString();
+			}
+
+			inivationBtn.setActivated(true);
+			Toast.makeText(this, "Waiting Invitation", Toast.LENGTH_LONG).show();
+		}
+		else
+		{
+			inivationBtn.setActivated(false);			
+		}		
+
+	}
+
 	/**
 	 * Saves all UI object to data members for later refernce.
 	 */
@@ -123,7 +163,10 @@ public class CalendarView extends Activity implements OnClickListener
 
 		calendarView = (GridView) this.findViewById(R.id.calendar);
 		currentDayEventsList = (ListView) this.findViewById(R.id.eventsList);
-		
+
+		inivationBtn = (ImageView) this.findViewById(R.id.invitations_list_btn);
+		inivationBtn.setOnClickListener(this);
+
 		
 	}
 
@@ -191,7 +234,7 @@ public class CalendarView extends Activity implements OnClickListener
 		  AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
 		  int menuItemIndex = item.getItemId();
 		  eMenuItems menuItemName = eMenuItems.getById(menuItemIndex);
-		  Event pressedEvent = (Event) currentDayEventsList.getAdapter().getItem(info.position);
+		  final Event pressedEvent = (Event) currentDayEventsList.getAdapter().getItem(info.position);
 
 		  switch (menuItemName) {
 			case DELETE:
@@ -208,6 +251,26 @@ public class CalendarView extends Activity implements OnClickListener
 				break;
 			case INFO:
 				changeToEventInfo("event", pressedEvent.encodeToString());
+				break;
+			case INVITE:
+				final Dialog dialog = new Dialog(this);
+
+				dialog.setContentView(R.layout.invite_dialog);
+				dialog.setTitle("Enter Phone Number:");
+				final TextView text = (TextView) dialog.findViewById(R.id.invited_phone);
+				Button okBtn = (Button) dialog.findViewById(R.id.invitation_OK);
+				okBtn.setOnClickListener(new OnClickListener() {					
+					@Override
+					public void onClick(View arg0) {
+						String phoneNumber = text.getText().toString();
+						ParseHandler.sendMsg(pressedEvent, userName, phoneNumber);
+						dialog.dismiss();
+					}
+				});
+				
+				text.setText("Enter name:");
+				dialog.show();
+				break;
 			default:
 				Toast.makeText(this, "Error with menu", Toast.LENGTH_LONG).show();
 			}
@@ -248,7 +311,25 @@ public class CalendarView extends Activity implements OnClickListener
 		{
 			changeToEventView();
 		}
+		if (v == inivationBtn)
+		{
+			showInvitedEventDialog();
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Click to Approve");
+			builder.setItems(waintingInvatationList, new DialogInterface.OnClickListener() {
+			    public void onClick(DialogInterface dialog, int item) {
+			        Log.d("INVI", waintingInvatationList[item]);
+			    }
+			});
+			AlertDialog alert = builder.create();
+			alert.show();
+		}
 
+	}
+
+	private void showInvitedEventDialog() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**

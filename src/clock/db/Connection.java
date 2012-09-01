@@ -21,6 +21,7 @@ public class Connection extends SQLiteOpenHelper
 {
 	public static final String TABLE_EVENTS = "events";
 	public static final String TABLE_RECORDS = "records";
+	public static final String TABLE_INVITED = "invited";
 
 	// events attr
 	public static final String COLUMN_ID = "id";
@@ -30,6 +31,8 @@ public class Connection extends SQLiteOpenHelper
 	public static final String COLUMN_ALARM = "alarm";
 	public static final String COLUMN_NOTIFIED = "notified";
 	public static final String COLUMN_WAKEDUP = "wakedup";
+	
+	public static final String COLUMN_INVITER_CHANNEL = "channel";
 
 	// DURATION
 	public static final String COLUMN_ARR_TIME = "arrange_time";
@@ -50,12 +53,20 @@ public class Connection extends SQLiteOpenHelper
     		+ COLUMN_NOTIFIED + " integer," 
     		+ COLUMN_WAKEDUP + " integer);";
     
+    private static final String CREATE_INVITED_EVENT_TABLE = "create table "
+    		+ TABLE_INVITED + "("
+    		+ COLUMN_ID + " integer primary key autoincrement, "
+    		+ COLUMN_DATE + " text not null,"
+    		+ COLUMN_LOCATION + " text not null,"
+    		+ COLUMN_DETAILS + " text,"
+    		+ COLUMN_INVITER_CHANNEL + " text);";
+    
     private static final String CREATE_RECORDS_TABLE = "create table " 
 			+ TABLE_RECORDS + " ( " + COLUMN_ARR_TIME + " integer, " 
 			+ COLUMN_DAY_OF_WEEK + " text, "
 			+ COLUMN_WEATHER + " text, "
 			+ COLUMN_TEMPETURE + " integer);";
-
+    
 //    private final Context myContext;	
     /**
      * Constructor
@@ -72,6 +83,7 @@ public class Connection extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase database) {		
 		database.execSQL(CREATE_EVENT_TABLE);
 		database.execSQL(CREATE_RECORDS_TABLE);
+		database.execSQL(CREATE_INVITED_EVENT_TABLE);
 	}
 
 	@Override
@@ -81,6 +93,7 @@ public class Connection extends SQLiteOpenHelper
 				+ newVersion + ", which will destroy all old data");
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORDS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_INVITED);
 		onCreate(db);
 	}
 	

@@ -19,42 +19,53 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
+
+import clock.db.Connection;
+import clock.db.DbAdapter;
+import clock.db.Event;
 
 import com.parse.ParseObject;
 import com.parse.signpost.http.HttpResponse;
 
 public class ParseHandler extends BroadcastReceiver {
 	
-	  private static final String TAG = "ParseHandler";
+	public final static String CONFIRM = "confirm";
+	public final static String INVITE = "invitation";
+	
+	private static final String TAG = "ParseHandler";
 
 	  @Override
-	  public void onReceive(Context context, Intent intent) {
-	    try {
-	      String action = intent.getAction();
-	      String channel = intent.getExtras().getString("com.parse.Channel");
-	      JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
-
-	      Log.d(TAG, "received action " + action + " on channel " + channel + " with extras:");
-	      Iterator itr = json.keys();
-	      while (itr.hasNext()) {
-	        String key = (String) itr.next();
-	        Log.d(TAG, "..." + key + " => " + json.getString(key));
-	      }
-	    } catch (JSONException e) {
-	      Log.d(TAG, "JSONException: " + e.getMessage());
-	    }
+	  public void onReceive(Context context, Intent intent) 
+	  {
+		  try {			  				
+				String action = intent.getAction();
+				String channel = intent.getExtras().getString("com.parse.Channel");
+				JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
+				String data = json.get("data").toString();
+				String[] dataParsed = data.split("@S@");
+				String pushType = dataParsed[0];
+				String sender = dataParsed[1];
+				if(pushType.equals(CONFIRM))
+				{
+					//TODO: for now only notifing
+				} else if (pushType.equals(INVITE))
+				{
+					Event invitedEvent = Event.CreateFromString(dataParsed[2]);
+					DbAdapter db = new DbAdapter(context);
+					db.open();
+					db.insertInvitedEvent(invitedEvent, sender);
+					db.close();
+					Log.d(TAG, "received action " + action + " on channel " + channel + " with extras:");
+					Log.d(TAG, "Event is:" + invitedEvent.toString());									
+					
+				}
+		  } catch (JSONException e) {
+					Log.d(TAG, "ParseOnRecieve: " + e.getMessage());	
+				}
 	  }
 
-	public static void sendMsg(String string) {
-		
-		postData(string);
-		
-		ParseObject testObject = new ParseObject("TestObject");
-		testObject.put("details", string);
-		testObject.saveInBackground();		
-	}
-	
-	private static void postData(String string) {
+	public static void sendMsg(Event invitedEvent, String userName, String channel) {
 	    // Create a new HttpClient and Post Header
 	    HttpClient httpclient = new DefaultHttpClient();
 	    HttpPost httppost = new HttpPost("http://guarded-hamlet-8595.herokuapp.com/main/push");
@@ -62,9 +73,15 @@ public class ParseHandler extends BroadcastReceiver {
 	    try {
 	        // Add your data
 	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-	        nameValuePairs.add(new BasicNameValuePair("msg", string));
+	        nameValuePairs.add(new BasicNameValuePair("msg", userName + " invites you !"));
 	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
+	        nameValuePairs.add(new BasicNameValuePair("channel", channel));
+	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+	        nameValuePairs.add(new BasicNameValuePair("event", INVITE + "@S@" + userName + "@S@" + invitedEvent.encodeToString()));
+	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));	        
+	        	        
 	        // Execute HTTP Post Request
 	        //TODO: fix response headers.
 	        org.apache.http.HttpResponse response = httpclient.execute(httppost);
