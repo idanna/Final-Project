@@ -7,8 +7,12 @@
      <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>	
      <uses-permission android:name="android.permission.ACCESS_LOCATION" />
      <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> 
-     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>     
-     <uses-permission android:name="android.permission.INTERNET" /> 
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" /> 
+     
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+     
       
    	 <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".CalendarView"
@@ -21,7 +25,22 @@
         <activity android:name="clock.sched.EventView"></activity>
         <activity android:name="clock.sched.EventInfo"></activity>
 		<receiver  android:process=":remote" android:name=".ClockHandler"></receiver>
-	
+		
+		<service android:name="com.parse.PushService" />
+			
+		<receiver android:name="com.parse.ParseBroadcastReceiver">
+		  <intent-filter>
+		    <action android:name="android.intent.action.BOOT_COMPLETED" />
+		    <action android:name="android.intent.action.USER_PRESENT" />
+		  </intent-filter>
+		</receiver>
+		
+		<receiver android:name="clock.Parse.ParseHandler">
+		  <intent-filter>
+		    <action android:name="clock.Parse.ParseHandler" />
+		  </intent-filter>
+		</receiver>				
+		
     </application>
 
 

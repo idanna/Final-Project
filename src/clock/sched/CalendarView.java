@@ -83,7 +83,7 @@ public class CalendarView extends Activity implements OnClickListener
 	private ListView currentDayEventsList;
 	private DbAdapter dbAdapter;
 	
-	private String userName = "idan";
+	private String userName = "ron";
 	private ImageView inivationBtn;
 	private InvitedEvent[] waintingInvatation;
 	private String[] waintingInvatationList;
@@ -109,7 +109,7 @@ public class CalendarView extends Activity implements OnClickListener
 		calendarView.setAdapter(dayOfMonthAdapter);			
 		Parse.initialize(this, "2jo7e9GelT811A2KsuJDJsP6sV7eeDYg2Jskyy4v", "5siGRhsEIOCimLy18zV9dv4ashRfJ9WPit2Y3Dmx"); 
 		PushService.subscribe(this, "", CalendarView.class);
-		PushService.subscribe(this, "idan", CalendarView.class);		
+		PushService.subscribe(this, "ron", CalendarView.class);		
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{
 //			
@@ -121,9 +121,9 @@ public class CalendarView extends Activity implements OnClickListener
 	protected void onResume() 
 	{
 		super.onResume();
-		dbAdapter.open();
+//		dbAdapter.open();
 		waintingInvatation = dbAdapter.getWaitingInvitation();
-		dbAdapter.close();
+//		dbAdapter.close();
 		if(waintingInvatation != null)
 		{
 			waintingInvatationList = new String[waintingInvatation.length];
@@ -439,10 +439,10 @@ public class CalendarView extends Activity implements OnClickListener
 								+ calendar.get(Calendar.YEAR);
 			selectedDayMonthYearButton.setText("Selected: " + selectedDateString);
 			// Print Month
-			dbAdapter.open();									
+//			dbAdapter.open();									
 			//TODO: make it efficient by adding buffer to the prev and next monthes ? 
 			eventsPerMonthMap = dbAdapter.getEventsMapForMonth(month, year);
-			dbAdapter.close();
+//			dbAdapter.close();
 			ArrayAdapter<Event> eventsListAdapter = new ArrayAdapter<Event>(context, android.R.layout.simple_list_item_1);
 			if(eventsPerMonthMap.containsKey(String.valueOf(currentDayOfMonth)))
 			{

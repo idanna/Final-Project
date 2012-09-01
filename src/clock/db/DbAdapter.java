@@ -44,20 +44,26 @@ public class DbAdapter
 	 * Must be called before any other function.
 	 * @throws SQLException
 	 */
-	public void open() throws SQLException 
+	private void open() throws SQLException 
 	{
 //		database = connection.openDataBase();
-		database = connection.getWritableDatabase();
+		if (database == null || !database.isOpen())
+		{
+			database = connection.getWritableDatabase();
+		}
 	}
 
 	/**
 	 * Close the db connection.
 	 * Must be called after work.
 	 */
-	public void close() 
+	private void close() 
 	{
-		database.close();
-		connection.close();
+		if (database != null && database.isOpen())
+		{
+			database.close();
+			connection.close();
+		}
 	}
 
 	/**
@@ -75,6 +81,7 @@ public class DbAdapter
 		values.put(Connection.COLUMN_ALARM, event.getWithAlarmStatus() == false? 0 : 1);
 		values.put(Connection.COLUMN_NOTIFIED, event.isUserHasBeenNotified() == false? 0 : 1);
 		values.put(Connection.COLUMN_WAKEDUP, event.getUserHasBeenWakedUp());
+		this.open();
 		long insertId = database.insert(Connection.TABLE_EVENTS, null, values);
 		Cursor cursor = database.query(Connection.TABLE_EVENTS, allColumns, Connection.COLUMN_ID + " = " + insertId, null,
 										null, null, null);
@@ -82,6 +89,7 @@ public class DbAdapter
 		cursor.moveToFirst();
 		Event newEvent = cursorToEvent(cursor);
 		cursor.close();
+		this.close();
 		return newEvent;
 	}
 
@@ -92,8 +100,10 @@ public class DbAdapter
 	public void deleteEvent(Event event) 
 	{
 		long id = event.getId();
+		this.open();
 		database.delete(Connection.TABLE_EVENTS, Connection.COLUMN_ID
 				+ " = ?", new String[] { String.valueOf(event.getId()) });
+		this.close();
 		Log.d("EVENT", "Event number " + id + ", Name: " + event.toString() + " has been deleted from db");
 	}
 	
@@ -109,6 +119,7 @@ public class DbAdapter
 		HashMap<String, List<Event>> eventsMap = new HashMap<String, List<Event>>(31);
 		String yearMonth = String.valueOf(year) + "-";
 		yearMonth += month < 10 ? "0" + month : month;
+		this.open();
 		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
 				"date <= '" + yearMonth + "-31 23-59-59'" + " AND " +
 				"date >= '" + yearMonth + "-00 00-00-00'", null); 
@@ -128,7 +139,7 @@ public class DbAdapter
 			dayList.add(event);
 			cursor.moveToNext();
 		}
-		
+		this.close();
 		return eventsMap;
 	}
 	
@@ -143,6 +154,7 @@ public class DbAdapter
         String currentTime = sdf.format(new Date());
         String query = "SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " + 
         		"date > '" + currentTime + "' order by date limit 1";
+        this.open();
 		Cursor cursor = database.rawQuery(query , null);
 		Log.d("SQL", "NEXT EVENT SQL"  + query);
 		
@@ -152,7 +164,7 @@ public class DbAdapter
 			cursor.moveToFirst();
 			retEvent = cursorToEvent(cursor);
 		}
-		
+		this.close();
 		Log.d("DB", "Next event Id: " + (retEvent == null ? "NONE" : retEvent.getId()));
 		return retEvent;
 	}	
@@ -201,7 +213,9 @@ public class DbAdapter
 		values.put(Connection.COLUMN_DAY_OF_WEEK, event.getDayName());
 		values.put(Connection.COLUMN_WEATHER, enumCondition.toString());
 		values.put(Connection.COLUMN_TEMPETURE, String.valueOf(tempeture));
+		this.open();
 		long insertId = database.insert(Connection.TABLE_RECORDS, null, values);
+		this.close();
 		return insertId;
 	}
 	
@@ -223,6 +237,7 @@ public class DbAdapter
 				" AND " + Connection.COLUMN_TEMPETURE + "<" + (tempeture + 5) + 
 				" GROUP BY " + Connection.COLUMN_WEATHER + ", " + Connection.COLUMN_TEMPETURE;
 		Log.d("ARRANGE", query);
+		this.open();
 		Cursor cursor = database.rawQuery(query, null);
 	
 		cursor.moveToFirst();
@@ -239,7 +254,7 @@ public class DbAdapter
 			cursor.moveToFirst();
 			arrangeTime = cursor.getInt(0);
 		}
-		
+		this.close();
 		return arrangeTime;
 	}
 
@@ -268,8 +283,10 @@ public class DbAdapter
 		valuesMap.put(Connection.COLUMN_ALARM, event.getWithAlarmStatus() == true ? 1 : 0);
 		valuesMap.put(Connection.COLUMN_NOTIFIED, event.getNotified() == true ? 1 : 0);
 		valuesMap.put(Connection.COLUMN_WAKEDUP, event.getWakedUp());
-
+		
+		this.open();
 		database.updateWithOnConflict(Connection.TABLE_EVENTS, valuesMap, Connection.COLUMN_ID + " = ?", new String[] { String.valueOf(event.getId()) }, SQLiteDatabase.CONFLICT_REPLACE);
+		this.close();
 	}
 		
 	private Event getOneBeforeOrAfter(String sqlTimeRepresent, boolean isOneBefore) 
@@ -289,20 +306,23 @@ public class DbAdapter
 						" WHERE " + Connection.COLUMN_DATE + compareSign + sqlTimeRepresent +
 						" ORDER BY " + Connection.COLUMN_DATE + " " + order + " LIMIT 1";
 		Log.d("SQL", query);
+		this.open();
 		Cursor cursor = database.rawQuery(query, null);
 		Event oneBefore = null;
 		if(!cursor.isAfterLast())
 		{
 			oneBefore = cursorToEvent(cursor);
 		}
-		
+		this.close();
 		return oneBefore;
 	}
 	
 	public Event getEventById(int eventId) 
 	{
+		this.open();
 		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " + Connection.COLUMN_ID + " = " + eventId, null);
 		cursor.moveToFirst();
+		this.close();
 		return cursorToEvent(cursor);
 	}
 
@@ -312,8 +332,9 @@ public class DbAdapter
 		values.put(Connection.COLUMN_LOCATION, invitedEvent.getLocation());
 		values.put(Connection.COLUMN_DETAILS, invitedEvent.getDetails());
 		values.put(Connection.COLUMN_INVITER_CHANNEL, inviterChannel);
-		
+		this.open();
 		database.insert(Connection.TABLE_INVITED, null, values);
+		this.close();
 	}
 	
 	/**
@@ -322,6 +343,7 @@ public class DbAdapter
 	 */
 	public InvitedEvent[] getWaitingInvitation() {
 		InvitedEvent[] retList = null;
+		this.open();
 		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_INVITED, null);
 		Cursor inviNumCur = database.rawQuery("SELECT COUNT(*) FROM " + Connection.TABLE_INVITED, null);
 		inviNumCur.moveToFirst();
@@ -340,7 +362,7 @@ public class DbAdapter
 			}
 			
 		}
-		
+		this.close();
 		return retList;
 	}
 	

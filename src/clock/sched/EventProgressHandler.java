@@ -213,9 +213,9 @@ public class EventProgressHandler{
 		event.setUserHasBeenNotified(userHasBeenNotified);
 		event.setUserHasBeenWakedUp(userHasBeenWakedUp);
 		DbAdapter dbAdapter = new DbAdapter(context);
-		dbAdapter.open();
+//		dbAdapter.open();
 		dbAdapter.updateEvent(event);
-		dbAdapter.close();
+//		dbAdapter.close();
 	}
 
 

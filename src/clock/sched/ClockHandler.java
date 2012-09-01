@@ -12,6 +12,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioRecord.OnRecordPositionUpdateListener;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -26,10 +27,10 @@ public class ClockHandler extends BroadcastReceiver
 	}	
 	
 	/**
-	 * Setting an alarm to the event time - extra Time (in minutes);
+	 *
 	 * @param context
 	 * @param event The event to schedule
-	 * @param extraTime Extra secnods to substract from the event actual time. 
+	 * @param extraTime Extra milliseconds to subtract from the event actual time. 
 	 * @param setAfterEvent - if true, then the next alarm will be set to 1 min after the event -
 	 * should be used after the time to the event is after TIMES_UP.
 	 */
@@ -95,9 +96,9 @@ public class ClockHandler extends BroadcastReceiver
 	{
 		Log.d("ALARM", "Inside OnReceive:");
 		DbAdapter db = new DbAdapter(context);
-		db.open();
+//		db.open();
 		Event nextEvent = db.getNextEvent();
-		db.close();
+//		db.close();
 		if (nextEvent != null)
 		{
 			long timesLeftToEvent = nextEvent.getTimesLeftToEvent();
@@ -115,8 +116,8 @@ public class ClockHandler extends BroadcastReceiver
 				// User interaction if needed
 				EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
 				
-				// If the event time to go out has not passed yet
 				Log.d("ALARM", String.valueOf(timesLeftToGoOut));
+				// If the event time to go out has not passed yet
 				if (timesLeftToGoOut - arrangeTime > TIMES_UP){
 					setAlarm(context, nextEvent, (int)(travelTime + arrangeTime));
 				}

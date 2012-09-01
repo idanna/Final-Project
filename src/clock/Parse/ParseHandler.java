@@ -53,9 +53,9 @@ public class ParseHandler extends BroadcastReceiver {
 				{
 					Event invitedEvent = Event.CreateFromString(dataParsed[2]);
 					DbAdapter db = new DbAdapter(context);
-					db.open();
+//					db.open();
 					db.insertInvitedEvent(invitedEvent, sender);
-					db.close();
+//					db.close();
 					Log.d(TAG, "received action " + action + " on channel " + channel + " with extras:");
 					Log.d(TAG, "Event is:" + invitedEvent.toString());									
 					
