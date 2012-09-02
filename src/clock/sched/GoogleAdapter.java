@@ -119,7 +119,14 @@ public class GoogleAdapter {
 	
 	public static WeatherModel getWeatherModel(String location) throws Exception
 	{
-		return gWeatherHandler.processWeatherRequest(location);
+		WeatherModel weatherModel = gWeatherHandler.processWeatherRequest(location);
+		weatherModel.setCondition(weatherModel.getCondition() == null? "Clear" : weatherModel.getCondition());
+		weatherModel.setHumidity(weatherModel.getHumidity() == null? "70" : weatherModel.getHumidity());
+		weatherModel.setTemperature(weatherModel.getTemperature() == null? "28": weatherModel.getTemperature());
+		weatherModel.setWind(weatherModel.getWind() == null? "N" : weatherModel.getWind());
+		weatherModel.setForecast(weatherModel.getForecast() == null? new ArrayList<WeatherModel>() : weatherModel.getForecast());
+		
+		return weatherModel;
 	}
 
 	public static TrafficData getDummyTrafficData() {
