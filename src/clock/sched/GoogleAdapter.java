@@ -14,6 +14,7 @@ import clock.outsources.GoogleTrafficHandler;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 import clock.outsources.GoogleWeatherHandler;
 import clock.outsources.dependencies.WeatherModel;
+import clock.outsources.dependencies.WindDirection;
 
 public class GoogleAdapter {
 	
@@ -119,12 +120,20 @@ public class GoogleAdapter {
 	
 	public static WeatherModel getWeatherModel(String location) throws Exception
 	{
-		WeatherModel weatherModel = gWeatherHandler.processWeatherRequest(location);
-		weatherModel.setCondition(weatherModel.getCondition() == null? "Clear" : weatherModel.getCondition());
-		weatherModel.setHumidity(weatherModel.getHumidity() == null? "70" : weatherModel.getHumidity());
-		weatherModel.setTemperature(weatherModel.getTemperature() == null? "28": weatherModel.getTemperature());
-		weatherModel.setWind(weatherModel.getWind() == null? "N" : weatherModel.getWind());
-		weatherModel.setForecast(weatherModel.getForecast() == null? new ArrayList<WeatherModel>() : weatherModel.getForecast());
+		WeatherModel weatherModel;
+		try
+		{
+			weatherModel = gWeatherHandler.processWeatherRequest(location);
+		}
+		catch(Exception e)
+		{
+			weatherModel = new WeatherModel();
+			weatherModel.setCondition("Clear");
+			weatherModel.setHumidity("70");
+			weatherModel.setTemperature("28");
+			weatherModel.setWind(WindDirection.NORTH);
+			weatherModel.setForecast(new ArrayList<WeatherModel>());
+		}
 		
 		return weatherModel;
 	}

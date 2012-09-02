@@ -113,16 +113,16 @@ public class EventInfo extends Activity{
 	private void setWeatherInfo(Event event) throws Exception {
 		WeatherModel weatherModel = GoogleAdapter.getWeatherModel(event.getLocation());
 		conditionTextView.setText("Condition - " 
-				+ weatherModel.getCondition() == null?  NO_INFO : weatherModel.getCondition());
+				+ (weatherModel.getCondition() == null?  NO_INFO : weatherModel.getCondition()));
 		
 		temperatureTextView.setText("Temperature - " 
-				+ weatherModel.getTemperature() == null?  NO_INFO : weatherModel.getTemperature());
+				+ (weatherModel.getTemperature() == null?  NO_INFO : weatherModel.getTemperature()));
 		
 		humidityTextView.setText("Humidity - " 
-				+ weatherModel.getHumidity()  == null?  NO_INFO : weatherModel.getHumidity() + "%");
+				+ (weatherModel.getHumidity()  == null?  NO_INFO : weatherModel.getHumidity() + "%"));
 		
 		windTextView.setText("Wind Direction - " 
-				+ weatherModel.getWind() == null?  NO_INFO : weatherModel.getWind());
+				+ (weatherModel.getWind() == null?  NO_INFO : weatherModel.getWind()));
 	}
 
 	private void setTrafficInfo(Event event) throws Exception {
