@@ -24,7 +24,6 @@ public class Event
 	}
 	
 	private long id;
-	//TODO: should be all changed to string
 	private int day;
 	private int month;
 	private int year;
@@ -304,6 +303,7 @@ public class Event
 	}
 	
 	/*
+	 * Internal - 
 	 * Return string of of two digits representing the num given
 	 * Exmp: input: 1 => "01" input 24 => "24"
 	 */

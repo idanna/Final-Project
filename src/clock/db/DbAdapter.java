@@ -23,7 +23,6 @@ import android.util.Log;
  */
 public class DbAdapter 
 {
-	// Database fields
 	private SQLiteDatabase database;
 	private Connection connection;
 	private String[] allColumns = { Connection.COLUMN_ID,
@@ -46,7 +45,6 @@ public class DbAdapter
 	 */
 	private void open() throws SQLException 
 	{
-//		database = connection.openDataBase();
 		if (database == null || !database.isOpen())
 		{
 			database = connection.getWritableDatabase();
@@ -123,8 +121,6 @@ public class DbAdapter
 		Cursor cursor = database.rawQuery("SELECT * FROM " + Connection.TABLE_EVENTS + " WHERE " +
 				"date <= '" + yearMonth + "-31 23-59-59'" + " AND " +
 				"date >= '" + yearMonth + "-00 00-00-00'", null); 
-				//database.query(Connection.TABLE_EVENTS, allColumns, Connection.COLUMN_MONTH + "=" + month, 
-				//null, null, null, null);
 	
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) 

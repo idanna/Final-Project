@@ -20,11 +20,11 @@ public class GoogleWeatherHandler
         // next line may throw "UnsupportedEncodingException" exception 
         testArgs[0] = URLEncoder.encode(this.location, "UTF-8");
                 
-        // initilize weather object
+        // initialize weather object
         this.weatherRead = new GoogleWeatherReader(testArgs[0]);
         
-        // make connection to internet, and get weather 
-	this.weatherRead.process();
+        // make connection to Internet, and get weather 
+        this.weatherRead.process();
 
         // no exceptions were thrown, all is good return 0
         return this.weatherRead.getWeatherModel();        

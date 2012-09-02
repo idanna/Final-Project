@@ -23,7 +23,6 @@ public class Connection extends SQLiteOpenHelper
 	public static final String TABLE_RECORDS = "records";
 	public static final String TABLE_INVITED = "invited";
 
-	// events attr
 	public static final String COLUMN_ID = "id";
 	public static final String COLUMN_DATE = "date";
 	public static final String COLUMN_LOCATION = "location";
@@ -35,7 +34,6 @@ public class Connection extends SQLiteOpenHelper
 	public static final String COLUMN_INVITER_CHANNEL = "channel";
 	public static final String COLUMN_ORIGINAL_ID = "orig_id";
 
-	// DURATION
 	public static final String COLUMN_ARR_TIME = "arrange_time";
 	public static final String COLUMN_WEATHER = "weather";
 	public static final String COLUMN_TEMPETURE = "tempeture";
@@ -69,7 +67,6 @@ public class Connection extends SQLiteOpenHelper
 			+ COLUMN_WEATHER + " text, "
 			+ COLUMN_TEMPETURE + " integer);";
     
-//    private final Context myContext;	
     /**
      * Constructor
      * Takes and keeps a reference of the passed context in order to access to the application assets and resources.
