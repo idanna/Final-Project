@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -109,7 +110,10 @@ public class CalendarView extends Activity implements OnClickListener
 		calendarView.setAdapter(dayOfMonthAdapter);			
 		Parse.initialize(this, "2jo7e9GelT811A2KsuJDJsP6sV7eeDYg2Jskyy4v", "5siGRhsEIOCimLy18zV9dv4ashRfJ9WPit2Y3Dmx"); 
 		PushService.subscribe(this, "", CalendarView.class);
-		PushService.subscribe(this, userName, CalendarView.class);		
+		PushService.subscribe(this, userName, CalendarView.class);
+		ParseObject testObject = new ParseObject("TestObject");
+		testObject.put("foo", "bar");
+		testObject.saveInBackground();
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{
 //			
@@ -326,7 +330,7 @@ public class CalendarView extends Activity implements OnClickListener
 			        try {
 			        	InvitedEvent confirmedEvent = waintingInvatation[item];
 						alarmsManager.newEvent(confirmedEvent, true);
-						dbAdapter.deleteEvent(confirmedEvent);
+						dbAdapter.deleteInvitedEvent(confirmedEvent);
 						updateUIforNewEvent(confirmedEvent);
 				        ParseHandler.confirmEvent(waintingInvatation[item], userName);
 					} catch (Exception e) {

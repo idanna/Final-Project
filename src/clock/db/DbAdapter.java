@@ -191,10 +191,11 @@ public class DbAdapter
 	{
 		InvitedEvent event = InvitedEvent.createNewInstance();
 		event.setId(cursor.getLong(0));
-		event.setDateFromSql(cursor.getString(1));
-		event.setLocation(cursor.getString(2));
-		event.setDetails(cursor.getString(3));
-		event.setChannel(cursor.getString(4));
+		event.setOriginalId(cursor.getLong(1));
+		event.setDateFromSql(cursor.getString(2));
+		event.setLocation(cursor.getString(3));
+		event.setDetails(cursor.getString(4));
+		event.setChannel(cursor.getString(5));
 		return event;
 	}
 	
@@ -364,5 +365,12 @@ public class DbAdapter
 		}
 		this.close();
 		return retList;
-	}	
+	}
+
+	public void deleteInvitedEvent(InvitedEvent confirmedEvent) { 
+		this.open();
+		database.delete(Connection.TABLE_INVITED, Connection.COLUMN_ID + "=" + confirmedEvent.getId(), null);			  	
+		 Log.d("EVENT", "Invited Event number " + confirmedEvent.getId() + ": " + confirmedEvent.toString() + " has been deleted from db");
+		this.close();
+	 }	
 }

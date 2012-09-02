@@ -375,13 +375,14 @@ public class Event
 	 * @param f - travelling duration to place in seconds.
 	 * @return time to the event in milli minus duration. (in seconds)
 	 */
-	public int timeFromNow(float duration) 
+	public long timeFromNow(float duration) 
 	{
 		Calendar c = this.toCalendar();
 		Calendar currentTime = Calendar.getInstance();
 		c.add(Calendar.MILLISECOND, -((int)duration));
 		Log.d("EVENT", c.getTime() + " - " + currentTime.getTime());
-		int timeLeft = (int)(c.getTimeInMillis() - currentTime.getTimeInMillis());
+		Log.d("EVENT", c.getTimeInMillis() + " - " + currentTime.getTimeInMillis());
+		long timeLeft = c.getTimeInMillis() - currentTime.getTimeInMillis();
 		Log.d("EVENT", String.valueOf(timeLeft));
 		return timeLeft;
 	}

@@ -1,6 +1,6 @@
 package clock.db;
 
-import java.io.FileOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -42,7 +42,7 @@ public class Connection extends SQLiteOpenHelper
 	public static final String COLUMN_DAY_OF_WEEK = "day";
 	
 	private static final String DATABASE_NAME = "smart_clock.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 
     private static final String CREATE_EVENT_TABLE = "create table "
     		+ TABLE_EVENTS + "("

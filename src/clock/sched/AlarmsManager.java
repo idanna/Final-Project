@@ -133,7 +133,7 @@ public class AlarmsManager
 		
 		int arrageTime = getArrangmentTime(newEvent);
 		Log.d("ALARM", "Arrange time in mili is: " + arrageTime);
-		int timeToGoOut = newEvent.timeFromNow(durationTime + arrageTime);
+		long timeToGoOut = newEvent.timeFromNow(durationTime + arrageTime);
 		if(newEvent.isAfterNow() && timeToGoOut < 0) { // its not possible to get there ! 
 			throw new OutOfTimeException();
 		}  
