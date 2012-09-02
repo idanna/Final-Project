@@ -331,8 +331,13 @@ public class CalendarView extends Activity implements OnClickListener
 			        	InvitedEvent confirmedEvent = waintingInvatation[item];
 						alarmsManager.newEvent(confirmedEvent, true);
 						dbAdapter.deleteInvitedEvent(confirmedEvent);
-						updateUIforNewEvent(confirmedEvent);
+						Calendar c = Calendar.getInstance();
 				        ParseHandler.confirmEvent(waintingInvatation[item], userName);
+						int month = c.get(Calendar.MONTH);
+						int year = c.get(Calendar.YEAR);
+						if (month == confirmedEvent.getMonth() && year == confirmedEvent.getYear()) {
+							updateUIforNewEvent(confirmedEvent);
+						}						
 					} catch (Exception e) {
 				        Log.d("INVI", "ERROR");
 						e.printStackTrace();
