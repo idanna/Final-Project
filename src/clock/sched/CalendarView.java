@@ -1,6 +1,7 @@
 package clock.sched;
 import com.parse.Parse;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.PushService;
 
 import java.text.ParseException;
@@ -111,9 +112,7 @@ public class CalendarView extends Activity implements OnClickListener
 		Parse.initialize(this, "2jo7e9GelT811A2KsuJDJsP6sV7eeDYg2Jskyy4v", "5siGRhsEIOCimLy18zV9dv4ashRfJ9WPit2Y3Dmx"); 
 		PushService.subscribe(this, "", CalendarView.class);
 		PushService.subscribe(this, userName, CalendarView.class);
-		ParseObject testObject = new ParseObject("TestObject");
-		testObject.put("foo", "bar");
-		testObject.saveInBackground();
+
 //		if(!alarmsManager.hasInitArragmentTime())
 //		{
 //			

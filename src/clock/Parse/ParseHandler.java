@@ -27,6 +27,7 @@ import clock.db.Event;
 import clock.db.InvitedEvent;
 
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.signpost.http.HttpResponse;
 
 public class ParseHandler extends BroadcastReceiver {
@@ -66,34 +67,48 @@ public class ParseHandler extends BroadcastReceiver {
 	  }
 
 	public static void sendMsg(Event invitedEvent, String userName, String channel) {
+		ParsePush push = new ParsePush();
+		push.setChannel(channel);
+		push.setMessage(userName + " wants to meet with you!");
+		try {
+			push.setData(new JSONObject("{\"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
+											INVITE + "@S@" + userName + "@S@" + invitedEvent.encodeToString() + "\"}"));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Log.d(TAG, "sending");
+		push.sendInBackground();
+		
+		
 	    // Create a new HttpClient and Post Header
-	    HttpClient httpclient = new DefaultHttpClient();
-	    HttpPost httppost = new HttpPost("http://guarded-hamlet-8595.herokuapp.com/main/push");
-
-	    try {
-	        // Add your data
-	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-	        nameValuePairs.add(new BasicNameValuePair("msg", userName + " invites you !"));
-	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-	        nameValuePairs.add(new BasicNameValuePair("channel", channel));
-	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-	        nameValuePairs.add(new BasicNameValuePair("event", INVITE + "@S@" + userName + "@S@" + invitedEvent.encodeToString()));
-	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));	        
-	        	        
-	        // Execute HTTP Post Request
-	        //TODO: fix response headers.
-	        org.apache.http.HttpResponse response = httpclient.execute(httppost);
-	        for (int i = 0; i < response.getAllHeaders().length; i++) {
-	        	Log.d("HEADERS", response.getAllHeaders()[i].toString());
-			}
-	        
-	    } catch (ClientProtocolException e) {
-	        // TODO Auto-generated catch block
-	    } catch (IOException e) {
-	        // TODO Auto-generated catch block
-	    }
+//	    HttpClient httpclient = new DefaultHttpClient();
+//	    HttpPost httppost = new HttpPost("http://guarded-hamlet-8595.herokuapp.com/main/push");
+//
+//	    try {
+//	        // Add your data
+//	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+//	        nameValuePairs.add(new BasicNameValuePair("msg", userName + " invites you !"));
+//	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+//
+//	        nameValuePairs.add(new BasicNameValuePair("channel", channel));
+//	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+//
+//	        nameValuePairs.add(new BasicNameValuePair("event", invitedEvent.encodeToString()));
+//	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));	        
+//	        	        
+//	        // Execute HTTP Post Request
+//	        //TODO: fix response headers.
+//	        org.apache.http.HttpResponse response = httpclient.execute(httppost);
+//	        for (int i = 0; i < response.getAllHeaders().length; i++) {
+//	        	Log.d("HEADERS", response.getAllHeaders()[i].toString());
+//			}
+//	        
+//	    } catch (ClientProtocolException e) {
+//	        // TODO Auto-generated catch block
+//	    } catch (IOException e) {
+//	        // TODO Auto-generated catch block
+//	    }
 	}
 
 	public static void confirmEvent(InvitedEvent invitedEvent, String userName) {
