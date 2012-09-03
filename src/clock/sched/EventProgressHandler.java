@@ -26,25 +26,55 @@ public class EventProgressHandler{
 	
 		
 	/**
-	 * Should be called from clock handler, after alarm received. 
+	 * This method should be called from clock handler when setting alarm.
+	 * It calculate what should be notified to user and returns the times left to next notification in milliseconds 
 	 */
-	synchronized public static void handleEventProgress(Context context, Event event, long timesLeftToGoOut, long arrangeTime)
+	synchronized public static long handleEventProgress(Context context, Event event, long timesLeftToGoOut, long arrangeTime)
 	{
 		Log.d("PROGRESS", "Handling event progress from clock handler");
 		loadDetailsFromEvent(event);
+		long timeLeftToWakeUp = -1;
+		long timeLeftToNotify = -1;
 
-		// Alarm user to wake up if needed
-		if (isItTimeToWakeUp(timesLeftToGoOut, arrangeTime))
-			wakeupUser(context, event, arrangeTime);		
+		if (arrangeTime > 0 && userHasBeenWakedUp == 0) //Wake up is needed
+		{
+			timeLeftToWakeUp = getTimesLeftToWakeUp(timesLeftToGoOut, arrangeTime);
+			if (timeLeftToWakeUp <= 0)
+			{
+				wakeupUser(context, event, arrangeTime);
+			}
+		}
+		
+		if (timeLeftToWakeUp > 0)	//Still not waked up, return with time left to wake up
+		{
+			saveDetailsToEvent(event, context);
+			Log.d("PROGRESS", "Next time by progress handler is " + TimeUnit.MILLISECONDS.toMinutes(timeLeftToWakeUp) + " Min");
+			return timeLeftToWakeUp;
+		}
+			
+		
+		// Else we calculate time left to notification
+		timeLeftToNotify = timesLeftToGoOut - GO_OUT_REMINDER_TIME;
 		
 		// Remind user to go out if needed
-		if (timesLeftToGoOut <= GO_OUT_REMINDER_TIME)
+		if (timeLeftToNotify <= 0)
 		{
 			String msg = "Time to go out in " + TimeUnit.MILLISECONDS.toMinutes(timesLeftToGoOut) +  " Minutes";			
 			notifyUser(context, msg);
 		}
 		
+		if (timeLeftToNotify > 0)	//Still not notify to user, return with time left to notify
+		{
+			saveDetailsToEvent(event, context);
+			Log.d("PROGRESS", "Next time by progress handler is " + TimeUnit.MILLISECONDS.toMinutes(timeLeftToNotify) + " Min");
+			return timeLeftToNotify;
+		}
+		
+		
+		//If we got here, no duture notification to user with current event
 		saveDetailsToEvent(event, context);
+		Log.d("PROGRESS", "User got all messages from progress handler");
+		return -1;
 	}
 
 
@@ -108,22 +138,17 @@ public class EventProgressHandler{
 	}
 
 
-	synchronized private static boolean isItTimeToWakeUp(long timesLeftToGoOut, long arrangeTime) 
+	synchronized private static long getTimesLeftToWakeUp(long timesLeftToGoOut, long arrangeTime) 
 	{
-		
-		// In case no arrangement time is needed
-		if (arrangeTime == 0) return false;
 		
 		Calendar currentCalendar = Calendar.getInstance();
 		long timeToWakeUp = timesLeftToGoOut - arrangeTime;
 		
-		return timeToWakeUp <= currentCalendar.getTimeInMillis()? true : false;
+		return timeToWakeUp - currentCalendar.getTimeInMillis();
 	}
 	
 	synchronized private static void wakeupUser(Context context, Event event, long arrangeTimeInMillis)
 	{
-		if (userHasBeenWakedUp == 0)
-			return;
 		Log.d("PROGRESS", "Waking up the user");
 		
 		String msg = "Times to wake up, Arrange time is " 

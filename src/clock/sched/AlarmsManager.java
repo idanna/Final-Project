@@ -155,7 +155,7 @@ public class AlarmsManager
 			}
 			
 			this.latestEvent = newEvent;
-			ClockHandler.setAlarm(context, latestEvent, ((int)durationTime + arrageTime));
+			ClockHandler.setAlarm(context, latestEvent, durationTime, arrageTime);
 			LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
 		}
 	}
@@ -248,7 +248,7 @@ public class AlarmsManager
 						throw new CantGetLocationException();
 					}
 					
-					ClockHandler.setAlarm(context, latestEvent, (int)(timeToArrange + trafficData.getDuration()));
+					ClockHandler.setAlarm(context, latestEvent, trafficData.getDuration(), timeToArrange);
 					LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
 				}
 				catch (Exception ex) {

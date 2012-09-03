@@ -21,9 +21,9 @@ public class ClockHandler extends BroadcastReceiver
 	// Stop when event is 2 minutes ahead
 	private static final long TIMES_UP = (60 * 1000);
 
-	public static void setAlarm(Context context, Event event, int extraTime)
+	public static void setAlarm(Context context, Event event, long durationTime, long arrangeTime)
 	{
-		setAlarm(context, event, extraTime, false);
+		setAlarm(context, event, durationTime, arrangeTime, false);
 	}	
 	
 	/**
@@ -34,12 +34,17 @@ public class ClockHandler extends BroadcastReceiver
 	 * @param setAfterEvent - if true, then the next alarm will be set to 1 min after the event -
 	 * should be used after the time to the event is after TIMES_UP.
 	 */
-	private static void setAlarm(Context context, Event event, int extraTime, boolean setAfterEvent) 
+	private static void setAlarm(Context context, Event event,  long durationTime, long arrangeTime, boolean setAfterEvent) 
 	{
+		// First notify event progress handler
+		long timeLeftToGoOut = event.getTimesLeftToEvent() - durationTime;
+		long progressHandlerTiming = EventProgressHandler.handleEventProgress(context, event, timeLeftToGoOut, arrangeTime);
+		
+		long extraTime = durationTime + arrangeTime;
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		long alarmMiliSecond = setAfterEvent == true ? event.toCalendar().getTimeInMillis() + TIMES_UP : 
-														calNextAlarm(event, extraTime);
+														calNextAlarm(event, extraTime, progressHandlerTiming);
 		// for debug
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(alarmMiliSecond);
@@ -50,10 +55,10 @@ public class ClockHandler extends BroadcastReceiver
 	private static void setAfterEventAlarm(Context context, Event event) 
 	{
 		Log.d("ALARM", "Inside setAfterAlarm");
-		setAlarm(context, event, 0, true);
+		setAlarm(context, event, 0, 0, true);
 	}
 	
-	private static long calNextAlarm(Event event, int extraTime) 
+	private static long calNextAlarm(Event event, long extraTime, long progressHandlerTiming) 
 	{
 		Calendar calander = Calendar.getInstance();
 		Time t = new Time();
@@ -63,7 +68,7 @@ public class ClockHandler extends BroadcastReceiver
 		Log.d("ALARM", "Current Time: " + calander.getTime());
 		
 		calander = event.toCalendar();
-		calander.add(Calendar.MILLISECOND, -extraTime);
+		calander.add(Calendar.MILLISECOND, (int)-extraTime);
 		Log.d("ALARM", "Time To go out: " + calander.getTime());
 		long miliToGetOut = calander.getTimeInMillis();
 		long miliToNextAlarm = ((miliToGetOut - currentTime) / 2) + currentTime;
@@ -76,6 +81,12 @@ public class ClockHandler extends BroadcastReceiver
 		if (miliToNextAlarm < 0)
 		{
 			miliToNextAlarm = 30 * 1000; //This will cause immediately response in 30 seconds 
+		}
+		
+		//Avoid passing progress handler timing if its greater then 0
+		if (progressHandlerTiming > 0 && miliToNextAlarm > progressHandlerTiming)
+		{
+			miliToNextAlarm = progressHandlerTiming;
 		}
 
 		return miliToNextAlarm;
@@ -113,13 +124,11 @@ public class ClockHandler extends BroadcastReceiver
 
 				long arrangeTime = am.getArrangmentTime(nextEvent);				
 				long timesLeftToGoOut = timesLeftToEvent - travelTime;				
-				// User interaction if needed
-				EventProgressHandler.handleEventProgress(context, nextEvent, timesLeftToGoOut, arrangeTime);
 				
 				Log.d("ALARM", String.valueOf(timesLeftToGoOut));
 				// If the event time to go out has not passed yet
 				if (timesLeftToGoOut - arrangeTime > TIMES_UP){
-					setAlarm(context, nextEvent, (int)(travelTime + arrangeTime));
+					setAlarm(context, nextEvent, travelTime, arrangeTime);
 				}
 				else // ClockHandler move to the next event.
 				{
