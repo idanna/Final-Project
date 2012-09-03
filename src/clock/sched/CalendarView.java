@@ -85,7 +85,7 @@ public class CalendarView extends Activity implements OnClickListener
 	private ListView currentDayEventsList;
 	private DbAdapter dbAdapter;
 	
-	private String userName = "idan";
+	private String userName = "ron";
 	private ImageView inivationBtn;
 	private InvitedEvent[] waintingInvatation;
 	private String[] waintingInvatationList;
