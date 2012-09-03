@@ -24,6 +24,7 @@ import clock.exceptions.GoogleWeatherException;
 import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
 import clock.exceptions.OutOfTimeException;
+import clock.outsources.GoogleTrafficHandler.TrafficData;
 
 /**
  * Screen which shows invited event info.
@@ -80,6 +81,16 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 
 	private void setFields() {
 		//Set details from event
+		TrafficData trafficData;
+		try {
+			trafficData = GoogleAdapter.getTrafficData(this, event, null);
+			float distance = trafficData.getDistance();
+			distanceTextView.setText(String.valueOf(distance));
+		} catch (Exception e) {
+			Toast.makeText(this, "Couldn't get distance", Toast.LENGTH_LONG).show();
+			e.printStackTrace();
+		}
+		
 		Calendar c = event.toCalendar();
 		titleTextView.setText(event.getChannel() + " invites you to:");
 		whereTextView.setText(event.getLocation());
