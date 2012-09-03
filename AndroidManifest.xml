@@ -24,6 +24,7 @@
         </activity>
         <activity android:name="clock.sched.EventView"></activity>
         <activity android:name="clock.sched.EventInfo"></activity>
+        <activity android:name="clock.sched.InvitedEventInfo"></activity>
 		<receiver  android:process=":remote" android:name=".ClockHandler"></receiver>
 
 		<service android:name="com.parse.PushService" />

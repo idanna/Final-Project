@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android1="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android1:background="@drawable/bg"
+    tools:context=".EventInfo" >
+
+    <QuickContactBadge
+        android1:id="@+id/quickContactBadge1"
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content" />
+
+    <TextView
+        android1:id="@+id/inviter_title"
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content"
+        android1:text="Large Text"
+        android1:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <Space
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content" />
+
+    <TextView
+        android1:id="@+id/textView2"
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content"
+        android1:layout_marginBottom="7dp"
+        android1:text="Event Information"
+        android1:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android1:id="@+id/WhereTextView"
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content"
+        android1:layout_marginBottom="5dp"
+        android1:text="Where: "
+        android1:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android1:id="@+id/distanceTextView"
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content"
+        android1:layout_marginBottom="20dp"
+        android1:text="Distance - "
+        android1:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android1:id="@+id/whenTextView"
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content"
+        android1:text="When:"
+        android1:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android1:id="@+id/text123"
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content"
+        android1:text="Details"
+        android1:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android1:id="@+id/detailsTextView"
+        android1:layout_width="match_parent"
+        android1:layout_height="122dp"
+        android1:maxLines="6"
+        android1:text="TextView" />
+
+    <LinearLayout
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content" >
+
+        <Button
+            android1:id="@+id/invitationConfirmBtn"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:layout_weight="0.15"
+            android1:text="Confirm" />
+
+        <Button
+            android1:id="@+id/deleteInvitationBtn"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:layout_weight="0.16"
+            android1:text="Delete" />
+
+    </LinearLayout>
+
+</LinearLayout>

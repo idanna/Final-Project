@@ -137,7 +137,7 @@ public class CalendarView extends Activity implements OnClickListener
 		}
 		else
 		{
-			inivationBtn.setActivated(false);			
+			waintingInvatation = null;			
 		}		
 
 	}
@@ -195,6 +195,7 @@ public class CalendarView extends Activity implements OnClickListener
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) 
 	{
+		Log.d("RES", "HERE");
 		super.onActivityResult(requestCode, resultCode, data);
 		// new event should be passed
 		if (resultCode == RESULT_OK)
@@ -322,31 +323,46 @@ public class CalendarView extends Activity implements OnClickListener
 		{
 			showInvitedEventDialog();
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle("Click to Approve");
-			builder.setItems(waintingInvatationList, new DialogInterface.OnClickListener() {
-			    public void onClick(DialogInterface dialog, int item) {
-			        Log.d("INVI", waintingInvatationList[item]);
-			        try {
-			        	InvitedEvent confirmedEvent = waintingInvatation[item];
-						alarmsManager.newEvent(confirmedEvent, true);
-						dbAdapter.deleteInvitedEvent(confirmedEvent);
-						Calendar c = Calendar.getInstance();
-				        ParseHandler.confirmEvent(waintingInvatation[item], userName);
-						int month = c.get(Calendar.MONTH);
-						int year = c.get(Calendar.YEAR);
-						if (month == confirmedEvent.getMonth() && year == confirmedEvent.getYear()) {
-							updateUIforNewEvent(confirmedEvent);
-						}						
-					} catch (Exception e) {
-				        Log.d("INVI", "ERROR");
-						e.printStackTrace();
-					}
-			    }
-			});
-			AlertDialog alert = builder.create();
-			alert.show();
+			if(waintingInvatation == null)
+			{
+				builder.setTitle("No Waiting Events");
+			}
+			else
+			{
+				showInvitationDialog(builder);
+			}
+			
 		}
 
+	}
+	
+	private void showInvitationDialog(AlertDialog.Builder builder)
+	{
+		builder.setTitle("Click For Details");
+		builder.setItems(waintingInvatationList, new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int item) {
+		        Log.d("INVI", waintingInvatationList[item]);
+		        try {
+		        	InvitedEvent confirmedEvent = waintingInvatation[item];
+		        	changeToIntivedInfo(confirmedEvent);
+		        	//TODO: update view;
+					if (month == confirmedEvent.getMonth() && year == confirmedEvent.getYear()) {
+						updateUIforNewEvent(confirmedEvent);
+					}						
+				} catch (Exception e) {
+			        Log.d("INVI", "ERROR");
+					e.printStackTrace();
+				}
+		    }
+		});
+		AlertDialog alert = builder.create();
+		alert.show();		
+	}
+	
+	protected void changeToIntivedInfo(InvitedEvent event) {
+		Intent intent = new Intent(this, InvitedEventInfo.class);	
+		intent.putExtra("event", event.encodeToString());
+		startActivity(intent);
 	}
 
 	private void showInvitedEventDialog() {

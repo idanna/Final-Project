@@ -83,23 +83,15 @@ public class Event
 	{
 		Event e = new Event();
 		String[] prop = eventStr.split("\\|");
-		String[] date = prop[0].split("-");
-		String[] time = prop[1].split("\\:");
-		e.day = Integer.parseInt(date[0]);
-		e.month = Integer.parseInt(date[1]);
-		e.year = Integer.parseInt(date[2]);
-		e.hour = Integer.parseInt(time[0]);
-		e.min = Integer.parseInt(time[1]);
-		e.location = prop[2];
-		e.details = prop[3];
-		e.id = Long.parseLong(prop[4]);
+		setInitFieldsFromStr(e, eventStr);
 		e.withAlarm = Boolean.parseBoolean(prop[5]);
 		e.userHasBeenNotified = Boolean.parseBoolean(prop[6]);
 		e.userHasBeenWakedUp = Long.parseLong(prop[7]);		
 		return e;
 	}
 	
-	protected void setInitFieldsFromStr(Event e, String eventStr) {
+	
+	protected static void setInitFieldsFromStr(Event e, String eventStr) {
 		String[] prop = eventStr.split("\\|");
 		String[] date = prop[0].split("-");
 		String[] time = prop[1].split("\\:");
@@ -110,10 +102,7 @@ public class Event
 		e.min = Integer.parseInt(time[1]);
 		e.location = prop[2];
 		e.details = prop[3];
-		e.id = Long.parseLong(prop[4]);
-		e.withAlarm = Boolean.parseBoolean(prop[5]);
-		e.userHasBeenNotified = Boolean.parseBoolean(prop[6]);
-		e.userHasBeenWakedUp = Long.parseLong(prop[7]);				
+		e.id = Long.parseLong(prop[4]);			
 	}
 		
 	/**

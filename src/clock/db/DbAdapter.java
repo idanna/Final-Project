@@ -363,10 +363,10 @@ public class DbAdapter
 		return retList;
 	}
 
-	public void deleteInvitedEvent(InvitedEvent confirmedEvent) { 
+	public void deleteInvitedEvent(Event confirmedEventId) { 
 		this.open();
-		database.delete(Connection.TABLE_INVITED, Connection.COLUMN_ID + "=" + confirmedEvent.getId(), null);			  	
-		 Log.d("EVENT", "Invited Event number " + confirmedEvent.getId() + ": " + confirmedEvent.toString() + " has been deleted from db");
+		database.delete(Connection.TABLE_INVITED, Connection.COLUMN_ID + "=" + confirmedEventId.getId(), null);			  	
+		 Log.d("EVENT", "Invited Event number " + confirmedEventId + " has been deleted from db");
 		this.close();
 	 }	
 }

@@ -1,17 +1,5 @@
 package clock.Parse;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,16 +7,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
-
-import clock.db.Connection;
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.db.InvitedEvent;
 
-import com.parse.ParseObject;
 import com.parse.ParsePush;
-import com.parse.signpost.http.HttpResponse;
 
 public class ParseHandler extends BroadcastReceiver {
 	
@@ -77,68 +60,24 @@ public class ParseHandler extends BroadcastReceiver {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Log.d(TAG, "sending");
+		Log.d(TAG, "sending-invitation");
 		push.sendInBackground();
-		
-		
-	    // Create a new HttpClient and Post Header
-//	    HttpClient httpclient = new DefaultHttpClient();
-//	    HttpPost httppost = new HttpPost("http://guarded-hamlet-8595.herokuapp.com/main/push");
-//
-//	    try {
-//	        // Add your data
-//	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-//	        nameValuePairs.add(new BasicNameValuePair("msg", userName + " invites you !"));
-//	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-//
-//	        nameValuePairs.add(new BasicNameValuePair("channel", channel));
-//	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-//
-//	        nameValuePairs.add(new BasicNameValuePair("event", invitedEvent.encodeToString()));
-//	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));	        
-//	        	        
-//	        // Execute HTTP Post Request
-//	        //TODO: fix response headers.
-//	        org.apache.http.HttpResponse response = httpclient.execute(httppost);
-//	        for (int i = 0; i < response.getAllHeaders().length; i++) {
-//	        	Log.d("HEADERS", response.getAllHeaders()[i].toString());
-//			}
-//	        
-//	    } catch (ClientProtocolException e) {
-//	        // TODO Auto-generated catch block
-//	    } catch (IOException e) {
-//	        // TODO Auto-generated catch block
-//	    }
 	}
 
 	public static void confirmEvent(InvitedEvent invitedEvent, String userName) {
-	    HttpClient httpclient = new DefaultHttpClient();
-	    HttpPost httppost = new HttpPost("http://guarded-hamlet-8595.herokuapp.com/main/confirm");
-
-	    try {
-	        // Add your data
-	        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-	        nameValuePairs.add(new BasicNameValuePair("user_name", userName));
-	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-	        nameValuePairs.add(new BasicNameValuePair("channel", invitedEvent.getChannel()));
-	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-	        nameValuePairs.add(new BasicNameValuePair("id", String.valueOf(invitedEvent.getId())));
-	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));	        
-	        	        
-	        // Execute HTTP Post Request
-	        //TODO: fix response headers.
-	        org.apache.http.HttpResponse response = httpclient.execute(httppost);
-	        for (int i = 0; i < response.getAllHeaders().length; i++) {
-	        	Log.d("HEADERS", response.getAllHeaders()[i].toString());
-			}
-	        
-	    } catch (ClientProtocolException e) {
-	        // TODO Auto-generated catch block
-	    } catch (IOException e) {
-	        // TODO Auto-generated catch block
-	    }
+		
+		ParsePush push = new ParsePush();
+		push.setChannel(invitedEvent.getChannel());
+		push.setMessage(userName + " wants to meet with you!");
+		try {
+			push.setData(new JSONObject("{\"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
+											CONFIRM + "@S@" + userName + "@S@" + invitedEvent.getOriginalId() + "\"}"));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Log.d(TAG, "sending-confirm");
+		push.sendInBackground();
 		
 	}
 
