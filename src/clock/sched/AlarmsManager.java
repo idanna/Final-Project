@@ -230,41 +230,43 @@ public class AlarmsManager
 	 */
 	private void deleteEvent(Event event, boolean alsoFromDB) throws Exception
 	{
-//		dbAdapter.open();
-		latestEvent = dbAdapter.getNextEvent();	
-		if (latestEvent != null && latestEvent.equals(event))
+		if(event.isAfterNow())
 		{
 			latestEvent = dbAdapter.getOneAfter(Event.getSqlTimeRepresent(event));
 			if (latestEvent != null)
 			{
-				try
+				// Pull latest event from DB after the current one has been deleted
+				latestEvent = dbAdapter.getOneAfter(Event.getSqlTimeRepresent(event));
+				if (latestEvent != null)
 				{
-					TrafficData trafficData = GoogleAdapter.getTrafficData(context, latestEvent, null);
-					int timeToArrange = getArrangmentTime(latestEvent);
-					long duration = trafficData.getDuration();
-					if(duration < -1) {
-						Log.e("Alarm manager", "Can't get location");
-						throw new CantGetLocationException();
+					try
+					{
+						TrafficData trafficData = GoogleAdapter.getTrafficData(context, latestEvent, null);
+						int timeToArrange = getArrangmentTime(latestEvent);
+						long duration = trafficData.getDuration();
+						if(duration < -1) {
+							Log.e("Alarm manager", "Can't get location");
+							throw new CantGetLocationException();
+						}
+						
+						ClockHandler.setAlarm(context, latestEvent, trafficData.getDuration(), timeToArrange);
+						LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
 					}
-					
-					ClockHandler.setAlarm(context, latestEvent, trafficData.getDuration(), timeToArrange);
-					LocationHandler.setLocationListener(context, latestEvent, trafficData.getDistance());
+					catch (Exception ex) {
+						Log.e("Alarm manager", "Delete event has failed");
+						throw ex;
+					}
 				}
-				catch (Exception ex) {
-					Log.e("Alarm manager", "Delete event has failed");
-//					dbAdapter.close();
-					throw ex;
-				}
+				
+				ClockHandler.cancelEventAlarm(context, event);
+				LocationHandler.cancelLocationListener(context, event);
 			}
 			
-			ClockHandler.cancelEventAlarm(context, event);
-			LocationHandler.cancelLocationListener(context, event);
+			if(alsoFromDB){
+				dbAdapter.deleteEvent(event);
+			}
+			
 		}
-		
-		if(alsoFromDB){
-			dbAdapter.deleteEvent(event);
-		}
-//		dbAdapter.close();
 	}
 	
 	public void newEvent(Event newEvent, boolean isItemSelectedFromList) throws Exception

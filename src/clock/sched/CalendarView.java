@@ -351,7 +351,7 @@ public class CalendarView extends Activity implements OnClickListener
 	}
 	
 	protected void changeToIntivedInfo(InvitedEvent event) {
-		Intent intent = new Intent(this, InvitedEventInfo.class);	
+		Intent intent = new Intent(CalendarView.this, InvitedEventInfo.class);	
 		intent.putExtra("event", event.encodeToString());
 		startActivity(intent);
 	}
