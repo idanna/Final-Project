@@ -1,9 +1,4 @@
 package clock.sched;
-import com.parse.Parse;
-import com.parse.ParseObject;
-import com.parse.ParsePush;
-import com.parse.PushService;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,16 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.http.impl.conn.tsccm.WaitingThread;
-
-import clock.Parse.ParseHandler;
-import clock.db.DbAdapter;
-import clock.db.Event;
-import clock.db.InvitedEvent;
-
-import clock.sched.R;
-
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -33,7 +18,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -41,8 +25,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -52,6 +36,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import clock.Parse.ParseHandler;
+import clock.db.DbAdapter;
+import clock.db.Event;
+import clock.db.InvitedEvent;
+
+import com.parse.Parse;
+import com.parse.PushService;
 
 /*
  * Main Application activity.
