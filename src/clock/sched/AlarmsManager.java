@@ -234,7 +234,6 @@ public class AlarmsManager
 		latestEvent = dbAdapter.getNextEvent();	
 		if (latestEvent != null && latestEvent.equals(event))
 		{
-			// Pull latest event from DB after the current one has been deleted
 			latestEvent = dbAdapter.getOneAfter(Event.getSqlTimeRepresent(event));
 			if (latestEvent != null)
 			{

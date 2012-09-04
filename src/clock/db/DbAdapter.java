@@ -255,6 +255,11 @@ public class DbAdapter
 		return arrangeTime;
 	}
 
+	/**
+	 * return 
+	 * @param sqlTimeRepresent
+	 * @return
+	 */
 	public Event getOneBefore(String sqlTimeRepresent)
 	{
 		return getOneBeforeOrAfter(sqlTimeRepresent, true);
@@ -300,12 +305,13 @@ public class DbAdapter
 			order = ""; // empty mean ascending.
 		}
 		String query = "SELECT * FROM " + Connection.TABLE_EVENTS + 
-						" WHERE " + Connection.COLUMN_DATE + compareSign + sqlTimeRepresent +
+						" WHERE " + Connection.COLUMN_DATE + compareSign + "'" + sqlTimeRepresent + "'" +
 						" ORDER BY " + Connection.COLUMN_DATE + " " + order + " LIMIT 1";
 		Log.d("SQL", query);
 		this.open();
 		Cursor cursor = database.rawQuery(query, null);
 		Event oneBefore = null;
+		cursor.moveToFirst();
 		if(!cursor.isAfterLast())
 		{
 			oneBefore = cursorToEvent(cursor);
