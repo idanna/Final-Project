@@ -216,9 +216,22 @@ public class CalendarView extends Activity implements OnClickListener
 			if (resultCode == RESULT_OK)
 			{
 				Bundle b = data.getExtras();
-				String eventStr = b.getString("newEvent");
-				Event newEvent = Event.CreateFromString(eventStr);
-				updateUIforNewEvent(newEvent);
+				boolean isNewEvent = b.getString("newEvent") == null ? false : true; // could get with null if came back from 'edit mode'
+				if (isNewEvent) {
+					String eventStr = b.getString("newEvent");
+					Event newEvent = Event.CreateFromString(eventStr);
+					addNewEventToUI(newEvent);
+				}
+				else {
+					String updateEventStr = b.getString("updatedEvent");
+					Event updatedEvent = Event.CreateFromString(updateEventStr);
+					if(updatedEvent.getMonth() != month) // month has been change should remove from display
+					{
+						deleteEventFromUI(updatedEvent);
+					}
+					
+				}
+				
 			}
 			
 		}
@@ -230,7 +243,7 @@ public class CalendarView extends Activity implements OnClickListener
 				boolean eventConfirmed = b.getString("newEvent") == null ? false : true;
 				if (eventConfirmed && month == confirmedEvent.getMonth() && year == confirmedEvent.getYear()) 
 				{
-					updateUIforNewEvent(confirmedEvent);
+					addNewEventToUI(confirmedEvent);
 				}
 			}
 		}
@@ -253,7 +266,12 @@ public class CalendarView extends Activity implements OnClickListener
 		userChannel = dbAdapter.getUserChannel();
 	}
 	
-	private void updateUIforNewEvent(Event newEvent)
+	/**
+	 * Adds a new Event to the UI. 
+	 * Event should be in the current month.
+	 * @param newEvent
+	 */
+	private void addNewEventToUI(Event newEvent)
 	{
 		// adding event to eventsPerMonth map
 		dayOfMonthAdapter.addEventToMonth(newEvent);
@@ -272,6 +290,7 @@ public class CalendarView extends Activity implements OnClickListener
 		  {
 			    AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
 			    Event pressedEvent = (Event) currentDayEventsList.getAdapter().getItem(info.position);
+			    Log.d("PRESS", "Pressed eventId: " + pressedEvent.getId());
 			    menu.setHeaderTitle(pressedEvent.toString());
 			    int i = 0;
 			    for (eMenuItems menuItem : eMenuItems.values()) {
@@ -289,7 +308,7 @@ public class CalendarView extends Activity implements OnClickListener
 		  int menuItemIndex = item.getItemId();
 		  eMenuItems menuItemName = eMenuItems.getById(menuItemIndex);
 		  final Event pressedEvent = (Event) currentDayEventsList.getAdapter().getItem(info.position);
-
+		  Log.d("PRESS", "Pressed eventId: " + pressedEvent.getId());
 		  switch (menuItemName) {
 			case DELETE:
 				deleteEvent(pressedEvent);
@@ -336,18 +355,27 @@ public class CalendarView extends Activity implements OnClickListener
 	  	try 
 	  	{
 			alarmsManager.deleteEvent(pressedEvent);
-			dayOfMonthAdapter.removeEventFromMonth(pressedEvent);
-			// removing from the day events list.
-			ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) currentDayEventsList.getAdapter();
-			eventsAdapter.remove(pressedEvent);
-			eventsAdapter.notifyDataSetChanged();
-			dayOfMonthAdapter.notifyDataSetChanged();
+			deleteEventFromUI(pressedEvent);
 		} 
 	  	catch(Exception e) 
 	  	{
 	  		e.printStackTrace();
 	  		Toast.makeText(this, "Error schedual next event", Toast.LENGTH_LONG).show();
 		}
+	}
+	
+	/**
+	 * remove an event from the days event list, and update the number of events per day.
+	 * changedEvent should be in of the current month !
+	 * @param changedEvent
+	 */
+	private void deleteEventFromUI(Event changedEvent) {
+		dayOfMonthAdapter.removeEventFromMonth(changedEvent);
+		// removing from the day events list.
+		ArrayAdapter<Event> eventsAdapter = (ArrayAdapter<Event>) currentDayEventsList.getAdapter();
+		eventsAdapter.remove(changedEvent);
+		eventsAdapter.notifyDataSetChanged();
+		dayOfMonthAdapter.notifyDataSetChanged();		
 	}
 
 	@Override

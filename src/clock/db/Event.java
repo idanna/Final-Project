@@ -130,10 +130,10 @@ public class Event
 	public static eComparison compareBetweenEvents(Event firstEvent, Event secondEvent) 
 	{
 		eComparison result;
-		Calendar firstCalendar = Calendar.getInstance();
-		Calendar secondCalendar = Calendar.getInstance();
-		firstCalendar.set(firstEvent.year, firstEvent.month, firstEvent.day, firstEvent.hour, firstEvent.min);
-		secondCalendar.set(secondEvent.year, secondEvent.month, secondEvent.day, secondEvent.hour, secondEvent.min);
+		Calendar firstCalendar = firstEvent.toCalendar();
+		Calendar secondCalendar = secondEvent.toCalendar();
+//		firstCalendar.set(firstEvent.year, firstEvent.month, firstEvent.day, firstEvent.hour, firstEvent.min);
+//		secondCalendar.set(secondEvent.year, secondEvent.month, secondEvent.day, secondEvent.hour, secondEvent.min);
 		int comparedValue = firstCalendar.compareTo(secondCalendar);
 		
 		if (comparedValue < 0) 

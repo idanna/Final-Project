@@ -70,7 +70,7 @@ public class DbAdapter
 	 * @param event - the event to be inserted.
 	 * @return the Event inserted.
 	 */
-	public Event insertEvent(Event event) 
+	public long insertEvent(Event event) 
 	{
 		ContentValues values = new ContentValues();
 		String dateSqlFormat = Event.getSqlTimeRepresent(event); 
@@ -82,14 +82,8 @@ public class DbAdapter
 		values.put(Connection.COLUMN_WAKEDUP, event.getUserHasBeenWakedUp());
 		this.open();
 		long insertId = database.insert(Connection.TABLE_EVENTS, null, values);
-		Cursor cursor = database.query(Connection.TABLE_EVENTS, allColumns, Connection.COLUMN_ID + " = " + insertId, null,
-										null, null, null);
-		
-		cursor.moveToFirst();
-		Event newEvent = cursorToEvent(cursor);
-		cursor.close();
 		this.close();
-		return newEvent;
+		return insertId;
 	}
 
 	/**

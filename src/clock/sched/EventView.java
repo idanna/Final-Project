@@ -267,7 +267,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	private void returnResult() 
 	{
 	   Intent i = this.getIntent();
-	   i.putExtra("newEvent", event.encodeToString());
+	   String extraKey = isInEditMode == true ? "updatedEvent" : "newEvent";
+	   i.putExtra(extraKey, event.encodeToString());		   
 	   setResult(RESULT_OK, i);
 	   //Close activity
 	   finish();		

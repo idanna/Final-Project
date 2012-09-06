@@ -1,6 +1,7 @@
 package clock.sched;
 
 import java.io.UnsupportedEncodingException;
+import java.security.acl.LastOwnerException;
 
 import javax.xml.datatype.Duration;
 
@@ -110,7 +111,7 @@ public class AlarmsManager
 	/**
 	 * Informs the alarm manager about a new event.
 	 * saves the alarm in db, manage the alarm set/cancel in case needed.
-	 * @param newEvent 
+	 * @param newEvent - the newEvent Id fields will be updated according to the Id in the DB.
 	 * @param addToDB - if true the event will also be added to the DB,
 	 * 					else only alarm logic will imply (called after updated event saved)
 	 * @throws Exception 
@@ -138,13 +139,12 @@ public class AlarmsManager
 			throw new OutOfTimeException();
 		}  
 //		checkIfEventsColide(newEvent, timeToGoOut);
-//		dbAdapter.open();
 		latestEvent = dbAdapter.getNextEvent();
 		if(addToDB){
-			dbAdapter.insertEvent(newEvent);	
+			long eventId = dbAdapter.insertEvent(newEvent);
+			newEvent.setId(eventId); // !!!
 		}
 		
-//		dbAdapter.close();
 		if(newEvent.isAfterNow() &&
 						(latestEvent == null || Event.compareBetweenEvents(newEvent, latestEvent) == eComparison.BEFORE))
 		{
@@ -232,8 +232,8 @@ public class AlarmsManager
 	{
 		if(event.isAfterNow())
 		{
-			latestEvent = dbAdapter.getOneAfter(Event.getSqlTimeRepresent(event));
-			if (latestEvent != null)
+			latestEvent = dbAdapter.getNextEvent();
+			if (latestEvent != null && event.equals(latestEvent))
 			{
 				// Pull latest event from DB after the current one has been deleted
 				latestEvent = dbAdapter.getOneAfter(Event.getSqlTimeRepresent(event));
@@ -262,10 +262,10 @@ public class AlarmsManager
 				LocationHandler.cancelLocationListener(context, event);
 			}
 			
-			if(alsoFromDB){
-				dbAdapter.deleteEvent(event);
-			}
-			
+		}
+		
+		if(alsoFromDB){
+			dbAdapter.deleteEvent(event);
 		}
 	}
 	
