@@ -1,18 +1,14 @@
 package clock.sched;
 
-import java.sql.Time;
+
 import java.util.concurrent.TimeUnit;
 
-import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 import clock.outsources.dependencies.WeatherModel;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.TextView;
 
 public class EventInfo extends Activity{

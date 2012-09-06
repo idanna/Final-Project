@@ -1,6 +1,5 @@
 package clock.sched;
 
-import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Notification;
@@ -48,7 +47,7 @@ public class EventProgressHandler{
 		if (timeLeftToWakeUp > 0)	//Still not waked up, return with time left to wake up
 		{
 			saveDetailsToEvent(event, context);
-			Log.d("PROGRESS", "Next time by progress handler is " + TimeUnit.MILLISECONDS.toMinutes(timeLeftToWakeUp) + " Min");
+			Log.d("PROGRESS", "Times left to wakeup is " + TimeUnit.MILLISECONDS.toMinutes(timeLeftToWakeUp) + " Min");
 			return timeLeftToWakeUp;
 		}
 			
@@ -66,7 +65,7 @@ public class EventProgressHandler{
 		if (timeLeftToNotify > 0)	//Still not notify to user, return with time left to notify
 		{
 			saveDetailsToEvent(event, context);
-			Log.d("PROGRESS", "Next time by progress handler is " + TimeUnit.MILLISECONDS.toMinutes(timeLeftToNotify) + " Min");
+			Log.d("PROGRESS", "Times left to notify is " + TimeUnit.MILLISECONDS.toMinutes(timeLeftToNotify) + " Min");
 			return timeLeftToNotify;
 		}
 		
@@ -140,11 +139,9 @@ public class EventProgressHandler{
 
 	synchronized private static long getTimesLeftToWakeUp(long timesLeftToGoOut, long arrangeTime) 
 	{
-		
-		Calendar currentCalendar = Calendar.getInstance();
 		long timeToWakeUp = timesLeftToGoOut - arrangeTime;
 		
-		return timeToWakeUp - currentCalendar.getTimeInMillis();
+		return timeToWakeUp - System.currentTimeMillis();
 	}
 	
 	synchronized private static void wakeupUser(Context context, Event event, long arrangeTimeInMillis)
@@ -238,9 +235,7 @@ public class EventProgressHandler{
 		event.setUserHasBeenNotified(userHasBeenNotified);
 		event.setUserHasBeenWakedUp(userHasBeenWakedUp);
 		DbAdapter dbAdapter = new DbAdapter(context);
-//		dbAdapter.open();
 		dbAdapter.updateEvent(event);
-//		dbAdapter.close();
 	}
 
 
