@@ -44,7 +44,7 @@ public class ClockHandler extends BroadcastReceiver
 		AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent pendingIntent = getPendingIntent(context, event);
 		long alarmMiliSecond = setAfterEvent == true ? event.toCalendar().getTimeInMillis() + TIMES_UP : 
-														calNextAlarm(event, extraTime, progressHandlerTiming);
+														calNextAlarm(event, durationTime, progressHandlerTiming);
 		// for debug
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(alarmMiliSecond);
@@ -58,7 +58,7 @@ public class ClockHandler extends BroadcastReceiver
 		setAlarm(context, event, 0, 0, true);
 	}
 	
-	private static long calNextAlarm(Event event, long extraTime, long progressHandlerTiming) 
+	private static long calNextAlarm(Event event, long durationTime, long progressHandlerTiming) 
 	{
 		Calendar calander = Calendar.getInstance();
 		Time t = new Time();
@@ -68,7 +68,7 @@ public class ClockHandler extends BroadcastReceiver
 		Log.d("ALARM", "Current Time: " + calander.getTime());
 		
 		calander = event.toCalendar();
-		calander.add(Calendar.MILLISECOND, (int)-extraTime);
+		calander.add(Calendar.MILLISECOND, (int)-durationTime);
 		Log.d("ALARM", "Time To go out: " + calander.getTime());
 		long miliToGetOut = calander.getTimeInMillis();
 		long miliToNextAlarm = ((miliToGetOut - currentTime) / 2) + currentTime;
