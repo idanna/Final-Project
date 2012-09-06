@@ -133,8 +133,8 @@ public class EventInfo extends Activity{
 		if (duration >= 0)
 		{
 			durationStr = String.format("%d hrs, %d min", 
-				    TimeUnit.SECONDS.toHours(duration),
-				    TimeUnit.SECONDS.toMinutes(duration) - 
+				    TimeUnit.MILLISECONDS.toHours(duration),
+				    TimeUnit.MILLISECONDS.toMinutes(duration) - 
 				    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration)));
 			float distance = trafficData.getDistance();
 			distance = distance / 1000f;
