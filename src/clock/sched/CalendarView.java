@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import android.R.bool;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -86,6 +85,7 @@ public class CalendarView extends Activity implements OnClickListener
 	private ImageView inivationBtn;
 	private InvitedEvent[] waintingInvatation;
 	private String[] waintingInvatationList;
+	protected InvitedEvent confirmedEvent;
 	
 	/** 
 	 * Called when the activity is first created. 
@@ -110,7 +110,8 @@ public class CalendarView extends Activity implements OnClickListener
 		if(checkAndGetInitData())
 		{
 			setUserNameAndChannel();
-
+			PushService.subscribe(this, userChannel, InitDataView.class);
+			PushService.subscribe(this, "", InitDataView.class);
 		}
 		
 	}
@@ -223,12 +224,22 @@ public class CalendarView extends Activity implements OnClickListener
 		}
 		if(requestCode == INVITED_EVENT)
 		{
-			//TODO: fill
+			if(resultCode == RESULT_OK)
+			{
+				Bundle b = data.getExtras();
+				boolean eventConfirmed = b.getString("newEvent") == null ? false : true;
+				if (eventConfirmed && month == confirmedEvent.getMonth() && year == confirmedEvent.getYear()) 
+				{
+					updateUIforNewEvent(confirmedEvent);
+				}
+			}
 		}
 		if(requestCode == INIT_DATA)
 		{
 			//TODO: act if user didnt send any data
 			setUserNameAndChannel();
+			PushService.subscribe(this, userChannel, InitDataView.class);
+			PushService.subscribe(this, "", InitDataView.class);
 		}
 		
 	}
@@ -334,6 +345,7 @@ public class CalendarView extends Activity implements OnClickListener
 		} 
 	  	catch(Exception e) 
 	  	{
+	  		e.printStackTrace();
 	  		Toast.makeText(this, "Error schedual next event", Toast.LENGTH_LONG).show();
 		}
 	}
@@ -377,12 +389,8 @@ public class CalendarView extends Activity implements OnClickListener
 		    public void onClick(DialogInterface dialog, int item) {
 		        Log.d("INVI", waintingInvatationList[item]);
 		        try {
-		        	InvitedEvent confirmedEvent = waintingInvatation[item];
-		        	changeToIntivedInfo(confirmedEvent);
-		        	//TODO: update view;
-					if (month == confirmedEvent.getMonth() && year == confirmedEvent.getYear()) {
-						updateUIforNewEvent(confirmedEvent);
-					}						
+		        	confirmedEvent = waintingInvatation[item];
+		        	changeToIntivedInfo(confirmedEvent);					
 				} catch (Exception e) {
 			        Log.d("INVI", "ERROR");
 					e.printStackTrace();

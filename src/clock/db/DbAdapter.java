@@ -269,7 +269,8 @@ public class DbAdapter
 	public Event getOneAfter(String sqlTimeRepresent)
 	{
 		Event oneAfter = getOneBeforeOrAfter(sqlTimeRepresent, false);
-		Log.d("EVENT", "one after is: " + oneAfter.getId());
+		String oneAfterStr = oneAfter == null ? "NONE" : String.valueOf(oneAfter.getId());
+		Log.d("EVENT", "one after is: " + oneAfterStr);
 		return getOneBeforeOrAfter(sqlTimeRepresent, false);
 	}
 	

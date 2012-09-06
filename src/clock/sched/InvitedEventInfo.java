@@ -102,12 +102,14 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 
 	@Override
 	public void onClick(View v) {
+	   Intent i = this.getIntent();
 		if (v == confirmBtn)
 		{
 
 			try {
 				alarmsManager.newEvent(event, true);
 				dbAdapter.deleteInvitedEvent(event);
+				i.putExtra("newEvent", event.encodeToString());
 		        ParseHandler.confirmEvent(event, userName);
 			}
 			   catch (IllegalAddressException iae)
@@ -142,7 +144,8 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 		{
 			dbAdapter.deleteInvitedEvent(event);			
 		}
-
+		
+	   setResult(RESULT_OK, i);
 	   finish();		
 	}
 
