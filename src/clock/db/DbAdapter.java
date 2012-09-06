@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import clock.sched.AlarmsManager.eCondition;
 
@@ -203,7 +204,7 @@ public class DbAdapter
 	 * @param tempeture 
 	 * @return the row ID of the newly inserted row, or -1 if an error occurred 
 	 */
-	public long addRecord(Event event, int arrangementTime, eCondition enumCondition, int tempeture) 
+	public long insertRecord(Event event, int arrangementTime, eCondition enumCondition, int tempeture) 
 	{
 		ContentValues values = new ContentValues(); 
 		values.put(Connection.COLUMN_ARR_TIME, arrangementTime);
@@ -335,6 +336,7 @@ public class DbAdapter
 		values.put(Connection.COLUMN_LOCATION, invitedEvent.getLocation());
 		values.put(Connection.COLUMN_DETAILS, invitedEvent.getDetails());
 		values.put(Connection.COLUMN_INVITER_CHANNEL, inviterChannel);
+		values.put(Connection.COLUMN_ORIGINAL_ID, invitedEvent.getId());
 		this.open();
 		database.insert(Connection.TABLE_INVITED, null, values);
 		this.close();
@@ -374,5 +376,60 @@ public class DbAdapter
 		database.delete(Connection.TABLE_INVITED, Connection.COLUMN_ID + "=" + confirmedEventId.getId(), null);			  	
 		 Log.d("EVENT", "Invited Event number " + confirmedEventId + " has been deleted from db");
 		this.close();
-	 }	
+	 }
+	
+	/**
+	 * Inserts initial data required for the App to start. (asked at first time)
+	 * @param arrTime - user manual arrangment time in minutes
+	 * @param userChannel - channel hash code - for sending notifycation. 
+	 */
+	public void setInitData(String userName, int arrTime, String userChannel) 
+	{
+		this.open();
+		ContentValues values = new ContentValues(); 
+		values.put(Connection.COLUMN_CHANNEL_HASH, userChannel);
+		values.put(Connection.COLUMN_USER_NAME, userName);
+		database.insert(Connection.TABLE_DATA, null, values);
+		values = new ContentValues(); 
+		values.put(Connection.COLUMN_ARR_TIME, TimeUnit.MINUTES.toMillis(arrTime));
+		values.put(Connection.COLUMN_DAY_OF_WEEK, "INIT");
+		values.put(Connection.COLUMN_WEATHER, "INIT");
+		values.put(Connection.COLUMN_TEMPETURE, -1);
+		database.insert(Connection.TABLE_RECORDS, null, values);		
+		this.close();
+	}
+
+	
+	public boolean hasInitialData() 
+	{
+		boolean retVal;
+		this.open();
+		Cursor c = database.query(Connection.TABLE_DATA, null, null, null, null, null, null);
+		c.moveToFirst();
+		retVal = c.isAfterLast();
+		this.close();
+		return !retVal;
+	}
+
+	public String getUserName() 
+	{
+		String retVal;
+		this.open();
+		Cursor c = database.query(Connection.TABLE_DATA, null, null, null, null, null, null);
+		c.moveToFirst();
+		retVal = c.getString(1);
+		this.close();
+		return retVal;
+	}
+
+	
+	public String getUserChannel() {
+		String retVal;
+		this.open();
+		Cursor c = database.query(Connection.TABLE_DATA, null, null, null, null, null, null);
+		c.moveToFirst();
+		retVal = c.getString(0);
+		this.close();
+		return retVal;
+	}	
 }

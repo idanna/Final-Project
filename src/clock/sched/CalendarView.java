@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import android.R.bool;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -60,7 +61,11 @@ public class CalendarView extends Activity implements OnClickListener
 		}
 	}
 	
-	private static final String tag = "AppDate";
+	private static final int NEW_EVENT = 1;
+	private static final int INVITED_EVENT = 2;
+	private static final int INIT_DATA = 3;
+	private static final String APP_KEY = "2jo7e9GelT811A2KsuJDJsP6sV7eeDYg2Jskyy4v";
+	private static final String CLIENT_KEY = "5siGRhsEIOCimLy18zV9dv4ashRfJ9WPit2Y3Dmx";
 	private Button selectedDayMonthYearButton;
 	private Button currentMonth;
 	private ImageView prevMonth;
@@ -76,7 +81,8 @@ public class CalendarView extends Activity implements OnClickListener
 	private ListView currentDayEventsList;
 	private DbAdapter dbAdapter;
 	
-	private String userName = "ron";
+	private String userName;
+	private String userChannel;
 	private ImageView inivationBtn;
 	private InvitedEvent[] waintingInvatation;
 	private String[] waintingInvatationList;
@@ -100,17 +106,32 @@ public class CalendarView extends Activity implements OnClickListener
 		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
 		dayOfMonthAdapter.notifyDataSetChanged();
 		calendarView.setAdapter(dayOfMonthAdapter);			
-		Parse.initialize(this, "2jo7e9GelT811A2KsuJDJsP6sV7eeDYg2Jskyy4v", "5siGRhsEIOCimLy18zV9dv4ashRfJ9WPit2Y3Dmx"); 
-		PushService.subscribe(this, "", CalendarView.class);
-		PushService.subscribe(this, userName, CalendarView.class);
+		Parse.initialize(this, APP_KEY, CLIENT_KEY);
+		if(checkAndGetInitData())
+		{
+			setUserNameAndChannel();
 
-//		if(!alarmsManager.hasInitArragmentTime())
-//		{
-//			
-//		}
+		}
 		
 	}
 	
+	/*
+	 * checks if user has initial data: user name, phone, and arrange time
+	 * if not, switching to InitDataView, and waiting for results.
+	 * Returns if the user had initial data.
+	 */
+	private boolean checkAndGetInitData() 
+	{
+		boolean hasInitData = dbAdapter.hasInitialData();
+		if(!hasInitData)
+		{
+			Intent intent = new Intent(CalendarView.this, InitDataView.class);
+			startActivityForResult(intent, INIT_DATA);
+		}
+		
+		return hasInitData;
+	}
+
 	@Override
 	protected void onResume() 
 	{
@@ -189,13 +210,36 @@ public class CalendarView extends Activity implements OnClickListener
 		Log.d("RES", "HERE");
 		super.onActivityResult(requestCode, resultCode, data);
 		// new event should be passed
-		if (resultCode == RESULT_OK)
+		if(requestCode == NEW_EVENT)
 		{
-			Bundle b = data.getExtras();
-			String eventStr = b.getString("newEvent");
-			Event newEvent = Event.CreateFromString(eventStr);
-			updateUIforNewEvent(newEvent);
+			if (resultCode == RESULT_OK)
+			{
+				Bundle b = data.getExtras();
+				String eventStr = b.getString("newEvent");
+				Event newEvent = Event.CreateFromString(eventStr);
+				updateUIforNewEvent(newEvent);
+			}
+			
 		}
+		if(requestCode == INVITED_EVENT)
+		{
+			//TODO: fill
+		}
+		if(requestCode == INIT_DATA)
+		{
+			//TODO: act if user didnt send any data
+			setUserNameAndChannel();
+		}
+		
+	}
+	
+	/**
+	 * sets user name and channel from the db.
+	 */
+	private void setUserNameAndChannel()
+	{
+		userName = dbAdapter.getUserName();
+		userChannel = dbAdapter.getUserChannel();
 	}
 	
 	private void updateUIforNewEvent(Event newEvent)
@@ -262,12 +306,11 @@ public class CalendarView extends Activity implements OnClickListener
 					@Override
 					public void onClick(View arg0) {
 						String phoneNumber = text.getText().toString();
-						ParseHandler.sendMsg(pressedEvent, userName, phoneNumber);
+						ParseHandler.sendInvitation(pressedEvent, userName, userChannel, ParseHandler.numberToChannelHash(phoneNumber));
 						dialog.dismiss();
 					}
 				});
 				
-				text.setText("Enter name:");
 				dialog.show();
 				break;
 			default:
@@ -353,7 +396,8 @@ public class CalendarView extends Activity implements OnClickListener
 	protected void changeToIntivedInfo(InvitedEvent event) {
 		Intent intent = new Intent(CalendarView.this, InvitedEventInfo.class);	
 		intent.putExtra("event", event.encodeToString());
-		startActivity(intent);
+		intent.putExtra("user_name", event.encodeToString());
+		startActivityForResult(intent, INVITED_EVENT);
 	}
 
 	private void showInvitedEventDialog() {
@@ -370,18 +414,19 @@ public class CalendarView extends Activity implements OnClickListener
 		this.changeToEventView("selectedDate", grid.getSelectedDate());
 	}
 	
+	
 	private void changeToEventView(String extraDataKey, String extraData) 
 	{
 		//TODO: send new event with current time and date
 		Intent intent = new Intent(this, EventView.class);	
 		intent.putExtra(extraDataKey, extraData);
-		startActivityForResult(intent, 0);		
+		startActivityForResult(intent, NEW_EVENT);		
 	}
 
 	private void changeToEventInfo(String extraDataKey, String extraData) {
 		Intent intent = new Intent(this, EventInfo.class);	
 		intent.putExtra(extraDataKey, extraData);
-		startActivityForResult(intent, 0);	
+		startActivity(intent);	
 	}
 	
 	private void forwardMonth() 

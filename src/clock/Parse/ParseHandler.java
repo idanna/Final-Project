@@ -30,7 +30,7 @@ public class ParseHandler extends BroadcastReceiver {
 				String data = json.get("data").toString();
 				String[] dataParsed = data.split("@S@");
 				String pushType = dataParsed[0];
-				String sender = dataParsed[1];
+				String senderChannel = dataParsed[1];
 				if(pushType.equals(CONFIRM))
 				{
 					int confirmEventId = Integer.parseInt(dataParsed[2]);
@@ -39,7 +39,7 @@ public class ParseHandler extends BroadcastReceiver {
 				{
 					Event invitedEvent = Event.CreateFromString(dataParsed[2]);
 					DbAdapter db = new DbAdapter(context);
-					db.insertInvitedEvent(invitedEvent, sender);
+					db.insertInvitedEvent(invitedEvent, senderChannel);
 					Log.d(TAG, "received action " + action + " on channel " + channel + " with extras:");
 					Log.d(TAG, "Event is:" + invitedEvent.toString());									
 					
@@ -48,14 +48,20 @@ public class ParseHandler extends BroadcastReceiver {
 					Log.d(TAG, "ParseOnRecieve: " + e.getMessage());	
 				}
 	  }
-
-	public static void sendMsg(Event invitedEvent, String userName, String channel) {
+	  
+	/**
+	 * Send an invitation via Parse push server.
+	 * @param invitedEvent - the event to invited
+	 * @param userName - inviter user name
+	 * @param userChannel - invited channel
+	 * @param channelToSend - channel to send. DO NOT send a phone number, call ParseHandler.numberToChannelHash(phoneNumber) and then send.
+	 */
+	public static void sendInvitation(Event invitedEvent, String userName, String userChannel, String channelToSend) {
 		ParsePush push = new ParsePush();
-		push.setChannel(channel);
-		push.setMessage(userName + " wants to meet with you!");
+		push.setChannel(channelToSend);
 		try {
-			push.setData(new JSONObject("{\"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
-											INVITE + "@S@" + userName + "@S@" + invitedEvent.encodeToString() + "\"}"));
+			push.setData(new JSONObject("{\"alert\": \"" + userName + " wants to meet with you!\", \"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
+											INVITE + "@S@" + userChannel + "@S@" + invitedEvent.encodeToString() + "\"}"));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -68,9 +74,8 @@ public class ParseHandler extends BroadcastReceiver {
 		
 		ParsePush push = new ParsePush();
 		push.setChannel(invitedEvent.getChannel());
-		push.setMessage(userName + " wants to meet with you!");
 		try {
-			push.setData(new JSONObject("{\"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
+			push.setData(new JSONObject("{\"alert\": \"" + userName + " confirms your event!\", \"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
 											CONFIRM + "@S@" + userName + "@S@" + invitedEvent.getOriginalId() + "\"}"));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -79,6 +84,19 @@ public class ParseHandler extends BroadcastReceiver {
 		Log.d(TAG, "sending-confirm");
 		push.sendInBackground();
 		
+	}
+	
+	public static String numberToChannelHash(String phoneNumber) 
+	{
+		String channelHash = "";
+		for (int i = 0; i < phoneNumber.length(); i++){
+		    char c = phoneNumber.charAt(i);
+		    channelHash += (char)('A' + c);
+		    //Process char
+		}
+		
+		Log.d("ChannelHash: ", channelHash);
+		return channelHash;
 	}
 
 }

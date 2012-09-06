@@ -52,7 +52,7 @@ public class AlarmsManager
 		{
 			eCondition enumCondition = conditionToEnum(weatherData.getCondition());
 //			db.open();
-			db.addRecord(event, arrangmentTime, enumCondition, Integer.parseInt(weatherData.getTemperature()));
+			db.insertRecord(event, arrangmentTime, enumCondition, Integer.parseInt(weatherData.getTemperature()));
 //			db.close();
 		}
 		
@@ -224,7 +224,7 @@ public class AlarmsManager
 	 * If alarm was schedule for the event it will be cancelled,
 	 * And a new alarm for the next event will be schedule.
 	 * @param event - the event for deletion
-	 * @param alsoFromDB - if true the event will be deleted from the DB,
+	 * @param alsoFromDB - if true the event will be deleted from the DB,f
 	 * 						if false, only alarm logic imply. 
 	 * @throws Exception
 	 */

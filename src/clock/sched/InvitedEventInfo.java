@@ -44,6 +44,7 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 	private DbAdapter dbAdapter;
 	private AlarmsManager alarmsManager;
 	private InvitedEvent event;
+	private String userName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,7 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 		confirmBtn.setOnClickListener(this);
 		deleteBtn = (Button)this.findViewById(R.id.deleteInvitationBtn);
 		deleteBtn.setOnClickListener(this);
+		userName = getIntent().getExtras().getString("user_name");
 	}
 	
 	@Override
@@ -106,7 +108,7 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 			try {
 				alarmsManager.newEvent(event, true);
 				dbAdapter.deleteInvitedEvent(event);
-		        ParseHandler.confirmEvent(event, event.getChannel());
+		        ParseHandler.confirmEvent(event, userName);
 			}
 			   catch (IllegalAddressException iae)
 			   {

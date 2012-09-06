@@ -22,6 +22,7 @@ public class Connection extends SQLiteOpenHelper
 	public static final String TABLE_EVENTS = "events";
 	public static final String TABLE_RECORDS = "records";
 	public static final String TABLE_INVITED = "invited";
+	public static final String TABLE_DATA = "user_data";
 
 	public static final String COLUMN_ID = "id";
 	public static final String COLUMN_DATE = "date";
@@ -38,6 +39,9 @@ public class Connection extends SQLiteOpenHelper
 	public static final String COLUMN_WEATHER = "weather";
 	public static final String COLUMN_TEMPETURE = "tempeture";
 	public static final String COLUMN_DAY_OF_WEEK = "day";
+	
+	public static final String COLUMN_CHANNEL_HASH = "channel";
+	public static final String COLUMN_USER_NAME = "user_name";
 	
 	private static final String DATABASE_NAME = "smart_clock.db";
 	private static final int DATABASE_VERSION = 5;
@@ -66,7 +70,9 @@ public class Connection extends SQLiteOpenHelper
 			+ COLUMN_DAY_OF_WEEK + " text, "
 			+ COLUMN_WEATHER + " text, "
 			+ COLUMN_TEMPETURE + " integer);";
-    
+    private static final String CREATE_DATA_TABLE = "create table " 
+			+ TABLE_DATA + " ( " + COLUMN_CHANNEL_HASH + " text, "
+			+ COLUMN_USER_NAME + " text);";    
     /**
      * Constructor
      * Takes and keeps a reference of the passed context in order to access to the application assets and resources.
@@ -83,6 +89,7 @@ public class Connection extends SQLiteOpenHelper
 		database.execSQL(CREATE_EVENT_TABLE);
 		database.execSQL(CREATE_RECORDS_TABLE);
 		database.execSQL(CREATE_INVITED_EVENT_TABLE);
+		database.execSQL(CREATE_DATA_TABLE);
 	}
 
 	@Override
@@ -93,6 +100,7 @@ public class Connection extends SQLiteOpenHelper
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORDS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_INVITED);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_DATA);
 		onCreate(db);
 	}
 	

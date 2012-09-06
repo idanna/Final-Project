@@ -84,10 +84,11 @@ public class ClockHandler extends BroadcastReceiver
 		}
 		
 		//Avoid passing progress handler timing if its greater then 0
-		if (progressHandlerTiming > 0 && miliToNextAlarm > progressHandlerTiming)
-		{
-			miliToNextAlarm = progressHandlerTiming;
-		}
+		//TODO: this makes problems
+//		if (progressHandlerTiming > 0 && miliToNextAlarm > progressHandlerTiming)
+//		{
+//			miliToNextAlarm = progressHandlerTiming;
+//		}
 
 		return miliToNextAlarm;
 	}
