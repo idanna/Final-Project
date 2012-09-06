@@ -75,7 +75,7 @@ public class ClockHandler extends BroadcastReceiver
 
 		Calendar debugCal = Calendar.getInstance();
 		debugCal.setTimeInMillis(miliToNextAlarm);
-		Log.d("ALARM", "Next Alarm: " + debugCal.getTime());
+		Log.d("ALARM", "BEFORE CHECK -- Clock Handler Next Alarm: " + debugCal.getTime());
 		
 		//In case user assigned event that time to go out has already passed
 		if (miliToNextAlarm < 0)
@@ -86,8 +86,12 @@ public class ClockHandler extends BroadcastReceiver
 //		Avoid passing progress handler timing if its greater then 0
 		if (progressHandlerTiming > 0 && miliToNextAlarm > progressHandlerTiming + currentTime)
 		{
+			Log.d("ALARM", "Progress Handler Wants Alarm in: " + TimeUnit.MILLISECONDS.toMinutes(progressHandlerTiming) + " Min");
 			miliToNextAlarm = progressHandlerTiming + currentTime;
 		}
+		
+		debugCal.setTimeInMillis(miliToNextAlarm);
+		Log.d("ALARM", "AFTER CHECK -- Clock Handler Next Alarm: " + debugCal.getTime());
 
 		return miliToNextAlarm;
 	}

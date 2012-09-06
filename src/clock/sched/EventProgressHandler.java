@@ -37,7 +37,7 @@ public class EventProgressHandler{
 
 		if (arrangeTime > 0 && userHasBeenWakedUp == 0) //Wake up is needed
 		{
-			timeLeftToWakeUp = getTimesLeftToWakeUp(timesLeftToGoOut, arrangeTime);
+			timeLeftToWakeUp = timesLeftToGoOut - arrangeTime;
 			if (timeLeftToWakeUp <= 0)
 			{
 				wakeupUser(context, event, arrangeTime);
@@ -134,14 +134,6 @@ public class EventProgressHandler{
 	private static int getArrangementTime() {
 		long currentTime = System.currentTimeMillis();
 		return (int)(currentTime - userHasBeenWakedUp);
-	}
-
-
-	synchronized private static long getTimesLeftToWakeUp(long timesLeftToGoOut, long arrangeTime) 
-	{
-		long timeToWakeUp = timesLeftToGoOut - arrangeTime;
-		
-		return timeToWakeUp - System.currentTimeMillis();
 	}
 	
 	synchronized private static void wakeupUser(Context context, Event event, long arrangeTimeInMillis)
