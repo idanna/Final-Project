@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class ClockHandler extends BroadcastReceiver 
 {
-	// Stop when event is 2 minutes ahead
+	// Stop when event is 1 minutes ahead
 	private static final long TIMES_UP = (60 * 1000);
 
 	public static void setAlarm(Context context, Event event, long durationTime, long arrangeTime)
@@ -83,12 +83,11 @@ public class ClockHandler extends BroadcastReceiver
 			miliToNextAlarm = 30 * 1000; //This will cause immediately response in 30 seconds 
 		}
 		
-		//Avoid passing progress handler timing if its greater then 0
-		//TODO: this makes problems
-//		if (progressHandlerTiming > 0 && miliToNextAlarm > progressHandlerTiming)
-//		{
-//			miliToNextAlarm = progressHandlerTiming;
-//		}
+//		Avoid passing progress handler timing if its greater then 0
+		if (progressHandlerTiming > 0 && miliToNextAlarm > progressHandlerTiming + currentTime)
+		{
+			miliToNextAlarm = progressHandlerTiming + currentTime;
+		}
 
 		return miliToNextAlarm;
 	}
