@@ -214,7 +214,7 @@ public class EventProgressHandler{
 	synchronized private static void loadDetailsFromEvent(Event event) {
 		userHasBeenNotified = event.isUserHasBeenNotified();
 		userHasBeenWakedUp = event.getUserHasBeenWakedUp();
-		
+		Log.d("PROGRESS", "Loading data, notify = " + userHasBeenNotified + ", wakedup = " + userHasBeenWakedUp);
 	}
 	
 	/**
@@ -228,6 +228,7 @@ public class EventProgressHandler{
 		event.setUserHasBeenWakedUp(userHasBeenWakedUp);
 		DbAdapter dbAdapter = new DbAdapter(context);
 		dbAdapter.updateEvent(event);
+		Log.d("PROGRESS", "Saving data, notify = " + event.isUserHasBeenNotified() + ", wakedup = " + event.getUserHasBeenWakedUp());
 	}
 
 

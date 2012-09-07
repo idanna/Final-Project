@@ -129,15 +129,14 @@ public class ClockHandler extends BroadcastReceiver
 				long arrangeTime = am.getArrangmentTime(nextEvent);				
 				long timesLeftToGoOut = timesLeftToEvent - travelTime;				
 				
-				Log.d("ALARM", String.valueOf(timesLeftToGoOut));
 				// If the event time to go out has not passed yet
-				if (timesLeftToGoOut - arrangeTime > TIMES_UP){
+				if (timesLeftToGoOut > TIMES_UP){
 					setAlarm(context, nextEvent, travelTime, arrangeTime);
 				}
 				else // ClockHandler move to the next event.
 				{
 					EventProgressHandler.goOutNotification(context, "It is time to go out, Drive safely");
-					Log.d("ALARM", "TIMES IS UP!");
+					Log.d("ALARM", "TIME IS UP!");
 					setAfterEventAlarm(context, nextEvent);
 				}	
 			}
