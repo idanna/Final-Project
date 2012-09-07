@@ -249,10 +249,17 @@ public class CalendarView extends Activity implements OnClickListener
 		}
 		if(requestCode == INIT_DATA)
 		{
-			//TODO: act if user didnt send any data
-			setUserNameAndChannel();
-			PushService.subscribe(this, userChannel, InitDataView.class);
-			PushService.subscribe(this, "", InitDataView.class);
+			if(resultCode == RESULT_OK)
+			{
+				setUserNameAndChannel();
+				PushService.subscribe(this, userChannel, InitDataView.class);
+				PushService.subscribe(this, "", InitDataView.class);				
+			}
+			else
+			{
+				Toast.makeText(this, "Cannot continue without initial data. closing.", Toast.LENGTH_LONG).show();
+				finish();
+			}
 		}
 		
 	}

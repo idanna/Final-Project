@@ -200,7 +200,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 			   else {
 				   alarmManager.newEvent(event, isItemSelectedFromList);				   
 			   }
-
+			   
+			   autoCompleteHelper.cancel(true);		   
 			   returnResult();
 		   } 
 		   catch (IllegalAddressException iae)
@@ -274,34 +275,6 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   finish();		
 	}
 	
-	 private void setAutoCompleteTimer() 
-	 {
-		 try
-		 {
-			 context = this;		 
-			 autoCompleteTimer = new Timer();
-			 autoCompleteTimer.schedule(new TimerTask() {				
-				@Override
-				public void run() {
-					Log.d("EVENT", "Timer has start running");
-					String text = location_text.getText().toString();
-					ArrayList<String> sugg = GoogleAdapter.getSuggestions(text);
-					if (!sugg.isEmpty())
-					{
-						Looper.prepare();
-						ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, sugg);
-						location_text.setAdapter(adapter);
-						location_text.showDropDown();
-					}
-					
-				}
-			}, 5000);
-		 }
-		 catch (Exception e) {
-			Log.e("EVENT", "Can't create auto complete thread - " + e.getMessage());
-		}
-	  }
-
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent eventCode) 
 	{

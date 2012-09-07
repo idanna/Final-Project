@@ -1,10 +1,6 @@
 package clock.sched;
 
 import java.io.UnsupportedEncodingException;
-import java.security.acl.LastOwnerException;
-
-import javax.xml.datatype.Duration;
-
 import android.content.Context;
 import android.util.Log;
 import clock.db.DbAdapter;
@@ -52,9 +48,7 @@ public class AlarmsManager
 		public void UserGotOut(Event event, int arrangmentTime, WeatherModel weatherData)
 		{
 			eCondition enumCondition = conditionToEnum(weatherData.getCondition());
-//			db.open();
 			db.insertRecord(event, arrangmentTime, enumCondition, Integer.parseInt(weatherData.getTemperature()));
-//			db.close();
 		}
 		
 		private eCondition conditionToEnum(String condition) 
@@ -142,6 +136,7 @@ public class AlarmsManager
 		latestEvent = dbAdapter.getNextEvent();
 		if(addToDB){
 			long eventId = dbAdapter.insertEvent(newEvent);
+			Log.d("EVENTID", "Set new EventId as:" + eventId);
 			newEvent.setId(eventId); // !!!
 		}
 		
