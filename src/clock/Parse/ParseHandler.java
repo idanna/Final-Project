@@ -30,15 +30,17 @@ public class ParseHandler extends BroadcastReceiver {
 				String data = json.get("data").toString();
 				String[] dataParsed = data.split("@S@");
 				String pushType = dataParsed[0];
-				String senderChannel = dataParsed[1];
+				DbAdapter db = new DbAdapter(context);
 				if(pushType.equals(CONFIRM))
 				{
+					String confirmerName = dataParsed[1];
 					int confirmEventId = Integer.parseInt(dataParsed[2]);
+					db.addConfirmerNameToEvent(confirmEventId, confirmerName);
 					//TODO: for now only notifing
 				} else if (pushType.equals(INVITE))
 				{
+					String senderChannel = dataParsed[1];
 					InvitedEvent invitedEvent = InvitedEvent.createFromString(dataParsed[2]);
-					DbAdapter db = new DbAdapter(context);
 					db.insertInvitedEvent(invitedEvent);
 					Log.d(TAG, "received action " + action + " on channel " + channel + " with extras:");
 					Log.d(TAG, "Event is:" + invitedEvent.toString());									

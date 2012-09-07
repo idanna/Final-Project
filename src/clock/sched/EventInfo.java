@@ -3,16 +3,27 @@ package clock.sched;
 
 import java.util.concurrent.TimeUnit;
 
+import clock.Parse.ParseHandler;
+import clock.db.DbAdapter;
 import clock.db.Event;
+import clock.db.InvitedEvent;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 import clock.outsources.dependencies.WeatherModel;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-public class EventInfo extends Activity{
+public class EventInfo extends Activity implements OnClickListener{
 	
+	private Event event;
 	private TextView detailsTextView;
 	private TextView timesLeftTextView;
 	private TextView durationTextView;
@@ -21,6 +32,8 @@ public class EventInfo extends Activity{
 	private TextView temperatureTextView;
 	private TextView humidityTextView;
 	private TextView windTextView;
+	private ImageView confListBtn;
+	private String[] eventConfirmersList;
 	private static final String NO_INFO = "No Info";
 
 	@Override
@@ -35,7 +48,8 @@ public class EventInfo extends Activity{
 		temperatureTextView = (TextView)this.findViewById(R.id.temperatureTextView);
 		humidityTextView = (TextView)this.findViewById(R.id.humidityTextView);
 		windTextView = (TextView)this.findViewById(R.id.windTextView);
-
+		confListBtn = (ImageView)this.findViewById(R.id.confirmers_list_btn);
+		confListBtn.setOnClickListener(this);
 	}
 	
 	@Override
@@ -46,7 +60,7 @@ public class EventInfo extends Activity{
 		
 		if (b.containsKey("event"))
 		{
-			Event event = Event.CreateFromString(b.getString("event"));
+			event = Event.CreateFromString(b.getString("event"));
 			setFields(event);
 		}
 		else
@@ -55,7 +69,28 @@ public class EventInfo extends Activity{
 			setTrafficFieldsToNone();
 		}
    }
-
+	
+	@Override
+	public void onClick(View v) {
+		if(v == confListBtn) {
+			if(eventConfirmersList == null) { // lazy loading
+				DbAdapter db = new DbAdapter(this);
+				eventConfirmersList = db.getEventConfirmersList(event.getId());
+			}
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Friends who confirmed: ");
+			builder.setItems(eventConfirmersList, new DialogInterface.OnClickListener() {
+			    public void onClick(DialogInterface dialog, int item) {
+			       
+			    }
+			});
+			
+			AlertDialog alert = builder.create();
+			alert.show();
+		}
+		
+	}
+	
 	private void setFields(Event event) {
 		//Set details from event
 		detailsTextView.setText(event.getDetails());

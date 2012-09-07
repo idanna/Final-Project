@@ -23,6 +23,7 @@ public class Connection extends SQLiteOpenHelper
 	public static final String TABLE_RECORDS = "records";
 	public static final String TABLE_INVITED = "invited";
 	public static final String TABLE_DATA = "user_data";
+	public static final String TABLE_CONFIRMED_EVENTS = "confirmations";
 
 	public static final String COLUMN_ID = "id";
 	public static final String COLUMN_DATE = "date";
@@ -74,7 +75,13 @@ public class Connection extends SQLiteOpenHelper
 			+ COLUMN_TEMPETURE + " integer);";
     private static final String CREATE_DATA_TABLE = "create table " 
 			+ TABLE_DATA + " ( " + COLUMN_CHANNEL_HASH + " text, "
-			+ COLUMN_USER_NAME + " text);"; 
+			+ COLUMN_USER_NAME + " text);";
+    
+    // stores list of people who confirmed the event.
+    private static final String CREATE_CONFIRMED_EVENTS_TABLE = "create table " 
+			+ TABLE_CONFIRMED_EVENTS + " ( " + COLUMN_ID + " integer, "
+			+ COLUMN_USER_NAME + " text);";
+    
     /**
      * Constructor
      * Takes and keeps a reference of the passed context in order to access to the application assets and resources.
@@ -92,6 +99,7 @@ public class Connection extends SQLiteOpenHelper
 		database.execSQL(CREATE_RECORDS_TABLE);
 		database.execSQL(CREATE_INVITED_EVENT_TABLE);
 		database.execSQL(CREATE_DATA_TABLE);
+		database.execSQL(CREATE_CONFIRMED_EVENTS_TABLE);
 	}
 
 	@Override
@@ -103,6 +111,7 @@ public class Connection extends SQLiteOpenHelper
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORDS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_INVITED);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_DATA);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONFIRMED_EVENTS);
 		onCreate(db);
 	}
 	

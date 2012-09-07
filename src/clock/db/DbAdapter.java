@@ -428,5 +428,37 @@ public class DbAdapter
 		retVal = c.getString(0);
 		this.close();
 		return retVal;
+	}
+
+	public void addConfirmerNameToEvent(int confirmEventId, String confirmerName) {
+		this.open();
+		ContentValues values = new ContentValues(); 
+		values.put(Connection.COLUMN_ID, confirmEventId);
+		values.put(Connection.COLUMN_USER_NAME, confirmerName);
+		database.insert(Connection.TABLE_CONFIRMED_EVENTS, null, values);		
+		this.close();
+	}
+
+	public String[] getEventConfirmersList(long id) 
+	{
+		String[] retVal = null;
+		String query = "SELECT " + Connection.COLUMN_USER_NAME + " FROM " + Connection.TABLE_CONFIRMED_EVENTS
+						+ " WHERE " + Connection.COLUMN_ID + " = " + String.valueOf(id);
+		this.open();
+		Cursor c = database.rawQuery(query, null);
+		c.moveToFirst();
+		int rows = c.getCount();
+		if(rows > 0) {
+			retVal = new String[rows];
+			int i = 0;
+			while (!c.isAfterLast()) {
+				retVal[i] = c.getString(0);
+				c.moveToNext();
+				i++;
+			}
+		}
+		
+		this.close();
+		return retVal;
 	}	
 }
