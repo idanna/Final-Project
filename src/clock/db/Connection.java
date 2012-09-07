@@ -42,6 +42,7 @@ public class Connection extends SQLiteOpenHelper
 	
 	public static final String COLUMN_CHANNEL_HASH = "channel";
 	public static final String COLUMN_USER_NAME = "user_name";
+	public static final String COLUMN_SENDER_USER_NAME = "sender_username";   
 	
 	private static final String DATABASE_NAME = "smart_clock.db";
 	private static final int DATABASE_VERSION = 5;
@@ -63,7 +64,8 @@ public class Connection extends SQLiteOpenHelper
     		+ COLUMN_DATE + " text not null,"
     		+ COLUMN_LOCATION + " text not null,"
     		+ COLUMN_DETAILS + " text,"
-    		+ COLUMN_INVITER_CHANNEL + " text);";
+    		+ COLUMN_INVITER_CHANNEL + " text, "
+    		+ COLUMN_SENDER_USER_NAME + " text);";
     
     private static final String CREATE_RECORDS_TABLE = "create table " 
 			+ TABLE_RECORDS + " ( " + COLUMN_ARR_TIME + " integer, " 
@@ -72,7 +74,7 @@ public class Connection extends SQLiteOpenHelper
 			+ COLUMN_TEMPETURE + " integer);";
     private static final String CREATE_DATA_TABLE = "create table " 
 			+ TABLE_DATA + " ( " + COLUMN_CHANNEL_HASH + " text, "
-			+ COLUMN_USER_NAME + " text);";    
+			+ COLUMN_USER_NAME + " text);"; 
     /**
      * Constructor
      * Takes and keeps a reference of the passed context in order to access to the application assets and resources.

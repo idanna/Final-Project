@@ -28,8 +28,10 @@ import clock.outsources.GoogleTrafficHandler.TrafficData;
 
 /**
  * Screen which shows invited event info.
+ * If user select one of the confirm/delte reutrn result OK and extra
+ * key 'newEventId' which is the event id in the events table, 
+ * if the user delete this key will be null.
  * @author Idan
- *
  */
 public class InvitedEventInfo extends Activity implements OnClickListener
 {
@@ -86,15 +88,15 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 		TrafficData trafficData;
 		try {
 			trafficData = GoogleAdapter.getTrafficData(this, event, null);
-			float distance = trafficData.getDistance();
-			distanceTextView.setText(String.valueOf(distance));
+			float distance = trafficData.getDistance() / 1000;
+			distanceTextView.setText(String.valueOf(distance) + " km from here.");
 		} catch (Exception e) {
 			Toast.makeText(this, "Couldn't get distance", Toast.LENGTH_LONG).show();
 			e.printStackTrace();
 		}
 		
 		Calendar c = event.toCalendar();
-		titleTextView.setText(event.getChannel() + " invites you to:");
+		titleTextView.setText(event.getSenderUserName() + " invites you to:");
 		whereTextView.setText(event.getLocation());
 		whenTextView.setText(c.getTime().toString());
 		detailsTextView.setText(event.getDetails());
@@ -103,13 +105,14 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 	@Override
 	public void onClick(View v) {
 	   Intent i = this.getIntent();
+	   long invitedId = event.getId();
 		if (v == confirmBtn)
 		{
 
 			try {
-				alarmsManager.newEvent(event, true);
-				dbAdapter.deleteInvitedEvent(event);
-				i.putExtra("newEvent", event.encodeToString());
+				alarmsManager.newEvent(event, true); // changes the event id according to the db event table id.
+				dbAdapter.deleteInvitedEvent(invitedId);
+				i.putExtra("newEventId", String.valueOf(event.getId()));
 		        ParseHandler.confirmEvent(event, userName);
 			}
 			   catch (IllegalAddressException iae)
@@ -142,7 +145,7 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 		}
 		if (v == deleteBtn)
 		{
-			dbAdapter.deleteInvitedEvent(event);			
+			dbAdapter.deleteInvitedEvent(invitedId);			
 		}
 		
 	   setResult(RESULT_OK, i);

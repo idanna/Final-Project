@@ -52,7 +52,8 @@ public class InitDataView extends Activity implements OnClickListener
 		String channelHash = ParseHandler.numberToChannelHash(phoneNumber);
 //		int userChannel = numberToChannel(phoneNumber);
 		int arrTime = Integer.valueOf(arrTextView.getText().toString());
-		dbAdapter.setInitData(userName, arrTime, channelHash);		
+		dbAdapter.setInitData(userName, arrTime, channelHash);
+		setResult(RESULT_OK);
 		finish();
 	}
 

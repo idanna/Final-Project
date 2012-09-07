@@ -187,6 +187,7 @@ public class DbAdapter
 		event.setLocation(cursor.getString(3));
 		event.setDetails(cursor.getString(4));
 		event.setChannel(cursor.getString(5));
+		event.setSenderUserName(cursor.getString(6));
 		return event;
 	}
 	
@@ -325,13 +326,14 @@ public class DbAdapter
 		return cursorToEvent(cursor);
 	}
 
-	public void insertInvitedEvent(Event invitedEvent, String inviterChannel) {
+	public void insertInvitedEvent(InvitedEvent invitedEvent) {
 		ContentValues values = new ContentValues(); 
 		values.put(Connection.COLUMN_DATE, Event.getSqlTimeRepresent(invitedEvent));
 		values.put(Connection.COLUMN_LOCATION, invitedEvent.getLocation());
 		values.put(Connection.COLUMN_DETAILS, invitedEvent.getDetails());
-		values.put(Connection.COLUMN_INVITER_CHANNEL, inviterChannel);
+		values.put(Connection.COLUMN_INVITER_CHANNEL, invitedEvent.getChannel());
 		values.put(Connection.COLUMN_ORIGINAL_ID, invitedEvent.getId());
+		values.put(Connection.COLUMN_SENDER_USER_NAME, invitedEvent.getSenderUserName());
 		this.open();
 		database.insert(Connection.TABLE_INVITED, null, values);
 		this.close();
@@ -366,9 +368,9 @@ public class DbAdapter
 		return retList;
 	}
 
-	public void deleteInvitedEvent(Event confirmedEventId) { 
+	public void deleteInvitedEvent(long confirmedEventId) { 
 		this.open();
-		database.delete(Connection.TABLE_INVITED, Connection.COLUMN_ID + "=" + confirmedEventId.getId(), null);			  	
+		database.delete(Connection.TABLE_INVITED, Connection.COLUMN_ID + "=" + confirmedEventId, null);			  	
 		 Log.d("EVENT", "Invited Event number " + confirmedEventId + " has been deleted from db");
 		this.close();
 	 }

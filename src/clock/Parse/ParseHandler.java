@@ -37,9 +37,9 @@ public class ParseHandler extends BroadcastReceiver {
 					//TODO: for now only notifing
 				} else if (pushType.equals(INVITE))
 				{
-					Event invitedEvent = Event.CreateFromString(dataParsed[2]);
+					InvitedEvent invitedEvent = InvitedEvent.createFromString(dataParsed[2]);
 					DbAdapter db = new DbAdapter(context);
-					db.insertInvitedEvent(invitedEvent, senderChannel);
+					db.insertInvitedEvent(invitedEvent);
 					Log.d(TAG, "received action " + action + " on channel " + channel + " with extras:");
 					Log.d(TAG, "Event is:" + invitedEvent.toString());									
 					
@@ -56,12 +56,12 @@ public class ParseHandler extends BroadcastReceiver {
 	 * @param userChannel - invited channel
 	 * @param channelToSend - channel to send. DO NOT send a phone number, call ParseHandler.numberToChannelHash(phoneNumber) and then send.
 	 */
-	public static void sendInvitation(Event invitedEvent, String userName, String userChannel, String channelToSend) {
+	public static void sendInvitation(InvitedEvent invitedEvent, String channelToSend) {
 		ParsePush push = new ParsePush();
 		push.setChannel(channelToSend);
 		try {
-			push.setData(new JSONObject("{\"alert\": \"" + userName + " wants to meet with you!\", \"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
-											INVITE + "@S@" + userChannel + "@S@" + invitedEvent.encodeToString() + "\"}"));
+			push.setData(new JSONObject("{\"alert\": \"" + invitedEvent.getSenderUserName() + " wants to meet with you!\", \"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
+											INVITE + "@S@" + invitedEvent.getChannel() + "@S@" + invitedEvent.encodeToString() + "\"}"));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -81,7 +81,7 @@ public class ParseHandler extends BroadcastReceiver {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Log.d(TAG, "sending-confirm");
+		Log.d(TAG, "sending-confirm with user name: " + userName);
 		push.sendInBackground();
 		
 	}

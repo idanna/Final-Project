@@ -75,7 +75,7 @@ public class Event
 	}
 	
 	/**
-	 * 
+	 * Create an event instance from strings create by 'encodeToString' function.
 	 * @param eventStr - Should be in the format dd-MM-YY|HH:mm|location|details|id|with_alarm|userHasBeenNotified|userHasBeenWakedUp
 	 * @return new event parsed from string
 	 */

@@ -197,12 +197,16 @@ public class CalendarView extends Activity implements OnClickListener
 	 * @param year
 	 */
 	private void setGridCellAdapterToDate(int month, int year) 
-	{ 
+	{
+		Log.d("UI", "Before new GridCellAdapter");
 		dayOfMonthAdapter = new GridCellAdapter(getApplicationContext(), currentDayEventsList, R.id.calendar_day_gridcell, month, year);
+		Log.d("UI", "after new GridCell");
 		_calendar.set(year, month - 1, _calendar.get(Calendar.DAY_OF_MONTH));
 		currentMonth.setText(dateFormatter.format(dateTemplate,	_calendar.getTime()));
 		dayOfMonthAdapter.notifyDataSetChanged();
+		Log.d("UI", "beforeSetAdapter");
 		calendarView.setAdapter(dayOfMonthAdapter);
+		Log.d("UI", "after SetAdapter");
 	}
 	
 	@Override
@@ -240,11 +244,17 @@ public class CalendarView extends Activity implements OnClickListener
 			if(resultCode == RESULT_OK)
 			{
 				Bundle b = data.getExtras();
-				boolean eventConfirmed = b.getString("newEvent") == null ? false : true;
-				if (eventConfirmed && month == confirmedEvent.getMonth() && year == confirmedEvent.getYear()) 
-				{
-					addNewEventToUI(confirmedEvent);
+				boolean eventConfirmed = b.getString("newEventId") == null ? false : true;
+				if (eventConfirmed) {					
+					confirmedEvent.setId(Long.valueOf(b.getString("newEventId")));
+					Log.d("UI", "THIS M:Y:" + month + year + " OTHER: " + confirmedEvent.getMonth() + confirmedEvent.getYear());
+					if (month == confirmedEvent.getMonth() && year == confirmedEvent.getYear()) 
+					{
+						addNewEventToUI(confirmedEvent);
+					}
+					
 				}
+				
 			}
 		}
 		if(requestCode == INIT_DATA)
@@ -342,8 +352,9 @@ public class CalendarView extends Activity implements OnClickListener
 				okBtn.setOnClickListener(new OnClickListener() {					
 					@Override
 					public void onClick(View arg0) {
+						InvitedEvent invitedEvent = InvitedEvent.newInstanceFromEvent(pressedEvent, userName, userChannel);
 						String phoneNumber = text.getText().toString();
-						ParseHandler.sendInvitation(pressedEvent, userName, userChannel, ParseHandler.numberToChannelHash(phoneNumber));
+						ParseHandler.sendInvitation(invitedEvent, ParseHandler.numberToChannelHash(phoneNumber));
 						dialog.dismiss();
 					}
 				});
@@ -439,7 +450,7 @@ public class CalendarView extends Activity implements OnClickListener
 	protected void changeToIntivedInfo(InvitedEvent event) {
 		Intent intent = new Intent(CalendarView.this, InvitedEventInfo.class);	
 		intent.putExtra("event", event.encodeToString());
-		intent.putExtra("user_name", event.encodeToString());
+		intent.putExtra("user_name", userName);
 		startActivityForResult(intent, INVITED_EVENT);
 	}
 
