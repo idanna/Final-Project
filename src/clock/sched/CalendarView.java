@@ -86,6 +86,7 @@ public class CalendarView extends Activity implements OnClickListener
 	private InvitedEvent[] waintingInvatation;
 	private String[] waintingInvatationList;
 	protected InvitedEvent confirmedEvent;
+	private int eventDayBeforeEdit;
 	
 	/** 
 	 * Called when the activity is first created. 
@@ -229,9 +230,9 @@ public class CalendarView extends Activity implements OnClickListener
 				else {
 					String updateEventStr = b.getString("updatedEvent");
 					Event updatedEvent = Event.CreateFromString(updateEventStr);
-					if(updatedEvent.getMonth() != month) // month has been change should remove from display
-					{
-						deleteEventFromUI(updatedEvent);
+					deleteEventFromUI(updatedEvent);
+					if(updatedEvent.getMonth() == month && updatedEvent.getYear() == year) {
+						addNewEventToUI(updatedEvent);
 					}
 					
 				}
@@ -333,6 +334,7 @@ public class CalendarView extends Activity implements OnClickListener
 			case EDIT:
 					try {
 						alarmsManager.updateStart(pressedEvent);
+						dayOfMonthAdapter.removeEventFromMonth(pressedEvent);
 						changeToEventView("editEvent", pressedEvent.encodeToString());
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -821,7 +823,10 @@ public class CalendarView extends Activity implements OnClickListener
 		public void removeEventFromMonth(Event event) 
 		{
 			List<Event> dayEvents = eventsPerMonthMap.get(String.valueOf(event.getDay()));
-			dayEvents.remove(event);
+			if(dayEvents != null) {
+				dayEvents.remove(event);				
+			}
+
 		}
 
 		public void addEventToMonth(Event newEvent) 
