@@ -19,6 +19,7 @@ import clock.exceptions.OutOfTimeException;
 import clock.sched.R;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -78,6 +79,71 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	    
 	}
 	
+	private class TrySaveInBackground extends AsyncTask<Context, Void, String> {
+
+		@Override
+		protected String doInBackground(Context... context)  {
+			String exceptionError = null;
+			   try 
+			   {
+				   if(isInEditMode) {
+					   alarmManager.updateFinish(event, isItemSelectedFromList);
+				   }
+				   else {
+					   alarmManager.newEvent(event, isItemSelectedFromList);				   
+				   }
+				   
+			   } 
+			   catch (IllegalAddressException iae)
+			   {
+				   exceptionError =  "Unknown address";
+			   }
+			   catch (InternetDisconnectedException ide)
+			   {
+				   exceptionError = "Internet disconnected";
+			   }
+			   catch (CantGetLocationException cgle)
+			   {
+				   exceptionError = "Can't get device location";
+			   }
+			   catch (OutOfTimeException e) {
+				   exceptionError = "You Dont have time To get there";
+			   }
+			   catch (EventsCollideException e) {
+				   exceptionError ="You Dont have time To get there!";
+			   }
+			   catch (GoogleWeatherException e) {
+				   exceptionError = "Error with Google Weather";
+			   }
+			   catch (Exception e) 
+			   {
+				   e.printStackTrace();
+				   exceptionError = "Unknown error";
+			   }
+			   finally
+			   {
+				   dialog.dismiss();
+			   }
+			   
+			return exceptionError;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			if(result != null) // errror accuted
+			{
+				Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+			}
+			else
+			{
+			   returnResult();
+			}
+			
+		}
+		
+	}
+	
 	protected Button set_date_btn;
 	protected Button set_time_btn;
 	protected Button add_event_btn;
@@ -93,11 +159,10 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	protected ProgressBar addressProgressBar;
 	
 	protected AsyncTask<String, Void, ArrayList<String>> autoCompleteHelper;
-	protected Timer autoCompleteTimer;
 	protected Context context = this;
 	protected boolean isItemSelectedFromList;
 	protected boolean isInEditMode;
-	private Button sendBtn;
+	private ProgressDialog dialog;
 	
    /** Called when the activity is first created. */
    @Override
@@ -128,7 +193,6 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 	   	alarmManager = new AlarmsManager(this, dbAdapter);
 	   	addressProgressBar = (ProgressBar) this.findViewById(R.id.addressProgressBar);
 	   	addressProgressBar.setVisibility(View.INVISIBLE);
-	   	autoCompleteTimer = new Timer();
 	   	autoCompleteHelper = new AutoCompleteHelper();	 
 	   	isItemSelectedFromList = false;
 	   	isInEditMode = false;
@@ -190,60 +254,19 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
    {
 	   if (v == add_event_btn)
 	   {
+		   autoCompleteHelper.cancel(true);
+		   addressProgressBar.setVisibility(View.INVISIBLE);
+		   dialog = ProgressDialog.show(EventView.this, "", 
+                   "Checking Data. Please wait...", true);
+		   dialog.show();
 		   event.setPropFromViews(date_picker, time_picker, location_text, details_text, alarmOnOffStatus);
-
-		   try 
-		   {
-			   if(isInEditMode) {
-				   alarmManager.updateFinish(event, isItemSelectedFromList);
-			   }
-			   else {
-				   alarmManager.newEvent(event, isItemSelectedFromList);				   
-			   }
-			   
-			   autoCompleteHelper.cancel(true);		   
-			   returnResult();
-		   } 
-		   catch (IllegalAddressException iae)
-		   {
-			   Toast.makeText(this, "Unknown address",Toast.LENGTH_LONG).show();
-		   }
-		   catch (InternetDisconnectedException ide)
-		   {
-			   Toast.makeText(this, "Internet disconnected",Toast.LENGTH_LONG).show();
-		   }
-		   catch (CantGetLocationException cgle)
-		   {
-			   Toast.makeText(this, "Can't get device location",Toast.LENGTH_LONG).show();
-		   }
-		   catch (OutOfTimeException e) {
-			   Toast.makeText(this, "You Dont have time To get there!",Toast.LENGTH_LONG).show();
-		   }
-		   catch (EventsCollideException e) {
-			   Toast.makeText(this, "You Dont have time To get there!",Toast.LENGTH_LONG).show();
-		   }
-		   catch (GoogleWeatherException e) {
-			   Toast.makeText(this, "Error with Google Weather",Toast.LENGTH_LONG).show();
-		   }
-		   catch (Exception e) 
-		   {
-			   e.printStackTrace();
-			   Toast.makeText(this, "Unknown error",Toast.LENGTH_LONG).show();
-		   }	
+		   TrySaveInBackground saveJob = new TrySaveInBackground();
+		   saveJob.execute(this);
 	   }
 	   if(v == set_date_btn || v == set_time_btn)
 	   {
 		   boolean dateVisibility = v == set_date_btn;
 		   setDateTimeBtns(dateVisibility, !dateVisibility);		   
-	   }
-	   if(v == sendBtn)
-	   {
-		   try {
-			   //ParseHandler.sendMsg(details_text.getText().toString());
-		} catch (Exception e) {
-				e.printStackTrace();
-				Toast.makeText(this, "Error with Parse", Toast.LENGTH_LONG).show();
-		}
 	   }
 	   
 	}

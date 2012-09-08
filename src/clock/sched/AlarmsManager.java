@@ -108,9 +108,10 @@ public class AlarmsManager
 	 * @param newEvent - the newEvent Id fields will be updated according to the Id in the DB.
 	 * @param addToDB - if true the event will also be added to the DB,
 	 * 					else only alarm logic will imply (called after updated event saved)
+	 * @param trafficData2 
 	 * @throws Exception 
 	 **/
-	private void newEvent(Event newEvent, boolean isItemSelectedFromList, boolean addToDB) throws Exception
+	private void newEvent(Event newEvent, boolean isItemSelectedFromList, boolean addToDB, TrafficData trafficData) throws Exception
 	{		
 		if (!GoogleAdapter.isInternetConnected(context)) {
 			throw new InternetDisconnectedException();
@@ -120,7 +121,7 @@ public class AlarmsManager
 			throw new IllegalAddressException();
 		}
 		
-		TrafficData trafficData = GoogleAdapter.getTrafficData(context, newEvent, null);
+		trafficData = trafficData == null ? GoogleAdapter.getTrafficData(context, newEvent, null) : trafficData;
 		long durationTime = trafficData.getDuration();
 		if (durationTime < 0) {
 			throw new CantGetLocationException();
@@ -264,9 +265,14 @@ public class AlarmsManager
 		}
 	}
 	
+	public void newEventWithTrafficData(Event newEvent, boolean isItemSelectedFromList, TrafficData trafficData) throws Exception
+	{
+		this.newEvent(newEvent, isItemSelectedFromList, true, trafficData);
+	}
+	
 	public void newEvent(Event newEvent, boolean isItemSelectedFromList) throws Exception
 	{
-		this.newEvent(newEvent, isItemSelectedFromList, true);
+		this.newEvent(newEvent, isItemSelectedFromList, true, null);
 	}
 	
 	public void deleteEvent(Event event) throws Exception
@@ -283,7 +289,7 @@ public class AlarmsManager
 	public void updateFinish(Event event, boolean isItemSelectFromList) throws Exception 
 	{
 		Log.d("ALARM", "on UpdateFinish");
-		this.newEvent(event, isItemSelectFromList, false);
+		this.newEvent(event, isItemSelectFromList, false, null);
 		dbAdapter.updateEvent(event);
 	}
 	

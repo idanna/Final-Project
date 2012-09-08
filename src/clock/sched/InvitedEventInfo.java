@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.drm.DrmStore.Action;
@@ -43,7 +44,7 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 			super.onPreExecute();
 			distanceTextView.setText("Retrieving");
 		}
-
+		
 		/** The system calls this to perform work in a worker thread and
 	      * delivers it the parameters given to AsyncTask.execute() */
 		@Override
@@ -73,6 +74,69 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 	    }
 		
 	}
+
+	private class TrySaveInBackground extends AsyncTask<Context, Void, String> {
+
+		@Override
+		protected String doInBackground(Context... context)  {
+			String exceptionError = null;
+			   try 
+			   {
+					alarmsManager.newEventWithTrafficData(event, true, trafficData); // changes the event id according to the db event table id.
+					dbAdapter.deleteInvitedEvent(invitedId);
+					intent.putExtra("newEventId", String.valueOf(event.getId()));
+			        ParseHandler.confirmEvent(event, userName);			   
+			   } 
+			   catch (IllegalAddressException iae)
+			   {
+				   exceptionError =  "Unknown address";
+			   }
+			   catch (InternetDisconnectedException ide)
+			   {
+				   exceptionError = "Internet disconnected";
+			   }
+			   catch (CantGetLocationException cgle)
+			   {
+				   exceptionError = "Can't get device location";
+			   }
+			   catch (OutOfTimeException e) {
+				   exceptionError = "You Dont have time To get there";
+			   }
+			   catch (EventsCollideException e) {
+				   exceptionError ="You Dont have time To get there!";
+			   }
+			   catch (GoogleWeatherException e) {
+				   exceptionError = "Error with Google Weather";
+			   }
+			   catch (Exception e) 
+			   {
+				   e.printStackTrace();
+				   exceptionError = "Unknown error";
+			   }
+			   finally
+			   {
+				   dialog.dismiss();
+			   }
+			   
+			return exceptionError;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			if(result != null) // errror accuted
+			{
+				Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+			}
+			else
+			{
+				setResult(RESULT_OK, intent);
+				finish();
+			}
+			
+		}
+		
+	}
 	
 	private TextView titleTextView;
 	private TextView whereTextView;
@@ -86,10 +150,16 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 	private InvitedEvent event;
 	private String userName;
 	private TrafficData trafficData;
-
+	private Context context;
+	private Intent intent;
+	private long invitedId;
+	private ProgressDialog dialog;
+	private GoogleAsybJob distanceJob;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		context = this;
 		dbAdapter = new DbAdapter(this);
 		alarmsManager = new AlarmsManager(this, dbAdapter);
 		setContentView(R.layout.invited_event_info);
@@ -111,7 +181,8 @@ public class InvitedEventInfo extends Activity implements OnClickListener
    {
 	   	super.onStart();
 	   	Bundle b = getIntent().getExtras();
-		
+		trafficData = null;
+	   	
 		if (b.containsKey("event"))
 		{
 			event = InvitedEvent.createFromString((b.getString("event")));
@@ -125,7 +196,7 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 
 	private void setFields() {
 		//Set details from event
-		GoogleAsybJob distanceJob = new GoogleAsybJob();
+		distanceJob = new GoogleAsybJob();
 		distanceJob.execute(this);
 		Calendar c = event.toCalendar();
 		titleTextView.setText(event.getSenderUserName() + " invites you to:");
@@ -142,53 +213,22 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 	
 	@Override
 	public void onClick(View v) {
-	   Intent i = this.getIntent();
-	   long invitedId = event.getId();
+		distanceJob.cancel(true);
+		intent = this.getIntent();
+		invitedId = event.getId();
 		if (v == confirmBtn)
 		{
-
-			try {
-				alarmsManager.newEvent(event, true); // changes the event id according to the db event table id.
-				dbAdapter.deleteInvitedEvent(invitedId);
-				i.putExtra("newEventId", String.valueOf(event.getId()));
-		        ParseHandler.confirmEvent(event, userName);
-			}
-			   catch (IllegalAddressException iae)
-			   {
-				   Toast.makeText(this, "Unknown address",Toast.LENGTH_LONG).show();
-			   }
-			   catch (InternetDisconnectedException ide)
-			   {
-				   Toast.makeText(this, "Internet disconnected",Toast.LENGTH_LONG).show();
-			   }
-			   catch (CantGetLocationException cgle)
-			   {
-				   Toast.makeText(this, "Can't get device location",Toast.LENGTH_LONG).show();
-			   }
-			   catch (OutOfTimeException e) {
-				   Toast.makeText(this, "You Dont have time To get there!",Toast.LENGTH_LONG).show();
-			   }
-			   catch (EventsCollideException e) {
-				   Toast.makeText(this, "You Dont have time To get there!",Toast.LENGTH_LONG).show();
-			   }
-			   catch (GoogleWeatherException e) {
-				   Toast.makeText(this, "Error with Google Weather",Toast.LENGTH_LONG).show();
-			   }
-			   catch (Exception e) 
-			   {
-				   e.printStackTrace();
-				   Toast.makeText(this, "Unknown error",Toast.LENGTH_LONG).show();
-			   }	
-		
+			dialog = ProgressDialog.show(InvitedEventInfo.this, "", 
+					"Checking Data. Please wait...", true);
+			dialog.show();
+			TrySaveInBackground saveJob = new TrySaveInBackground();
+			saveJob.execute(this);
 		}
 		if (v == deleteBtn)
 		{
 			dbAdapter.deleteInvitedEvent(invitedId);			
 		}
-		
-	   setResult(RESULT_OK, i);
-	   finish();		
+				
 	}
-
 
 }
