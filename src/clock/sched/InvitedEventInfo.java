@@ -175,9 +175,8 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 		userName = getIntent().getExtras().getString("user_name");
 	}
 	
-
 	@Override
-   protected void onStart()
+	protected void onStart()
    {
 	   	super.onStart();
 	   	Bundle b = getIntent().getExtras();
@@ -220,6 +219,8 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 		{
 			dialog = ProgressDialog.show(InvitedEventInfo.this, "", 
 					"Checking Data. Please wait...", true);
+			dialog.setCancelable(false);
+			dialog.setCanceledOnTouchOutside(false);
 			dialog.show();
 			TrySaveInBackground saveJob = new TrySaveInBackground();
 			saveJob.execute(this);

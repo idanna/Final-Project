@@ -258,6 +258,8 @@ public class EventView extends Activity implements OnClickListener, OnKeyListene
 		   addressProgressBar.setVisibility(View.INVISIBLE);
 		   dialog = ProgressDialog.show(EventView.this, "", 
                    "Checking Data. Please wait...", true);
+		   dialog.setCancelable(false);
+		   dialog.setCanceledOnTouchOutside(false);
 		   dialog.show();
 		   event.setPropFromViews(date_picker, time_picker, location_text, details_text, alarmOnOffStatus);
 		   TrySaveInBackground saveJob = new TrySaveInBackground();
