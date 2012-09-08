@@ -44,7 +44,7 @@ public class Event
 	@Override
 	public String toString() 
 	{
-		return getpadedZeroStr(this.hour) + ":" + getpadedZeroStr(this.min) + " " + this.location + "- " + this.details;
+		return getpadedZeroStr(this.hour) + ":" + getpadedZeroStr(this.min) + " " + this.location /* + "- " + this.details*/ ;
 	}
 	
 	/**
