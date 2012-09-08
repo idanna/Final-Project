@@ -7,16 +7,20 @@
     android:orientation="vertical"
     android1:background="@drawable/bg"
     tools:context=".EventInfo" >
-
+
     <QuickContactBadge
         android1:id="@+id/quickContactBadge1"
         android1:layout_width="wrap_content"
-        android1:layout_height="wrap_content" />
-
+        android1:layout_height="wrap_content"
+        android1:layout_gravity="right"
+        android1:layout_marginRight="30dp"
+        android1:layout_marginTop="10dp" />
+
     <TextView
         android1:id="@+id/inviter_title"
         android1:layout_width="match_parent"
         android1:layout_height="wrap_content"
+        android1:layout_marginTop="20dp"
         android1:text="Large Text"
         android1:textAppearance="?android:attr/textAppearanceLarge" />
 

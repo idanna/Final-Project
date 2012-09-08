@@ -67,7 +67,12 @@
             android:layout_width="308dp"
             android:layout_height="wrap_content"
             android:layout_x="5dp"
-            android:ems="10" />
+            android:ems="10" >
+
+            <requestFocus />
+            <requestFocus />
+
+        </AutoCompleteTextView>
 
         <ProgressBar
             android:id="@+id/addressProgressBar"
