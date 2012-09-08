@@ -112,10 +112,9 @@ public class CalendarView extends Activity implements OnClickListener
 		if(checkAndGetInitData())
 		{
 			setUserNameAndChannel();
-			PushService.subscribe(this, userChannel, InitDataView.class);
-			PushService.subscribe(this, "", InitDataView.class);
-		}
-		
+			PushService.subscribe(this, userChannel, this.getClass());
+			PushService.subscribe(this, "", this.getClass());
+		}		
 	}
 	
 	/*
@@ -263,8 +262,8 @@ public class CalendarView extends Activity implements OnClickListener
 			if(resultCode == RESULT_OK)
 			{
 				setUserNameAndChannel();
-				PushService.subscribe(this, userChannel, InitDataView.class);
-				PushService.subscribe(this, "", InitDataView.class);				
+				PushService.subscribe(this, userChannel, this.getClass());
+				PushService.subscribe(this, "", this.getClass());				
 			}
 			else
 			{

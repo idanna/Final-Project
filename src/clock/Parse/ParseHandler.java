@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.CalendarView;
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.db.InvitedEvent;
@@ -23,6 +24,7 @@ public class ParseHandler extends BroadcastReceiver {
 	  @Override
 	  public void onReceive(Context context, Intent intent) 
 	  {
+		  intent.setClass(context, CalendarView.class);
 		  try {			  				
 				String action = intent.getAction();
 				String channel = intent.getExtras().getString("com.parse.Channel");
@@ -44,12 +46,13 @@ public class ParseHandler extends BroadcastReceiver {
 					db.insertInvitedEvent(invitedEvent);
 					Log.d(TAG, "received action " + action + " on channel " + channel + " with extras:");
 					Log.d(TAG, "Event is:" + invitedEvent.toString());									
-					
 				}
 		  } catch (JSONException e) {
 					Log.d(TAG, "ParseOnRecieve: " + e.getMessage());	
 				}
 	  }
+	  
+	  
 	  
 	/**
 	 * Send an invitation via Parse push server.
