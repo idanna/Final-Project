@@ -743,7 +743,7 @@ public class CalendarView extends Activity implements OnClickListener
 			String theyear = day_color[3];
 			if ((!eventsPerMonthMap.isEmpty()) && (eventsPerMonthMap != null)) 
 			{
-				if (eventsPerMonthMap.containsKey(theday) && day_color[1].equals("WHITE")) 
+				if (eventsPerMonthMap.containsKey(theday) && (day_color[1].equals("WHITE") || day_color[1].equals("RED")))
 				{
 					num_events_per_day = (TextView) row.findViewById(R.id.num_events_per_day);
 //					Log.d("DATE:", theday + ": " + num_events_per_day);
