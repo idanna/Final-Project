@@ -83,13 +83,13 @@
             android1:layout_height="wrap_content"
             android1:layout_weight="0.15"
             android1:text="Confirm" />
-
+
         <Button
             android1:id="@+id/deleteInvitationBtn"
             android1:layout_width="wrap_content"
             android1:layout_height="wrap_content"
             android1:layout_weight="0.16"
-            android1:text="Delete" />
+            android1:text="Ignore" />
 
     </LinearLayout>
 

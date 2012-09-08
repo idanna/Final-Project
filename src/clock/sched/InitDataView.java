@@ -1,13 +1,9 @@
 package clock.sched;
 
-import com.parse.ParsePush;
-import com.parse.PushService;
-
 import clock.Parse.ParseHandler;
 import clock.db.DbAdapter;
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;

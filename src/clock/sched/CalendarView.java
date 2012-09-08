@@ -82,7 +82,7 @@ public class CalendarView extends Activity implements OnClickListener
 	
 	private String userName;
 	private String userChannel;
-	private ImageView inivationBtn;
+	private ImageView invitationBtn;
 	private InvitedEvent[] waintingInvatation;
 	private String[] waintingInvatationList;
 	protected InvitedEvent confirmedEvent;
@@ -147,7 +147,7 @@ public class CalendarView extends Activity implements OnClickListener
 				waintingInvatationList[i] = waintingInvatation[i].toString();
 			}
 
-			inivationBtn.setActivated(true);
+			invitationBtn.setActivated(true);
 			Toast.makeText(this, "Waiting Invitation", Toast.LENGTH_LONG).show();
 		}
 		else
@@ -180,8 +180,8 @@ public class CalendarView extends Activity implements OnClickListener
 		calendarView = (GridView) this.findViewById(R.id.calendar);
 		currentDayEventsList = (ListView) this.findViewById(R.id.eventsList);
 
-		inivationBtn = (ImageView) this.findViewById(R.id.invitations_list_btn);
-		inivationBtn.setOnClickListener(this);
+		invitationBtn = (ImageView) this.findViewById(R.id.invitations_list_btn);
+		invitationBtn.setOnClickListener(this);
 
 		
 	}
@@ -413,7 +413,7 @@ public class CalendarView extends Activity implements OnClickListener
 		{
 			changeToEventView();
 		}
-		if (v == inivationBtn)
+		if (v == invitationBtn)
 		{
 			showInvitedEventDialog();
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
