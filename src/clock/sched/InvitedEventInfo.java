@@ -4,9 +4,11 @@ import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.drm.DrmStore.Action;
 import android.graphics.AvoidXfermode;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,7 +37,43 @@ import clock.outsources.GoogleTrafficHandler.TrafficData;
  */
 public class InvitedEventInfo extends Activity implements OnClickListener
 {
+	private class GoogleAsybJob extends AsyncTask<Context, Void, Boolean> {
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			distanceTextView.setText("Retrieving");
+		}
 
+		/** The system calls this to perform work in a worker thread and
+	      * delivers it the parameters given to AsyncTask.execute() */
+		@Override
+	    protected Boolean doInBackground(Context... context) {
+			Log.d("GoogleAsync", "backgournd starts");
+			boolean allGood = true;
+			try {
+				trafficData = GoogleAdapter.getTrafficData(context[0], event, null);
+			} 
+			catch (Exception e) {
+				allGood = false;
+			}
+			return allGood;
+		}
+	    
+	    /** The system calls this to perform work in the UI thread and delivers
+	      * the result from doInBackground() */
+		@Override
+	    protected void onPostExecute(Boolean allGood) {
+			Log.d("GoogleAsync", "onPostExecute");
+			if(allGood) {
+				setDistanceField();
+			}
+			else {
+				distanceTextView.setText("No Info");
+			}
+	    }
+		
+	}
+	
 	private TextView titleTextView;
 	private TextView whereTextView;
 	private TextView distanceTextView;
@@ -47,6 +85,7 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 	private AlarmsManager alarmsManager;
 	private InvitedEvent event;
 	private String userName;
+	private TrafficData trafficData;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +105,7 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 		userName = getIntent().getExtras().getString("user_name");
 	}
 	
+
 	@Override
    protected void onStart()
    {
@@ -85,16 +125,8 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 
 	private void setFields() {
 		//Set details from event
-		TrafficData trafficData;
-		try {
-			trafficData = GoogleAdapter.getTrafficData(this, event, null);
-			float distance = trafficData.getDistance() / 1000;
-			distanceTextView.setText(String.valueOf(distance) + " km from here.");
-		} catch (Exception e) {
-			Toast.makeText(this, "Couldn't get distance", Toast.LENGTH_LONG).show();
-			e.printStackTrace();
-		}
-		
+		GoogleAsybJob distanceJob = new GoogleAsybJob();
+		distanceJob.execute(this);
 		Calendar c = event.toCalendar();
 		titleTextView.setText(event.getSenderUserName() + " invites you to:");
 		whereTextView.setText(event.getLocation());
@@ -102,6 +134,12 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 		detailsTextView.setText(event.getDetails());
 	}
 
+	private void setDistanceField() 
+	{
+		float distance = trafficData.getDistance() / 1000;
+		distanceTextView.setText(String.valueOf(distance) + " km from here.");
+	}
+	
 	@Override
 	public void onClick(View v) {
 	   Intent i = this.getIntent();
