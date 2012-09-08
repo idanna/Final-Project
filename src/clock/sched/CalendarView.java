@@ -744,7 +744,7 @@ public class CalendarView extends Activity implements OnClickListener
 			String theyear = day_color[3];
 			if ((!eventsPerMonthMap.isEmpty()) && (eventsPerMonthMap != null)) 
 			{
-				if (eventsPerMonthMap.containsKey(theday)) 
+				if (eventsPerMonthMap.containsKey(theday) && day_color[1].equals("WHITE")) 
 				{
 					num_events_per_day = (TextView) row.findViewById(R.id.num_events_per_day);
 //					Log.d("DATE:", theday + ": " + num_events_per_day);
@@ -779,10 +779,14 @@ public class CalendarView extends Activity implements OnClickListener
 		{
 			selectedDateString = (String) view.getTag();
 			selectedDayMonthYearButton.setText("Selected: " + selectedDateString);
-			String day = selectedDateString.split("-")[0];
-			
+			String[] dateSplited = selectedDateString.split("-");
+			String day = dateSplited[0];
+			int choosedMonth = Integer.parseInt(dateSplited[1]);
+			List<Event> eventsForDay = null;
 			ArrayAdapter<Event> adapter = new ArrayAdapter<Event>(_context, android.R.layout.simple_list_item_1);
-			List<Event> eventsForDay = eventsPerMonthMap.get(day);
+			if (choosedMonth == month) {
+				eventsForDay = eventsPerMonthMap.get(day);				
+			}
 			
 			//TODO: what do we want to display ? 
 			// this is only for keeping the flow
@@ -793,15 +797,6 @@ public class CalendarView extends Activity implements OnClickListener
 			
 			adapter.notifyDataSetChanged();
 			eventsList.setAdapter(adapter);
-			
-			try {
-				Date parsedDate = dateFormatter.parse(selectedDateString);
-//				Log.d(tag, "Parsed Date: " + parsedDate.toString());
-
-			} 
-			catch (ParseException e) {
-				e.printStackTrace();
-			}
 		}
 
 		public int getCurrentDayOfMonth() {
