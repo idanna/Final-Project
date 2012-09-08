@@ -1,6 +1,8 @@
 package clock.sched;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import clock.Parse.ParseHandler;
@@ -9,19 +11,82 @@ import clock.db.Event;
 import clock.db.InvitedEvent;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 import clock.outsources.dependencies.WeatherModel;
+import android.R.bool;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class EventInfo extends Activity implements OnClickListener{
+	
+	public WeatherModel weatherModel;
+	public TrafficData trafficData;
+
+	private class GoogleAsybJob extends AsyncTask<Context, Void, Boolean> {
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			setFieldsAsRetrieving();
+		}
+
+		/** The system calls this to perform work in a worker thread and
+	      * delivers it the parameters given to AsyncTask.execute() */
+		@Override
+	    protected Boolean doInBackground(Context... context) {
+			Log.d("GoogleAsync", "backgournd starts");
+			boolean allGood = true;
+			try
+			{
+				trafficData = GoogleAdapter.getTrafficData(context[0], event, null);
+			}
+			catch (Exception e) {
+				Log.e("EventInfo", "While trying to set traffic fields: " + e.getMessage());
+				allGood = false;
+			}
+			try
+			{
+				weatherModel = GoogleAdapter.getWeatherModel(event.getLocation());
+			}
+			catch (Exception e)
+			{
+				Log.e("EventInfo", "While trying to set weather fields: " + e.getMessage());
+				allGood = false;
+			}
+			Log.d("GoogleAsync", "backgournd ends");
+			
+			return allGood;
+		}
+	    
+	    /** The system calls this to perform work in the UI thread and delivers
+	      * the result from doInBackground() */
+		@Override
+	    protected void onPostExecute(Boolean allGood) {
+			Log.d("GoogleAsync", "onPostExecute");
+			if(allGood)
+			{
+				setWeatherInfo();
+				setTrafficInfo();
+				
+			}
+			else
+			{
+				setTrafficFieldsTo(NO_INFO);
+				setWeatherFieldsTo(NO_INFO);
+			}
+	    }
+		
+	}
+	
 	
 	private Event event;
 	private TextView detailsTextView;
@@ -34,7 +99,9 @@ public class EventInfo extends Activity implements OnClickListener{
 	private TextView windTextView;
 	private ImageView confListBtn;
 	private String[] eventConfirmersList;
+	private GoogleAsybJob asyncFieldsUpdate;
 	private static final String NO_INFO = "No Info";
+	private static final String RETRIEVING = "retreiving";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,14 +129,22 @@ public class EventInfo extends Activity implements OnClickListener{
 		{
 			event = Event.CreateFromString(b.getString("event"));
 			setFields(event);
+			Log.d("GoogleAsync", "AFTER SET FIELDS");
 		}
 		else
 		{
 			Log.e("Info","Can't get event details");
-			setTrafficFieldsToNone();
+			setTrafficFieldsTo(NO_INFO);
+			setWeatherFieldsTo(NO_INFO);
 		}
    }
 	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		asyncFieldsUpdate.cancel(true);
+	}
+
 	@Override
 	public void onClick(View v) {
 		if(v == confListBtn) {
@@ -99,50 +174,42 @@ public class EventInfo extends Activity implements OnClickListener{
 		long timesLeftToEvent = event.getTimesLeftToEvent();
 		if (timesLeftToEvent > 0)
 		{
-			String timeLeftStr = String.format("%d hrs, %d min", 
-				    TimeUnit.MILLISECONDS.toHours(timesLeftToEvent),
-				    TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent) - 
-				    TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(timesLeftToEvent)));
+			String timeLeftStr = String.format("%d day, %d hrs, %d min",
+					TimeUnit.MILLISECONDS.toDays(timesLeftToEvent),
+				    (TimeUnit.MILLISECONDS.toHours(timesLeftToEvent) % 24),
+				    (TimeUnit.MILLISECONDS.toMinutes(timesLeftToEvent) % 60));
 			timesLeftTextView.setText(timeLeftStr);
 		}
 		else
 		{
 			timesLeftTextView.setText("Event has passed");
 		}
-		try
-		{
-			setTrafficInfo(event);
-		}
-		catch (Exception e) {
-			Log.e("EventInfo", "While trying to set traffic fields: " + e.getMessage());
-			setTrafficFieldsToNone();
-		}
 		
-		try
-		{
-			setWeatherInfo(event);
-		}
-		catch (Exception e)
-		{
-			Log.e("EventInfo", "While trying to set weather fields: " + e.getMessage());
-			setWeatherFieldsToNone();
-		}
+		asyncFieldsUpdate = new GoogleAsybJob();
+		asyncFieldsUpdate.execute(this);
 	}
 
-	private void setTrafficFieldsToNone() {
-		durationTextView.setText("Duration - " + NO_INFO);
-		distanceTextView.setText("Distance - " + NO_INFO);
+	private void setTrafficFieldsTo(String value) {
+		durationTextView.setText("Duration - " + value);
+		distanceTextView.setText("Distance - " + value);
 	}
 	
-	private void setWeatherFieldsToNone() {
-		conditionTextView.setText("Condition - " + NO_INFO);
-		temperatureTextView.setText("Temperature - " + NO_INFO);
-		humidityTextView.setText("Humidity - " + NO_INFO);
-		windTextView.setText("Wind - " + NO_INFO);	
+	private void setWeatherFieldsTo(String value) {
+		conditionTextView.setText("Condition - " + value);
+		temperatureTextView.setText("Temperature - " + value);
+		humidityTextView.setText("Humidity - " + value);
+		windTextView.setText("Wind - " + value);	
 	}
 
-	private void setWeatherInfo(Event event) throws Exception {
-		WeatherModel weatherModel = GoogleAdapter.getWeatherModel(event.getLocation());
+	public void setFieldsAsRetrieving()
+	{
+		setTrafficFieldsTo(RETRIEVING);
+		setWeatherFieldsTo(RETRIEVING);
+	}
+
+	
+	
+	private void setWeatherInfo() {
 		conditionTextView.setText("Condition - " 
 				+ (weatherModel.getCondition() == null?  NO_INFO : weatherModel.getCondition()));
 		
@@ -156,8 +223,7 @@ public class EventInfo extends Activity implements OnClickListener{
 				+ (weatherModel.getWind() == null?  NO_INFO : weatherModel.getWind()));
 	}
 
-	private void setTrafficInfo(Event event) throws Exception {
-		TrafficData trafficData = GoogleAdapter.getTrafficData(this, event, null);
+	private void setTrafficInfo() {
 		long duration = trafficData.getDuration();
 		String durationStr;
 		String distanceStr;
