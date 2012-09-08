@@ -87,6 +87,7 @@ public class CalendarView extends Activity implements OnClickListener
 	private String[] waintingInvatationList;
 	protected InvitedEvent confirmedEvent;
 	private int eventDayBeforeEdit;
+	private Event inEditEvent;
 	
 	/** 
 	 * Called when the activity is first created. 
@@ -213,7 +214,6 @@ public class CalendarView extends Activity implements OnClickListener
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) 
 	{
-		Log.d("RES", "HERE");
 		super.onActivityResult(requestCode, resultCode, data);
 		// new event should be passed
 		if(requestCode == NEW_EVENT)
@@ -230,7 +230,7 @@ public class CalendarView extends Activity implements OnClickListener
 				else {
 					String updateEventStr = b.getString("updatedEvent");
 					Event updatedEvent = Event.CreateFromString(updateEventStr);
-					deleteEventFromUI(updatedEvent);
+					deleteEventFromUI(inEditEvent);
 					if(updatedEvent.getMonth() == month && updatedEvent.getYear() == year) {
 						addNewEventToUI(updatedEvent);
 					}
@@ -334,7 +334,7 @@ public class CalendarView extends Activity implements OnClickListener
 			case EDIT:
 					try {
 						alarmsManager.updateStart(pressedEvent);
-						dayOfMonthAdapter.removeEventFromMonth(pressedEvent);
+						inEditEvent = pressedEvent;
 						changeToEventView("editEvent", pressedEvent.encodeToString());
 					} catch (Exception e) {
 						e.printStackTrace();

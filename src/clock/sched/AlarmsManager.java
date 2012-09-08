@@ -283,8 +283,8 @@ public class AlarmsManager
 	public void updateFinish(Event event, boolean isItemSelectFromList) throws Exception 
 	{
 		Log.d("ALARM", "on UpdateFinish");
-		dbAdapter.updateEvent(event);
 		this.newEvent(event, isItemSelectFromList, false);
+		dbAdapter.updateEvent(event);
 	}
 	
 }
