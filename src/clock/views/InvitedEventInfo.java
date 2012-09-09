@@ -196,14 +196,14 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 		Calendar c = event.toCalendar();
 		titleTextView.setText(event.getSenderUserName() + " invites you to:");
 		whereTextView.setText(event.getLocation());
-		whenTextView.setText(c.getTime().toString());
+		whenTextView.setText("On " + c.getTime().toString());
 		detailsTextView.setText(event.getDetails());
 	}
 
 	private void setDistanceField() 
 	{
 		float distance = trafficData.getDistance() / 1000;
-		distanceTextView.setText(String.valueOf(distance) + " km from here.");
+		distanceTextView.setText("Which is " + String.valueOf(distance) + " km from here.");
 	}
 	
 	@Override
