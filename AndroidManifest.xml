@@ -15,17 +15,17 @@
      
       
    	 <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:name=".CalendarView"
+        <activity android:name="clock.views.CalendarView"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="clock.sched.EventView"></activity>
-        <activity android:name="clock.sched.EventInfo"></activity>
-        <activity android:name="clock.sched.InvitedEventInfo"></activity>
-        <activity android:name="clock.sched.InitDataView"></activity>
+        <activity android:name="clock.views.EventView"></activity>
+        <activity android:name="clock.views.EventInfo"></activity>
+        <activity android:name="clock.views.InvitedEventInfo"></activity>
+        <activity android:name="clock.views.InitDataView"></activity>
 		<receiver  android:process=":remote" android:name=".ClockHandler"></receiver>
 
 		<service android:name="com.parse.PushService" />
