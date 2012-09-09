@@ -9,8 +9,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.CalendarView;
 import clock.db.DbAdapter;
-import clock.db.Event;
 import clock.db.InvitedEvent;
+import clock.views.InitDataView;
 
 import com.parse.ParsePush;
 
@@ -18,6 +18,7 @@ public class ParseHandler extends BroadcastReceiver {
 	
 	public final static String CONFIRM = "confirm";
 	public final static String INVITE = "invitation";
+	public final static String IGNORE = "ignore";
 	
 	private static final String TAG = "ParseHandler";
 
@@ -38,7 +39,6 @@ public class ParseHandler extends BroadcastReceiver {
 					String confirmerName = dataParsed[1];
 					int confirmEventId = Integer.parseInt(dataParsed[2]);
 					db.addConfirmerNameToEvent(confirmEventId, confirmerName);
-					//TODO: for now only notifing
 				} else if (pushType.equals(INVITE))
 				{
 					String senderChannel = dataParsed[1];
@@ -46,7 +46,11 @@ public class ParseHandler extends BroadcastReceiver {
 					db.insertInvitedEvent(invitedEvent);
 					Log.d(TAG, "received action " + action + " on channel " + channel + " with extras:");
 					Log.d(TAG, "Event is:" + invitedEvent.toString());									
+				} else if(pushType.equals(INVITE))
+				{
+					//TODO: other user ignores.
 				}
+				
 		  } catch (JSONException e) {
 					Log.d(TAG, "ParseOnRecieve: " + e.getMessage());	
 				}
@@ -62,33 +66,16 @@ public class ParseHandler extends BroadcastReceiver {
 	 * @param channelToSend - channel to send. DO NOT send a phone number, call ParseHandler.numberToChannelHash(phoneNumber) and then send.
 	 */
 	public static void sendInvitation(InvitedEvent invitedEvent, String channelToSend) {
-		ParsePush push = new ParsePush();
-		push.setChannel(channelToSend);
-		try {
-			push.setData(new JSONObject("{\"alert\": \"" + invitedEvent.getSenderUserName() + " wants to meet with you!\", \"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
-											INVITE + "@S@" + invitedEvent.getChannel() + "@S@" + invitedEvent.encodeToString() + "\"}"));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		sendMsgFromParams(channelToSend, invitedEvent.getSenderUserName() + " wants to meet with you!", 
+							INVITE + "@S@" + invitedEvent.getChannel() + "@S@" + invitedEvent.encodeToString());
 		Log.d(TAG, "sending-invitation");
-		push.sendInBackground();
 	}
 
 	public static void confirmEvent(InvitedEvent invitedEvent, String userName) {
 		
-		ParsePush push = new ParsePush();
-		push.setChannel(invitedEvent.getChannel());
-		try {
-			push.setData(new JSONObject("{\"alert\": \"" + userName + " confirms your event!\", \"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
-											CONFIRM + "@S@" + userName + "@S@" + invitedEvent.getOriginalId() + "\"}"));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Log.d(TAG, "sending-confirm with user name: " + userName);
-		push.sendInBackground();
-		
+		sendMsgFromParams(invitedEvent.getChannel(), userName + " confirms your event!", 
+							CONFIRM + "@S@" + userName + "@S@" + invitedEvent.getOriginalId());
+		Log.d(TAG, "sending-confirm with user name: " + userName);		
 	}
 	
 	public static String numberToChannelHash(String phoneNumber) 
@@ -102,6 +89,28 @@ public class ParseHandler extends BroadcastReceiver {
 		
 		Log.d("ChannelHash: ", channelHash);
 		return channelHash;
+	}
+
+	public static void ignoreEvent(InvitedEvent invitedEvent, String userName) {
+		sendMsgFromParams(invitedEvent.getChannel(), userName + " wont come.", 
+				IGNORE + "@S@" + userName + "@S@" + invitedEvent.getOriginalId());
+		
+	}
+	
+	private static void sendMsgFromParams(String channel, String msg, String data)
+	{
+		ParsePush push = new ParsePush();
+		push.setChannel(channel);
+		try {
+			push.setData(new JSONObject("{\"alert\": \"" + msg + "\", \"action\": \"clock.Parse.ParseHandler\", \"data\": \"" + 
+											data + "\"}"));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		push.sendInBackground();
+		
 	}
 
 }

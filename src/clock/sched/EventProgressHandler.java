@@ -13,6 +13,7 @@ import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 import clock.outsources.dependencies.WeatherModel;
+import clock.views.R;
 
 public class EventProgressHandler{
 	

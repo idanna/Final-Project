@@ -2,11 +2,6 @@ package clock.views;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
-
-
-import clock.Parse.ParseHandler;
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.exceptions.CantGetLocationException;
@@ -18,10 +13,6 @@ import clock.exceptions.OutOfTimeException;
 
 import clock.sched.AlarmsManager;
 import clock.sched.GoogleAdapter;
-import clock.sched.R;
-import clock.sched.R.drawable;
-import clock.sched.R.id;
-import clock.sched.R.layout;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -29,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;

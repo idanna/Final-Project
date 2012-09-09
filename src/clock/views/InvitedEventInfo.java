@@ -1,14 +1,10 @@
 package clock.views;
 
 import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.drm.DrmStore.Action;
-import android.graphics.AvoidXfermode;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import clock.Parse.ParseHandler;
 import clock.db.DbAdapter;
-import clock.db.Event;
 import clock.db.InvitedEvent;
 import clock.exceptions.CantGetLocationException;
 import clock.exceptions.EventsCollideException;
@@ -30,10 +25,6 @@ import clock.exceptions.OutOfTimeException;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 import clock.sched.AlarmsManager;
 import clock.sched.GoogleAdapter;
-import clock.sched.R;
-import clock.sched.R.id;
-import clock.sched.R.layout;
-
 /**
  * Screen which shows invited event info.
  * If user select one of the confirm/delte reutrn result OK and extra
@@ -232,7 +223,9 @@ public class InvitedEventInfo extends Activity implements OnClickListener
 		}
 		if (v == deleteBtn)
 		{
-			dbAdapter.deleteInvitedEvent(invitedId);			
+			dbAdapter.deleteInvitedEvent(invitedId);
+			ParseHandler.ignoreEvent(event, userName);
+			finish();
 		}
 				
 	}

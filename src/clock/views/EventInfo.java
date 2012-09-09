@@ -7,7 +7,6 @@ import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
 import clock.outsources.dependencies.WeatherModel;
 import clock.sched.GoogleAdapter;
-import clock.sched.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;

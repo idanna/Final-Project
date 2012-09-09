@@ -26,13 +26,6 @@ public class DbAdapter
 {
 	private SQLiteDatabase database;
 	private Connection connection;
-	private String[] allColumns = { Connection.COLUMN_ID,
-									Connection.COLUMN_DATE,
-									Connection.COLUMN_LOCATION,
-									Connection.COLUMN_DETAILS,
-									Connection.COLUMN_ALARM,
-									Connection.COLUMN_NOTIFIED,
-									Connection.COLUMN_WAKEDUP};
 	
 	public DbAdapter(Context context) 
 	{

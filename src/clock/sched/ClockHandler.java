@@ -6,13 +6,11 @@ import java.util.concurrent.TimeUnit;
 import clock.db.DbAdapter;
 import clock.db.Event;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
-import clock.outsources.GoogleWeatherHandler;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioRecord.OnRecordPositionUpdateListener;
 import android.text.format.Time;
 import android.util.Log;
 

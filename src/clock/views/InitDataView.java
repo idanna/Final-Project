@@ -2,9 +2,6 @@ package clock.views;
 
 import clock.Parse.ParseHandler;
 import clock.db.DbAdapter;
-import clock.sched.R;
-import clock.sched.R.id;
-import clock.sched.R.layout;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;

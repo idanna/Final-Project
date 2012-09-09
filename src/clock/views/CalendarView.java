@@ -1,9 +1,7 @@
 package clock.views;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -42,10 +40,6 @@ import clock.db.Event;
 import clock.db.InvitedEvent;
 import clock.sched.AlarmsManager;
 import clock.sched.LocationHandler;
-import clock.sched.R;
-import clock.sched.R.color;
-import clock.sched.R.id;
-import clock.sched.R.layout;
 
 import com.parse.Parse;
 import com.parse.PushService;
