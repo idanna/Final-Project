@@ -1,4 +1,4 @@
-package clock.views;
+package clock.sched;
 
 import java.util.Calendar;
 import android.app.Activity;
@@ -23,8 +23,9 @@ import clock.exceptions.IllegalAddressException;
 import clock.exceptions.InternetDisconnectedException;
 import clock.exceptions.OutOfTimeException;
 import clock.outsources.GoogleTrafficHandler.TrafficData;
-import clock.sched.AlarmsManager;
-import clock.sched.GoogleAdapter;
+import clock.views.R;
+import clock.views.R.id;
+import clock.views.R.layout;
 /**
  * Screen which shows invited event info.
  * If user select one of the confirm/delte reutrn result OK and extra

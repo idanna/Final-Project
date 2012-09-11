@@ -10,7 +10,7 @@ import android.util.Log;
 import android.widget.CalendarView;
 import clock.db.DbAdapter;
 import clock.db.InvitedEvent;
-import clock.views.InitDataView;
+import clock.sched.InitDataView;
 
 import com.parse.ParsePush;
 
@@ -25,7 +25,6 @@ public class ParseHandler extends BroadcastReceiver {
 	  @Override
 	  public void onReceive(Context context, Intent intent) 
 	  {
-		  intent.setClass(context, CalendarView.class);
 		  try {			  				
 				String action = intent.getAction();
 				String channel = intent.getExtras().getString("com.parse.Channel");
